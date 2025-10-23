@@ -4,7 +4,7 @@ const { Orders, Customer } = require("../models");
 const createOrder = async (req, res) => {
   try {
     const {
-      customerId,
+      customer_id,
       order_item,
       quantity,
       price,
@@ -17,14 +17,14 @@ const createOrder = async (req, res) => {
     console.log("Incoming order body:", req.body);
 
     // Ensure the customer exists
-    const customer = await Customer.findByPk(customerId);
+    const customer = await Customer.findByPk(customer_id);
     if (!customer) {
       return res.status(404).json({ error: "Customer not found" });
     }
 
     // Create the order with required fields
     const newOrder = await Orders.create({
-      customer_id: customerId,
+      customer_id: customer_id,
       order_item,
       quantity,
       price,
@@ -75,7 +75,7 @@ const updateOrder = async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      customerId,
+      customer_id,
       order_item,
       quantity,
       price,
@@ -87,11 +87,11 @@ const updateOrder = async (req, res) => {
     const order = await Orders.findByPk(id);
     if (!order) return res.status(404).json({ error: "Order not found" });
 
-    if (customerId) {
-      const customer = await Customer.findByPk(customerId);
+    if (customer_id) {
+      const customer = await Customer.findByPk(customer_id);
       if (!customer)
         return res.status(404).json({ error: "Customer not found" });
-      order.customer_id = customerId;
+      order.customer_id = customer_id;
     }
 
     // Update fields if provided
@@ -126,10 +126,24 @@ const deleteOrder = async (req, res) => {
   }
 };
 
+const getUnattendedOrders = async (req, res) => {
+  try {
+    const unattendedOrders = await Orders.findAll({
+      where: { status: "unattended" },
+      include: [{ model: Customer, as: "customer" }]
+    });
+    res.status(200).json(unattendedOrders);
+  } catch (error) {
+    console.error("Error fetching unattended orders:", error);
+    res.status(500).json({ message: "Error fetching unattended orders" });
+  }
+};
+
 module.exports = {
   createOrder,
   getAllOrders,
   getOrderById,
   updateOrder,
   deleteOrder,
+  getUnattendedOrders,
 };

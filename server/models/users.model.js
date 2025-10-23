@@ -9,9 +9,13 @@ module.exports = (sequelize, DataTypes) => {
     email: DataTypes.STRING,
     password: DataTypes.STRING,
     role: DataTypes.STRING,
-    status: DataTypes.STRING
+    status: DataTypes.STRING,
+    is_approved: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true  // auto-approve by default
+    }
   }, {
-    tableName: 'users',   // exact table name
+    tableName: 'users',
     timestamps: true
   });
 

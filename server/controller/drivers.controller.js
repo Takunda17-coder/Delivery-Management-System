@@ -108,7 +108,7 @@ exports.getAllDrivers = async (_req, res) => {
         {
           model: Users,
           as: "user",
-          attributes: ["id", "name", "email", "role", "status"], // hide password
+          attributes: ["user_id", "name", "email", "role", "status"], // hide password
         },
       ],
     });
@@ -130,7 +130,7 @@ exports.getDriverById = async (req, res) => {
         {
           model: Users,
           as: "user",
-          attributes: ["id", "name", "email", "role", "status"],
+          attributes: ["user_id", "name", "email", "role", "status"],
         },
       ],
     });

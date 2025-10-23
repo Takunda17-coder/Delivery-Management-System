@@ -5,26 +5,32 @@ require("dotenv").config();
 
 exports.register = async (req, res) => {
   try {
-    const { username, password, email, role, status } = req.body;
+    const { name, email, phone, address, password } = req.body;
+
+    if (!name || !email || !phone || !address || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
     // Check if email already exists
-    const existing = await db.User.findOne({ where: { email } });
+    const existing = await db.Users.findOne({ where: { email } });
     if (existing) return res.status(400).json({ message: "Email already registered" });
 
     // Hash password
     const hash = await bcrypt.hash(password, 10);
 
-    // Create user (let DB handle ID auto-gen)
-    const newUser = await db.User.create({
-      username,
-      password: hash, // ✅ save hashed password
+    // Create user
+    const newUser = await db.Users.create({
+      username: name,        // map name → username
       email,
-      role: role || "user", // default role
-      status: status || "active",
-      is_approved: role === "customer" ? true : false // auto-approve customers
+      password: hash,
+      role: "customer",      // auto-assign customer role
+      status: "active",
+      phone,                 // make sure your User model has phone & address columns
+      address,
+      is_approved: true
     });
 
-    res.status(201).json({ message: "User created successfully", user_id: newUser.id });
+    res.status(201).json({ message: "Customer created successfully", user_id: newUser.id });
   } catch (err) {
     console.error("Register error:", err);
     res.status(500).json({ message: err.message });
@@ -34,7 +40,7 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await db.User.findOne({ where: { email } });
+    const user = await db.Users.findOne({ where: { email } });
 
     if (!user) return res.status(404).json({ message: "User not found" });
     if (!user.is_approved) return res.status(403).json({ message: "Awaiting admin approval." });
