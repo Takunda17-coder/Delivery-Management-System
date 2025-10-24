@@ -41,8 +41,8 @@ export default function ManageInvoices() {
 
   return (
     <AdminLayout>
-      <div className="p-6">
-        <h1 className="text-3xl font-bold mb-6">Manage Invoices</h1>
+      <div className="p-2">
+        <h1 className="text-3xl text-gray-900 font-bold mb-6">Manage Invoices</h1>
 
         {/* Invoice Form */}
         <form onSubmit={handleSubmit} className="bg-white text-gray-900 p-6 rounded-lg shadow-md space-y-4">
@@ -150,11 +150,11 @@ export default function ManageInvoices() {
             <thead className="bg-gray-900 text-gray-200">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Invoice ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Delivery</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Order</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Customer</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Driver</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Vehicle</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Delivery ID</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Order ID</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Customer ID</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Driver ID</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Vehicle ID</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Total</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Status</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Issue Date</th>

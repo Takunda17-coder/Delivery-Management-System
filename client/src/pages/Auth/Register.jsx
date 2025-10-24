@@ -14,7 +14,7 @@ export default function Register() {
     confirmPassword: "",
   });
 
-  const [error, setError] = useState("");
+  const [error, setErrorxxxxxX] = useState("");
   const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
@@ -50,7 +50,7 @@ export default function Register() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-blue-50 p-4">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-50 p-4">
       <div className="bg-white shadow-2xl rounded-xl p-8 w-full max-w-md">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-4">
           Create an Account
@@ -71,7 +71,7 @@ export default function Register() {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
             />
           </div>
 
@@ -83,7 +83,7 @@ export default function Register() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
             />
           </div>
 
@@ -95,7 +95,7 @@ export default function Register() {
               value={formData.phone}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
             />
           </div>
 
@@ -107,7 +107,7 @@ export default function Register() {
               value={formData.address}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
             />
           </div>
 
@@ -119,7 +119,7 @@ export default function Register() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
             />
           </div>
 
@@ -131,13 +131,13 @@ export default function Register() {
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200"
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200"
           >
             Register
           </button>
@@ -147,7 +147,7 @@ export default function Register() {
           Already have an account?{" "}
           <span
             onClick={() => navigate("/login")}
-            className="text-blue-600 font-semibold hover:underline cursor-pointer"
+            className="text-gray-600 font-semibold hover:underline cursor-pointer"
           >
             Login
           </span>
