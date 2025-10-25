@@ -1,14 +1,13 @@
-// server/index.js
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
+const dotenv = require("dotenv");
+const sequelize = require("./config/db.config");
+
+dotenv.config();
 
 const app = express();
-
-// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api/users", require("./routes/users.routes"));
@@ -19,12 +18,14 @@ app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/vehicles", require("./routes/vehicles.routes"));
 app.use("/api/delivery", require("./routes/delivery.routes"));
 app.use("/api/invoice", require("./routes/invoice.routes"));
-
-// Health check route
 app.get("/", (req, res) => {
-  res.json({ message: "🚀 Delivery & Fleet API is running!" });
+  res.status(200).json({ message: "🚀 API is running!" });
 });
 
-// ❌ REMOVE app.listen()
-// ✅ Just export app
+// ✅ Test DB connection (non-fatal)
+sequelize
+  .authenticate()
+  .then(() => console.log("✅ Database connected"))
+  .catch((err) => console.error("❌ Database error:", err.message));
+
 module.exports = app;

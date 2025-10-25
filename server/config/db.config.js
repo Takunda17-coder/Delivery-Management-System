@@ -10,16 +10,7 @@ const sequelize = new Sequelize(process.env.DB_URL, {
       rejectUnauthorized: false, // Supabase requires this
     },
   },
-  logging: false, // optional, disables SQL logs
+  logging: false,
 });
-
-(async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("✅ Database connected successfully");
-  } catch (err) {
-    console.error("❌ Database connection failed:", err);
-  }
-})();
 
 module.exports = sequelize;
