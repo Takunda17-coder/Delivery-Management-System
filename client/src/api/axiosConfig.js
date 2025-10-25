@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080/api", // adjust backend URL
+  baseURL: "https://delivery-management-system-lbuv-o194birwp.vercel.app/api", // adjust backend URL
 });
 
 api.interceptors.request.use((config) => {
