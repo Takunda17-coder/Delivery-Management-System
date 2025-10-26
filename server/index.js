@@ -18,6 +18,8 @@ app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/vehicles", require("./routes/vehicles.routes"));
 app.use("/api/delivery", require("./routes/delivery.routes"));
 app.use("/api/invoice", require("./routes/invoice.routes"));
+
+// Root route
 app.get("/", (req, res) => {
   res.status(200).json({ message: "🚀 API is running!" });
 });
@@ -27,5 +29,11 @@ sequelize
   .authenticate()
   .then(() => console.log("✅ Database connected"))
   .catch((err) => console.error("❌ Database error:", err.message));
+
+// Start the server
+// const PORT = process.env.PORT || 8080;
+// app.listen(PORT, () => {
+//   console.log(`✅ Server is running on http://localhost:${PORT}`);
+// });
 
 module.exports = app;
