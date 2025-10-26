@@ -25,8 +25,11 @@ app.get("/", (req, res) => {
 });
 
 // ✅ Try DB connection once, not blocking startup
-sequelize.authenticate()
+sequelize
+  .authenticate()
   .then(() => console.log("✅ Database connected"))
-  .catch(err => console.error("❌ Database error:", err.message));
+  .catch((err) => console.error("❌ Database error:", err.message));
+
+
 
 module.exports = app; // ✅ No app.listen()
