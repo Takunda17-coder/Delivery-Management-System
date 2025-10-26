@@ -1,7 +1,4 @@
-// server/api/index.js
-// /api/index.js
-const app = require("../index"); // path to your Express app
 const serverless = require("serverless-http");
+const app = require("../index"); // path to your main Express app
 
 module.exports = serverless(app);
-
