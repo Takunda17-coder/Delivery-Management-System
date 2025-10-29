@@ -24,12 +24,12 @@ app.get("/", (req, res) => {
   res.status(200).json({ message: "🚀 API is running!" });
 });
 
-// ✅ Try DB connection once, not blocking startup
-sequelize
-  .authenticate()
-  .then(() => console.log("✅ Database connected"))
-  .catch((err) => console.error("❌ Database error:", err.message));
-
-
+// Only for development: test DB connection once
+if (process.env.NODE_ENV !== "production") {
+  sequelize
+    .authenticate()
+    .then(() => console.log("✅ Database connected"))
+    .catch((err) => console.error("❌ Database error:", err.message));
+}
 
 module.exports = app; // ✅ No app.listen()

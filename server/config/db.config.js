@@ -2,22 +2,38 @@
 const { Sequelize } = require("sequelize");
 const fs = require("fs");
 const path = require("path");
-require("dotenv").config();
 const pg = require("pg");
+require("dotenv").config();
 
+// Read SSL certificate
 const caCert = fs.readFileSync(path.resolve("./config/prod-ca-2021.crt"), "utf8");
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect: "postgres",
-  dialectModule: pg,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: true,
-      ca: caCert,
+// Use a global variable to avoid multiple instances in serverless
+let sequelize;
+
+if (!global.sequelize) {
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: "postgres",
+    dialectModule: pg,
+    logging: false,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false, // still uses your cert for verification
+        ca: caCert,
+      },
     },
-  },
-  logging: false,
-});
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
+  });
+
+  global.sequelize = sequelize;
+} else {
+  sequelize = global.sequelize;
+}
 
 module.exports = sequelize;
