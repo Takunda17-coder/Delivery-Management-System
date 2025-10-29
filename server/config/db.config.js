@@ -1,14 +1,21 @@
+// server/config/db.config.js
 const { Sequelize } = require("sequelize");
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 
+const caCert = fs.readFileSync(path.resolve("./config/prod-ca-2021.crt"), "utf8");
+
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect: 'postgres',
-  logging: false,
+  dialect: "postgres",
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false,
+      rejectUnauthorized: true,
+      ca: caCert,
     },
   },
+  logging: false,
 });
+
 module.exports = sequelize;
