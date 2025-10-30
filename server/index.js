@@ -1,11 +1,7 @@
-// server/index.js
 const express = require("express");
 const cors = require("cors");
-const dotenv = require("dotenv");
+require("dotenv").config();
 const sequelize = require("./config/db.config");
-const PORT = process.env.PORT || 4000
-
-dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -21,21 +17,17 @@ app.use("/api/vehicles", require("./routes/vehicles.routes"));
 app.use("/api/delivery", require("./routes/delivery.routes"));
 app.use("/api/invoice", require("./routes/invoice.routes"));
 
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "UP" });
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "🚀 API is running on Render!" });
 });
 
+// DB connect
+sequelize.authenticate()
+  .then(() => console.log("✅ Database connected"))
+  .catch((err) => console.error("❌ Database error:", err.message));
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+// ✅ Only listen if not Vercel (Render requires this)
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
 
-// Only for development: test DB connection once
-if (process.env.NODE_ENV !== "production") {
-  sequelize
-    .authenticate()
-    .then(() => console.log("✅ Database connected"))
-    .catch((err) => console.error("❌ Database error:", err.message));
-}
-
-module.exports = app; // ✅ No app.listen()
+module.exports = app;

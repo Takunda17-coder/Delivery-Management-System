@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: delivery-management-backend
+    env: node
+    plan: starter
+    branch: main
+    buildCommand: "cd server && npm install"
+    startCommand: "cd server && node index.js"
+    envVars:
+      - key: DATABASE_URL
+        fromSecret: SUPABASE_DATABASE_URL
+      - key: PORT
+        value: "10000" # optional, Render will override automatically
