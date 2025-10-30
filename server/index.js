@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const sequelize = require("./config/db.config");
+const PORT = process.env.PORT || 4000
 
 dotenv.config();
 
@@ -22,6 +23,10 @@ app.use("/api/invoice", require("./routes/invoice.routes"));
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "🚀 API is running!" });
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
 
 // Only for development: test DB connection once
