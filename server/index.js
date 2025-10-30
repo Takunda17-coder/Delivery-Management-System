@@ -21,9 +21,10 @@ app.use("/api/vehicles", require("./routes/vehicles.routes"));
 app.use("/api/delivery", require("./routes/delivery.routes"));
 app.use("/api/invoice", require("./routes/invoice.routes"));
 
-app.get("/", (req, res) => {
-  res.status(200).json({ message: "🚀 API is running!" });
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "UP" });
 });
+
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
