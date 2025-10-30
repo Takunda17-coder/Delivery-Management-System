@@ -12,6 +12,7 @@ export default function Register() {
     address: "",
     password: "",
     confirmPassword: "",
+    role: "user",
   });
 
   const [error, setErrorxxxxxX] = useState("");
@@ -38,6 +39,7 @@ export default function Register() {
         phone: formData.phone,
         address: formData.address,
         password: formData.password,
+        role: formData.role,
       });
 
       if (response.status === 201 || response.data.success) {
@@ -45,7 +47,9 @@ export default function Register() {
         setTimeout(() => navigate("/login"), 2000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Try again.");
+      setError(
+        err.response?.data?.message || "Registration failed. Try again."
+      );
     }
   };
 
@@ -59,12 +63,18 @@ export default function Register() {
           Fill in your details to get started
         </p>
 
-        {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
-        {success && <p className="text-green-600 text-sm mb-4 text-center">{success}</p>}
+        {error && (
+          <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+        )}
+        {success && (
+          <p className="text-green-600 text-sm mb-4 text-center">{success}</p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 font-medium mb-1">Full Name</label>
+            <label className="block text-gray-700 font-medium mb-1">
+              Full Name
+            </label>
             <input
               type="text"
               name="name"
@@ -76,7 +86,9 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-1">Email</label>
+            <label className="block text-gray-700 font-medium mb-1">
+              Email
+            </label>
             <input
               type="email"
               name="email"
@@ -88,7 +100,9 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-1">Phone</label>
+            <label className="block text-gray-700 font-medium mb-1">
+              Phone
+            </label>
             <input
               type="tel"
               name="phone"
@@ -100,7 +114,9 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-1">Address</label>
+            <label className="block text-gray-700 font-medium mb-1">
+              Address
+            </label>
             <input
               type="text"
               name="address"
@@ -112,7 +128,9 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-1">Password</label>
+            <label className="block text-gray-700 font-medium mb-1">
+              Password
+            </label>
             <input
               type="password"
               name="password"
@@ -124,7 +142,9 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-1">Confirm Password</label>
+            <label className="block text-gray-700 font-medium mb-1">
+              Confirm Password
+            </label>
             <input
               type="password"
               name="confirmPassword"
@@ -133,6 +153,20 @@ export default function Register() {
               required
               className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
             />
+          </div>
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">Role</label>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+              <option value="manager">Manager</option>
+            </select>
           </div>
 
           <button

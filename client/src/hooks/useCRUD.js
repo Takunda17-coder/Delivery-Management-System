@@ -18,7 +18,7 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`https://delivery-management-system-lbuv-o194birwp.vercel.app/api/${endpoint}`);
+      const res = await axios.get(`https://delivery-management-system-backend-2385.onrender.com/api/${endpoint}`);
       setData(res.data);
     } catch (err) {
       console.error("❌ Fetch error:", err);
@@ -88,9 +88,9 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
       if (!id) delete payload[idField]; // Remove id for new records
 
       if (id) {
-        await axios.put(`https://delivery-management-system-lbuv-o194birwp.vercel.app/api/${endpoint}/${id}`, payload);
+        await axios.put(`https://delivery-management-system-backend-2385.onrender.com/api/${endpoint}/${id}`, payload);
       } else {
-        await axios.post(`https://delivery-management-system-lbuv-o194birwp.vercel.app/api/${endpoint}`, payload);
+        await axios.post(`https://delivery-management-system-backend-2385.onrender.com/api/${endpoint}`, payload);
       }
 
       setForm(defaultForm);
@@ -108,7 +108,7 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this record?")) return;
     try {
-      await axios.delete(`https://delivery-management-system-lbuv-o194birwp.vercel.app/api/${endpoint}/${id}`);
+      await axios.delete(`https://delivery-management-system-backend-2385.onrender.com/api/${endpoint}/${id}`);
       fetchData();
     } catch (err) {
       console.error("❌ Delete error:", err);
