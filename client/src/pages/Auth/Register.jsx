@@ -163,9 +163,9 @@ export default function Register() {
               required
               className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
             >
-              <option value="user">User</option>
+              <option value="user">Customer</option>
               <option value="admin">Admin</option>
-              <option value="manager">Manager</option>
+              <option value="manager">Driver</option>
             </select>
           </div>
 
