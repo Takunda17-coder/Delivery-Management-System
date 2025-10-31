@@ -12,7 +12,7 @@ export default function ManageInvoices() {
       if (!form.delivery_id) return;
 
       try {
-        const res = await axios.get(`http://localhost:8080/api/delivery/${form.delivery_id}`);
+        const res = await axios.get(`https://delivery-management-system-backend-2385.onrender.com/api/delivery/${form.delivery_id}`);
         const delivery = res.data;
 
         if (delivery) {

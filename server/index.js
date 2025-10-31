@@ -5,7 +5,7 @@ const bcrypt = require("bcryptjs");
 const {Users, sequelize} = require("./models"); // ✅ correct import
 
 const app = express();
-app.use(cors());
+
 app.use(express.json());
 app.use(
   cors({
