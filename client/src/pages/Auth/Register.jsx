@@ -12,7 +12,7 @@ export default function Register() {
     address: "",
     password: "",
     confirmPassword: "",
-    role: "user",
+    role: "customer",
   });
 
   const [error, setErrorxxxxxX] = useState("");
@@ -154,24 +154,10 @@ export default function Register() {
               className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
             />
           </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Role</label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
-            >
-              <option value="user">Customer</option>
-              <option value="admin">Admin</option>
-              <option value="manager">Driver</option>
-            </select>
-          </div>
-
+          
           <button
             type="submit"
-            className="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200"
+            className="w-full bg-gray-900 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200"
           >
             Register
           </button>

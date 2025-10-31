@@ -50,8 +50,8 @@ export default function CustomerDashboard() {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="container mx-auto">
-        <div className="bg-blue-400 shadow-lg rounded-lg p-6 mb-8">
-          <h1 className="text-2xl font-bold mb-4">Customer Dashboard</h1>
+        <div className="bg-gray-900 shadow-lg rounded-lg p-6 mb-8">
+          <h1 className="text-2xl text-white font-bold mb-4">Customer Dashboard</h1>
         </div>
 
         {/* Stats Cards */}
