@@ -27,110 +27,187 @@ export default function ManageDrivers() {
   return (
     <div className="w-full min-h-screen">
       <AdminLayout>
-        <h1 className="text-2xl font-bold mb-6 text-gray-900">
-          Manage Drivers
-        </h1>
+        <h1 className="text-2xl font-bold mb-6 text-gray-900">Manage Drivers</h1>
 
         {/* Form */}
         <form
           onSubmit={handleSubmit}
           className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-900"
         >
-          <input
-            placeholder="First Name"
-            value={form.first_name}
-            onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-            className="border p-2 rounded"
-            required
-          />
-          <input
-            placeholder="Last Name"
-            value={form.last_name}
-            onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-            className="border p-2 rounded"
-            required
-          />
-          <input
-            placeholder="Email"
-            type="email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="border p-2 rounded"
-            required
-          />
-          <input
-            placeholder="Password"
-            type="password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className="border p-2 rounded"
-          />
-          <select
-            value={form.sex || "male"}
-            onChange={(e) => setForm({ ...form, sex: e.target.value })}
-            className="border p-2 rounded"
-          >
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-          <input
-            placeholder="Age"
-            type="number"
-            value={form.age}
-            onChange={(e) =>
-              setForm({ ...form, age: parseInt(e.target.value) || "" })
-            }
-            className="border p-2 rounded"
-          />
-          <input
-            placeholder="Phone Number"
-            value={form.phone_number}
-            onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
-            className="border p-2 rounded"
-          />
-          <input
-            placeholder="License Number"
-            value={form.license_number}
-            onChange={(e) => setForm({ ...form, license_number: e.target.value })}
-            className="border p-2 rounded"
-          />
-          <input
-            placeholder="License Qualification"
-            value={form.license_qualification}
-            onChange={(e) =>
-              setForm({ ...form, license_qualification: e.target.value })
-            }
-            className="border p-2 rounded"
-          />
-          <input
-            placeholder="License Expiry"
-            type="date"
-            value={form.license_expiry}
-            onChange={(e) => setForm({ ...form, license_expiry: e.target.value })}
-            className="border p-2 rounded"
-          />
-          <input
-            placeholder="Vehicle Type"
-            value={form.vehicle_type}
-            onChange={(e) => setForm({ ...form, vehicle_type: e.target.value })}
-            className="border p-2 rounded"
-          />
-          <input
-            placeholder="Date Joined"
-            type="date"
-            value={form.date_joined}
-            onChange={(e) => setForm({ ...form, date_joined: e.target.value })}
-            className="border p-2 rounded"
-          />
-          <select
-            value={form.status || "active"}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
-            className="border p-2 rounded"
-          >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+          {/* First Name */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              First Name
+            </label>
+            <input
+              value={form.first_name}
+              onChange={(e) => setForm({ ...form, first_name: e.target.value })}
+              className="border p-2 rounded"
+              required
+            />
+          </div>
+
+          {/* Last Name */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Last Name
+            </label>
+            <input
+              value={form.last_name}
+              onChange={(e) => setForm({ ...form, last_name: e.target.value })}
+              className="border p-2 rounded"
+              required
+            />
+          </div>
+
+          {/* Email */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              className="border p-2 rounded"
+              required
+            />
+          </div>
+
+          {/* Password */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              className="border p-2 rounded"
+            />
+          </div>
+
+          {/* Sex */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Sex
+            </label>
+            <select
+              value={form.sex}
+              onChange={(e) => setForm({ ...form, sex: e.target.value })}
+              className="border p-2 rounded"
+            >
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          {/* Age */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Age
+            </label>
+            <input
+              type="number"
+              value={form.age}
+              onChange={(e) => setForm({ ...form, age: parseInt(e.target.value) || "" })}
+              className="border p-2 rounded"
+            />
+          </div>
+
+          {/* Phone Number */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Phone Number
+            </label>
+            <input
+              value={form.phone_number}
+              onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
+              className="border p-2 rounded"
+            />
+          </div>
+
+          {/* License Number */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              License Number
+            </label>
+            <input
+              value={form.license_number}
+              onChange={(e) => setForm({ ...form, license_number: e.target.value })}
+              className="border p-2 rounded"
+            />
+          </div>
+
+          {/* License Qualification */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              License Qualification
+            </label>
+            <input
+              value={form.license_qualification}
+              onChange={(e) =>
+                setForm({ ...form, license_qualification: e.target.value })
+              }
+              className="border p-2 rounded"
+            />
+          </div>
+
+          {/* License Expiry Date */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              License Expiry Date
+            </label>
+            <input
+              type="date"
+              value={form.license_expiry}
+              onChange={(e) => setForm({ ...form, license_expiry: e.target.value })}
+              className="border p-2 rounded"
+            />
+          </div>
+
+          {/* Vehicle Type */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Vehicle Type
+            </label>
+            <input
+              value={form.vehicle_type}
+              onChange={(e) => setForm({ ...form, vehicle_type: e.target.value })}
+              className="border p-2 rounded"
+            />
+          </div>
+
+          {/* Date Joined */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Date Joined
+            </label>
+            <input
+              type="date"
+              value={form.date_joined}
+              onChange={(e) => setForm({ ...form, date_joined: e.target.value })}
+              className="border p-2 rounded"
+            />
+          </div>
+
+          {/* Status */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <select
+              value={form.status}
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
+              className="border p-2 rounded"
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+
+          {/* Submit Button */}
           <button
             type="submit"
             className="bg-gray-800 text-white px-4 py-2 rounded col-span-1 md:col-span-2"

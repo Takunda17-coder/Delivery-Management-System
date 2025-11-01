@@ -16,9 +16,10 @@ import ManageOrders from "./pages/admin/ManageOrders";
 import ManageInvoices from "./pages/admin/ManageInvoices";
 import ManageDeliveries from "./pages/admin/ManageDeliveries";
 
+
 // Driver
 import DriverDashboard from "./pages/driver/DriverDashboard";
-import Deliveries from "./pages/driver/Deliveries";
+import DriverDeliveries from "./pages/driver/DriverDeliveries";
 
 // Customer
 import CustomerDashboard from "./pages/customers/CustomerDashboard";
@@ -26,6 +27,7 @@ import Orders from "./pages/customers/Orders";
 
 // Not Found
 import NotFound from "./pages/notfound";
+
 
 export default function App() {
   return (
@@ -111,7 +113,7 @@ export default function App() {
             path="/driver/deliveries"
             element={
               <ProtectedRoute allowedRoles={["driver"]}>
-                <Deliveries />
+                <DriverDeliveries />
               </ProtectedRoute>
             }
           />
