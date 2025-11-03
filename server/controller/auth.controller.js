@@ -1,4 +1,4 @@
-const { User, Customer } = require("../models"); // <- add this
+const { User, Customer } = require("./models"); // <- add this
 const bcrypt = require("bcryptjs");             // use bcryptjs instead of bcrypt
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
