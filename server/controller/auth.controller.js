@@ -1,5 +1,4 @@
-// controllers/auth.controller.js
-const { Users, Customer } = require("../models");
+const { Users, Customer } = require("../models"); // singular Customer
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -21,30 +20,33 @@ exports.register = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create User with automatic approval
+    // Create user (auto-approved by default)
     const newUser = await Users.create({
       name,
       email,
+      phone: phone || null,
+      address: address || null,
       password: hashedPassword,
       role,
+      is_approved: true, // ✅ approved by default
       status: "active",
-      is_approved: true, // Automatically approved
     });
 
-    // Create Customer record if role is customer
+    // If the role is customer, create a Customer record
     if (role === "customer") {
-      try {
-        await Customer.create({
-          user_id: newUser.id,       // required
-          email,                     // required
-          phone_number: phone || null,
-          address: address || null,
-          first_name: name || "N/A", // optional default
-          last_name: name || "N/A",  // optional default
-        });
-      } catch (err) {
-        console.error("❌ Customer creation failed, but User was created:", err);
-      }
+      // Split name into first_name and last_name (optional, defaults to empty strings)
+      const nameParts = name.trim().split(" ");
+      const first_name = nameParts[0] || "";
+      const last_name = nameParts.slice(1).join(" ") || "";
+
+      await Customer.create({
+        user_id: newUser.id,
+        email: email,
+        phone_number: phone || null,
+        address: address || null,
+        first_name,
+        last_name,
+      });
     }
 
     res.status(201).json({ success: true, message: "User registered successfully" });
@@ -57,11 +59,11 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const user = await Users.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: "User not found" });
 
-    // No approval check needed
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user.is_approved) return res.status(403).json({ message: "Awaiting admin approval." });
+
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: "Invalid password" });
 
@@ -72,13 +74,15 @@ exports.login = async (req, res) => {
       { expiresIn: "2h" }
     );
 
+    // Update last login timestamp
     await user.update({ last_login: new Date() });
 
+    // Send safe user info
     res.status(200).json({
       token,
       user: {
-        id: user.id,
-        name: user.name,
+        user_id: user.id,
+        username: user.name,
         email: user.email,
         role: user.role,
         status: user.status,
