@@ -4,44 +4,35 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 exports.register = async (req, res) => {
+  const { name, email, password, role, phone, address } = req.body;
+
   try {
-    const { name, email, phone, address, password, role } = req.body;
-
-    if (!name || !email || !password || !role) {
-      return res.status(400).json({ message: "Required fields missing" });
-    }
-
-    // Check if user already exists
+    // Check if email exists
     const existingUser = await Users.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ success: false, message: "Email already exists" });
     }
 
-    // Hash password
+    // Create user
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user (auto-approved by default)
     const newUser = await Users.create({
       name,
       email,
-      phone: phone || null,
-      address: address || null,
       password: hashedPassword,
       role,
-      is_approved: true, // ✅ approved by default
-      status: "active",
+      status: "active",       // auto-approve
+      is_approved: true,      // auto-approve
     });
 
-    // If the role is customer, create a Customer record
+    // If the user is a customer, create corresponding customer record
     if (role === "customer") {
-      // Split name into first_name and last_name (optional, defaults to empty strings)
       const nameParts = name.trim().split(" ");
-      const first_name = nameParts[0] || "";
-      const last_name = nameParts.slice(1).join(" ") || "";
+      const first_name = nameParts[0] || "First";
+      const last_name = nameParts.slice(1).join(" ") || "Last";
 
       await Customer.create({
-        user_id: newUser.id,
-        email: email,
+        user_id: newUser.user_id,  // ✅ must match Users PK
+        email,
         phone_number: phone || null,
         address: address || null,
         first_name,
@@ -49,12 +40,13 @@ exports.register = async (req, res) => {
       });
     }
 
-    res.status(201).json({ success: true, message: "User registered successfully" });
-  } catch (error) {
-    console.error("Register error:", error);
-    res.status(500).json({ message: "Registration failed", error: error.message });
+    res.status(201).json({ success: true, message: "Registration successful!" });
+  } catch (err) {
+    console.error("Register error:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
 
 exports.login = async (req, res) => {
   try {
