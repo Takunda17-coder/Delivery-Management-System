@@ -1,7 +1,8 @@
-const db = require("../models");
-const bcrypt = require("bcrypt");
+const { User, Customer } = require("../models"); // <- add this
+const bcrypt = require("bcryptjs");             // use bcryptjs instead of bcrypt
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+
 
 exports.register = async (req, res) => {
   try {
@@ -30,9 +31,8 @@ exports.register = async (req, res) => {
       role,
     });
 
-    // If the role is customer, create a Customer record
+    // If role is customer, create a Customer record
     if (role === "customer") {
-      // Split name into first_name and last_name
       const nameParts = name.trim().split(" ");
       const first_name = nameParts[0];
       const last_name = nameParts.slice(1).join(" ") || "";
