@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axiosConfig";
+import { useAuth } from "../../context/AuthContext";
 
 export default function DriverDashboard() {
   const [stats, setStats] = useState({
@@ -9,24 +10,20 @@ export default function DriverDashboard() {
     pendingDeliveries: 0,
     vehiclesAssigned: 0,
   });
-
   const [recentDeliveries, setRecentDeliveries] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-  };
-
-  const handleViewAllDeliveries = () => {
-    navigate("/driver/deliveries");
-  };
+  const handleLogout = () => logout(navigate);
 
   useEffect(() => {
     const fetchDriverData = async () => {
       try {
-        const driverId = localStorage.getItem("driver_id");
+        const driverId = user?.id || localStorage.getItem("driver_id");
+        const token = localStorage.getItem("token");
+
         if (!driverId) {
           alert("Driver not logged in!");
           navigate("/login");
@@ -34,8 +31,12 @@ export default function DriverDashboard() {
         }
 
         const [deliveriesRes, vehiclesRes] = await Promise.all([
-          api.get(`/deliveries/driver?driver_id=${driverId}`),
-          api.get(`/vehicles?driver_id=${driverId}`),
+          api.get(`/deliveries/driver?driver_id=${driverId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          api.get(`/vehicles?driver_id=${driverId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
         const allDeliveries = deliveriesRes.data || [];
@@ -59,7 +60,8 @@ export default function DriverDashboard() {
     };
 
     fetchDriverData();
-  }, [navigate]);
+  }, [user, navigate]);
+
 
   if (loading) {
     return <p className="text-center text-gray-600 mt-10">Loading dashboard...</p>;
@@ -78,7 +80,6 @@ export default function DriverDashboard() {
       </nav>
 
       <div className="p-6">
-        {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <StatCard title="Total Deliveries" value={stats.totalDeliveries} />
           <StatCard title="Completed" value={stats.completedDeliveries} />
@@ -86,14 +87,6 @@ export default function DriverDashboard() {
           <StatCard title="Vehicles Assigned" value={stats.vehiclesAssigned} />
         </div>
 
-        <button
-          onClick={handleViewAllDeliveries}
-          className="mb-6 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          View All Deliveries
-        </button>
-
-        {/* Recent Deliveries */}
         <div className="bg-white shadow rounded p-4">
           <h2 className="text-xl font-semibold mb-3 text-gray-800">Recent Deliveries</h2>
           {recentDeliveries.length === 0 ? (
@@ -117,9 +110,10 @@ export default function DriverDashboard() {
                     <td className="py-2">{delivery.dropoff_address}</td>
                     <td className={`py-2 font-semibold ${
                       delivery.status === "completed" ? "text-green-600" :
-                      delivery.status === "on_route" ? "text-yellow-600" :
-                      "text-blue-600"
-                    }`}>{delivery.status}</td>
+                      delivery.status === "on_route" ? "text-yellow-600" : "text-blue-600"
+                    }`}>
+                      {delivery.status}
+                    </td>
                     <td className="py-2">{new Date(delivery.delivery_date).toLocaleDateString()}</td>
                   </tr>
                 ))}
