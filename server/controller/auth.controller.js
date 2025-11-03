@@ -7,60 +7,49 @@ exports.register = async (req, res) => {
   try {
     const { name, email, phone, address, password, role } = req.body;
 
-    if (!name || !email || !phone || !address || !password || !role) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ message: "Required fields missing" });
     }
 
-    if (!["customer", "driver"].includes(role)) {
-      return res.status(400).json({ message: "Role must be 'customer' or 'driver'" });
+    // Check if user already exists
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
     }
-
-    // Check if email already exists
-    const existing = await db.Users.findOne({ where: { email } });
-    if (existing) return res.status(400).json({ message: "Email already registered" });
 
     // Hash password
-    const hash = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const newUser = await db.Users.create({
-      username: name,
+    const newUser = await User.create({
+      name,
       email,
-      password: hash,
-      role,
-      status: "active",
       phone,
       address,
-      is_approved: true,
+      password: hashedPassword,
+      role,
     });
 
-    // Auto-create Customer or Driver entry
+    // If the role is customer, create a Customer record
     if (role === "customer") {
-      await db.Customer.create({
-        user_id: newUser.user_id, // match your Users table PK
-        name,
-        email,
+      // Split name into first_name and last_name
+      const nameParts = name.trim().split(" ");
+      const first_name = nameParts[0];
+      const last_name = nameParts.slice(1).join(" ") || "";
+
+      await Customer.create({
+        user_id: newUser.id,
+        first_name,
+        last_name,
         phone,
         address,
-      });
-    } else if (role === "driver") {
-      await db.Drivers.create({
-        user_id: newUser.user_id,
-        name,
-        email,
-        phone,
-        address,
-        status: "active",
       });
     }
 
-    res.status(201).json({
-      message: `${role.charAt(0).toUpperCase() + role.slice(1)} registered successfully`,
-      user_id: newUser.user_id,
-    });
-  } catch (err) {
-    console.error("Register error:", err);
-    res.status(500).json({ message: err.message });
+    res.status(201).json({ success: true, message: "User registered successfully" });
+  } catch (error) {
+    console.error("Register error:", error);
+    res.status(500).json({ message: "Registration failed", error: error.message });
   }
 };
 

@@ -15,7 +15,7 @@ export default function Register() {
     role: "customer",
   });
 
-  const [error, setErrorxxxxxX] = useState("");
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
