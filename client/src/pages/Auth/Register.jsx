@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../api/axiosConfig";
+import api from "../../api/axiosConfig"; // Axios instance with baseURL
 
 export default function Register() {
   const navigate = useNavigate();
@@ -17,20 +17,27 @@ export default function Register() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
+  // Handle form input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError("");
     setSuccess("");
   };
 
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
 
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
+
+    setLoading(true);
 
     try {
       const response = await api.post("/auth/register", {
@@ -47,9 +54,12 @@ export default function Register() {
         setTimeout(() => navigate("/login"), 2000);
       }
     } catch (err) {
+      // Axios error handling
       setError(
         err.response?.data?.message || "Registration failed. Try again."
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -63,103 +73,73 @@ export default function Register() {
           Fill in your details to get started
         </p>
 
-        {error && (
-          <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
-        )}
-        {success && (
-          <p className="text-green-600 text-sm mb-4 text-center">{success}</p>
-        )}
+        {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
+        {success && <p className="text-green-600 text-sm mb-4 text-center">{success}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Full Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
-            />
-          </div>
+          <input
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
+          />
+          <input
+            type="tel"
+            name="phone"
+            placeholder="Phone Number"
+            value={formData.phone}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
+          />
+          <input
+            type="text"
+            name="address"
+            placeholder="Address"
+            value={formData.address}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
+          />
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
+          />
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Phone
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Address
-            </label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-gray-500 focus:outline-none"
-            />
-          </div>
-          
           <button
             type="submit"
-            className="w-full bg-gray-900 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200"
+            disabled={loading}
+            className={`w-full ${
+              loading ? "bg-gray-400" : "bg-gray-900 hover:bg-gray-700"
+            } text-white font-semibold py-3 rounded-lg transition-colors duration-200`}
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 

@@ -1,19 +1,19 @@
-const { User, Customer } = require("../models"); // <- add this
-const bcrypt = require("bcryptjs");             // use bcryptjs instead of bcrypt
+const { Users, Customer } = require("../models"); // ✅ correct imports
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-
 
 exports.register = async (req, res) => {
   try {
     const { name, email, phone, address, password, role } = req.body;
 
+    // Validate required fields
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: "Required fields missing" });
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUser = await Users.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -22,13 +22,15 @@ exports.register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const newUser = await User.create({
+    const newUser = await Users.create({
       name,
       email,
       phone,
       address,
       password: hashedPassword,
       role,
+      status: "active",
+      is_approved: role === "admin" ? true : false, // auto approve admins, others await approval
     });
 
     // If role is customer, create a Customer record
@@ -56,17 +58,21 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await db.Users.findOne({ where: { email } });
 
+    // Check if user exists
+    const user = await Users.findOne({ where: { email } });
     if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Check approval
     if (!user.is_approved) return res.status(403).json({ message: "Awaiting admin approval." });
 
+    // Compare password
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: "Invalid password" });
 
     // Generate JWT
     const token = jwt.sign(
-      { user_id: user.user_id, role: user.role },
+      { user_id: user.id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "2h" }
     );
@@ -78,8 +84,8 @@ exports.login = async (req, res) => {
     res.status(200).json({
       token,
       user: {
-        user_id: user.user_id,
-        username: user.username,
+        user_id: user.id,
+        name: user.name,
         email: user.email,
         role: user.role,
         status: user.status,
