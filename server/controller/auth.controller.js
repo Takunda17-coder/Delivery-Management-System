@@ -21,32 +21,29 @@ exports.register = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create User
+    // Create User with automatic approval
     const newUser = await Users.create({
       name,
       email,
       password: hashedPassword,
       role,
       status: "active",
-      is_approved: role === "admin" ? true : false,
+      is_approved: true, // Automatically approved
     });
 
-    // Create Customer if role is customer
+    // Create Customer record if role is customer
     if (role === "customer") {
       try {
         await Customer.create({
-          user_id: newUser.id,
-          first_name: name,
-          last_name: name,
-          email,
+          user_id: newUser.id,       // required
+          email,                     // required
           phone_number: phone || null,
           address: address || null,
+          first_name: name || "N/A", // optional default
+          last_name: name || "N/A",  // optional default
         });
       } catch (err) {
-        console.error(
-          "❌ Customer creation failed, but User was created:",
-          err
-        );
+        console.error("❌ Customer creation failed, but User was created:", err);
       }
     }
 
@@ -63,8 +60,8 @@ exports.login = async (req, res) => {
 
     const user = await Users.findOne({ where: { email } });
     if (!user) return res.status(404).json({ message: "User not found" });
-    if (!user.is_approved) return res.status(403).json({ message: "Awaiting admin approval." });
 
+    // No approval check needed
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: "Invalid password" });
 
