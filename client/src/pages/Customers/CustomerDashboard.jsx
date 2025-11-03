@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../../api/axiosConfig";
+import { useAuth } from "../../context/AuthContext";
 
 export default function CustomerDashboard() {
   const [stats, setStats] = useState({
@@ -11,24 +13,29 @@ export default function CustomerDashboard() {
   });
 
   const [recentOrders, setRecentOrders] = useState([]);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const handleLogout = () => logout(navigate);
 
   useEffect(() => {
     const fetchCustomerData = async () => {
       try {
-        // Replace with logged-in customer ID (from auth context/localStorage)
-        const customerId = localStorage.getItem("customer_id");
+        if (!user || !user.id) {
+          console.warn("No customer logged in");
+          return;
+        }
+
+        const customerId = user.id; // ✅ get from auth context
 
         const [ordersRes, invoicesRes, driversRes] = await Promise.all([
           api.get(`/orders?customer_id=${customerId}`),
           api.get(`/invoices?customer_id=${customerId}`),
-          api.get(`/drivers?customer_id=${customerId}`),
+          api.get(`/drivers?customer_id=${customerId}`)
         ]);
 
         const allOrders = ordersRes.data;
-        const completed = allOrders.filter(
-          (o) => o.status === "Completed"
-        ).length;
-        const pending = allOrders.filter((o) => o.status === "Pending").length;
+        const completed = allOrders.filter(o => o.status === "Completed").length;
+        const pending = allOrders.filter(o => o.status === "Pending").length;
 
         setStats({
           myOrders: allOrders.length,
@@ -45,13 +52,37 @@ export default function CustomerDashboard() {
     };
 
     fetchCustomerData();
-  }, []);
+  }, [user]);
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="container mx-auto">
-        <div className="bg-gray-900 shadow-lg rounded-lg p-6 mb-8">
-          <h1 className="text-2xl text-white font-bold mb-4">Customer Dashboard</h1>
+        <div className="bg-gray-900 shadow-lg rounded-lg p-6 mb-8 flex justify-between items-center">
+          <h1 className="text-2xl text-white font-bold">Customer Dashboard</h1>
+
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-white"
+          >
+            Logout
+          </button>
+        </div>
+
+        {/* Quick Navigation */}
+        <div className="flex gap-4 mb-6">
+          <Link
+            to={`/customer/orders/${user?.id}`}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          >
+            View My Orders
+          </Link>
+
+          <Link
+            to={`/customer/deliveries/${user?.id}`}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+          >
+            View Deliveries
+          </Link>
         </div>
 
         {/* Stats Cards */}

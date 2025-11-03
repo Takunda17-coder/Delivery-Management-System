@@ -40,12 +40,22 @@ const createOrder = async (req, res) => {
   }
 };
 
-// ✅ Retrieve all orders (with customer info)
-const getAllOrders = async (_req, res) => {
+// ✅ Retrieve all orders (optional filter by customer_id)
+const getAllOrders = async (req, res) => {
   try {
+    const { customer_id } = req.query;
+
+    let filter = {};
+    if (customer_id) {
+      filter.customer_id = customer_id; // apply filtering
+    }
+
     const orders = await Orders.findAll({
+      where: filter,
       include: [{ model: Customer, as: "customer" }],
+      order: [["createdAt", "DESC"]],
     });
+
     res.status(200).json(orders);
   } catch (error) {
     console.error("Error fetching orders:", error);

@@ -5,10 +5,14 @@ require("dotenv").config();
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, phone, address, password } = req.body;
+    const { name, email, phone, address, password, role } = req.body;
 
-    if (!name || !email || !phone || !address || !password) {
+    if (!name || !email || !phone || !address || !password || !role) {
       return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (!["customer", "driver"].includes(role)) {
+      return res.status(400).json({ message: "Role must be 'customer' or 'driver'" });
     }
 
     // Check if email already exists
@@ -20,17 +24,40 @@ exports.register = async (req, res) => {
 
     // Create user
     const newUser = await db.Users.create({
-      username: name,        // map name → username
+      username: name,
       email,
       password: hash,
-      role: "customer",      // auto-assign customer role
+      role,
       status: "active",
-      phone,                 // make sure your User model has phone & address columns
+      phone,
       address,
-      is_approved: true
+      is_approved: true,
     });
 
-    res.status(201).json({ message: "Customer created successfully", user_id: newUser.id });
+    // Auto-create Customer or Driver entry
+    if (role === "customer") {
+      await db.Customer.create({
+        user_id: newUser.user_id, // match your Users table PK
+        name,
+        email,
+        phone,
+        address,
+      });
+    } else if (role === "driver") {
+      await db.Drivers.create({
+        user_id: newUser.user_id,
+        name,
+        email,
+        phone,
+        address,
+        status: "active",
+      });
+    }
+
+    res.status(201).json({
+      message: `${role.charAt(0).toUpperCase() + role.slice(1)} registered successfully`,
+      user_id: newUser.user_id,
+    });
   } catch (err) {
     console.error("Register error:", err);
     res.status(500).json({ message: err.message });
@@ -49,23 +76,25 @@ exports.login = async (req, res) => {
     if (!match) return res.status(401).json({ message: "Invalid password" });
 
     // Generate JWT
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: "2h"
-    });
+    const token = jwt.sign(
+      { user_id: user.user_id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "2h" }
+    );
 
     // Update last login timestamp
     await user.update({ last_login: new Date() });
 
-    // Send safe user info (no password)
+    // Send safe user info
     res.status(200).json({
       token,
       user: {
-        user_id: user.id,
+        user_id: user.user_id,
         username: user.username,
         email: user.email,
         role: user.role,
-        status: user.status
-      }
+        status: user.status,
+      },
     });
   } catch (err) {
     console.error("Login error:", err);

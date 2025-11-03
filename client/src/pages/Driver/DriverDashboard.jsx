@@ -4,54 +4,53 @@ import api from "../../api/axiosConfig";
 import { useAuth } from "../../context/AuthContext";
 
 export default function DriverDashboard() {
-  const [stats, setStats] = useState({
-    totalDeliveries: 0,
-    completedDeliveries: 0,
-    pendingDeliveries: 0,
-    vehiclesAssigned: 0,
-  });
-  const [recentDeliveries, setRecentDeliveries] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    assignedDeliveries: 0,
+    completedDeliveries: 0,
+    pendingDeliveries: 0,
+  });
+
+  const [recentDeliveries, setRecentDeliveries] = useState([]);
 
   const handleLogout = () => logout(navigate);
 
   useEffect(() => {
     const fetchDriverData = async () => {
+      if (!user || user.role !== "driver") {
+        console.warn("Driver not logged in");
+        logout(navigate); // ensure proper redirect
+        return;
+      }
+
+      const driverId = user?.user_id;
+      if (!driverId) {
+        console.warn("No driver ID found in user data");
+        navigate("/login");
+        return;
+      }
+
       try {
-        const driverId = user?.id || localStorage.getItem("driver_id");
-        const token = localStorage.getItem("token");
+        const res = await api.get(`/deliveries/driver?driver_id=${driverId}`);
+        const allDeliveries = res.data;
 
-        if (!driverId) {
-          alert("Driver not logged in!");
-          navigate("/login");
-          return;
-        }
-
-        const [deliveriesRes, vehiclesRes] = await Promise.all([
-          api.get(`/deliveries/driver?driver_id=${driverId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          api.get(`/vehicles?driver_id=${driverId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        const allDeliveries = deliveriesRes.data || [];
-
-        const completed = allDeliveries.filter(d => d.status === "completed").length;
-        const pending = allDeliveries.filter(d => d.status === "scheduled" || d.status === "on_route").length;
+        const completed = allDeliveries.filter(
+          (d) => d.status === "completed"
+        ).length;
+        const pending = allDeliveries.filter(
+          (d) => d.status === "pending"
+        ).length;
 
         setStats({
-          totalDeliveries: allDeliveries.length,
+          assignedDeliveries: allDeliveries.length,
           completedDeliveries: completed,
           pendingDeliveries: pending,
-          vehiclesAssigned: vehiclesRes.data?.length || 0,
         });
 
-        setRecentDeliveries(allDeliveries.slice(-5).reverse());
+        setRecentDeliveries(allDeliveries.slice(-5));
       } catch (err) {
         console.error("Failed to load driver dashboard:", err);
       } finally {
@@ -62,9 +61,10 @@ export default function DriverDashboard() {
     fetchDriverData();
   }, [user, navigate]);
 
-
   if (loading) {
-    return <p className="text-center text-gray-600 mt-10">Loading dashboard...</p>;
+    return (
+      <p className="text-center text-gray-600 mt-10">Loading dashboard...</p>
+    );
   }
 
   return (
@@ -73,22 +73,28 @@ export default function DriverDashboard() {
         <h1 className="text-xl font-semibold">Driver Dashboard</h1>
         <button
           onClick={handleLogout}
-          className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+          className="bg-white text-black font-semibold hover:bg-gray-100 px-3 py-1 rounded"
         >
           Logout
         </button>
       </nav>
 
       <div className="p-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <StatCard title="Total Deliveries" value={stats.totalDeliveries} />
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+          <StatCard
+            title="Assigned Deliveries"
+            value={stats.assignedDeliveries}
+          />
           <StatCard title="Completed" value={stats.completedDeliveries} />
           <StatCard title="Pending" value={stats.pendingDeliveries} />
-          <StatCard title="Vehicles Assigned" value={stats.vehiclesAssigned} />
         </div>
 
+        {/* Recent Deliveries */}
         <div className="bg-white shadow rounded p-4">
-          <h2 className="text-xl font-semibold mb-3 text-gray-800">Recent Deliveries</h2>
+          <h2 className="text-xl font-semibold mb-3 text-gray-800">
+            Recent Deliveries
+          </h2>
           {recentDeliveries.length === 0 ? (
             <p className="text-gray-500">No deliveries assigned yet.</p>
           ) : (
@@ -103,18 +109,28 @@ export default function DriverDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {recentDeliveries.map(delivery => (
-                  <tr key={delivery.delivery_id} className="border-b hover:bg-gray-50">
+                {recentDeliveries.map((delivery) => (
+                  <tr
+                    key={delivery.delivery_id}
+                    className="border-b hover:bg-gray-50"
+                  >
                     <td className="py-2">{delivery.delivery_id}</td>
                     <td className="py-2">{delivery.pickup_address}</td>
                     <td className="py-2">{delivery.dropoff_address}</td>
-                    <td className={`py-2 font-semibold ${
-                      delivery.status === "completed" ? "text-green-600" :
-                      delivery.status === "on_route" ? "text-yellow-600" : "text-blue-600"
-                    }`}>
+                    <td
+                      className={`py-2 font-semibold ${
+                        delivery.status === "completed"
+                          ? "text-green-600"
+                          : delivery.status === "on_route"
+                          ? "text-yellow-600"
+                          : "text-blue-600"
+                      }`}
+                    >
                       {delivery.status}
                     </td>
-                    <td className="py-2">{new Date(delivery.delivery_date).toLocaleDateString()}</td>
+                    <td className="py-2">
+                      {new Date(delivery.delivery_date).toLocaleDateString()}
+                    </td>
                   </tr>
                 ))}
               </tbody>
