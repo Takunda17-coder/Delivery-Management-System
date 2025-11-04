@@ -144,6 +144,9 @@ exports.getDriverById = async (req, res) => {
   }
 };
 
+
+
+
 /**
  * Update driver + linked user
  */

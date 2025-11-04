@@ -128,6 +128,23 @@ exports.getCustomerById = async (req, res) => {
   }
 };
 
+exports.getCustomerByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const customer = await Customers.findOne({ where: { user_id: userId } });
+
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    res.json(customer);
+  } catch (err) {
+    console.error("Error fetching customer by user ID:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // ---------------------------- UPDATE CUSTOMER ----------------------------
 exports.updateCustomer = async (req, res) => {
   const t = await sequelize.transaction();

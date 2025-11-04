@@ -9,6 +9,7 @@ router.get("/status/unattended", ordersController.getUnattendedOrders);
 router.post("/", ordersController.createOrder);
 router.get("/", ordersController.getAllOrders);
 router.get("/:id", ordersController.getOrderById);
+router.get("/:customerId", ordersController.getOrdersByCustomer);
 router.put("/:id", ordersController.updateOrder);
 router.delete("/:id", ordersController.deleteOrder);
 

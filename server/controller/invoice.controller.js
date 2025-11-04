@@ -104,6 +104,29 @@ exports.getInvoiceById = async (req, res) => {
   }
 };
 
+exports.getInvoicesByCustomer = async (req, res) => {
+  try {
+    const { customerId } = req.params;
+
+    const invoices = await Invoice.findAll({
+      where: { customer_id: customerId },
+      order: [['createdAt', 'DESC']],
+      include: [
+        { model: Customer, as: "customer" },
+        { model: Orders, as: "order" },
+        { model: Drivers, as: "driver" },
+        { model: Delivery, as: "delivery" },
+        { model: Vehicle, as: "vehicle" },
+      ],
+    });
+
+    res.json(invoices);
+  } catch (err) {
+    console.error("Error fetching customer invoices:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 // ✅ Update invoice
 exports.updateInvoice = async (req, res) => {

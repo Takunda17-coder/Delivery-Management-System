@@ -1,4 +1,4 @@
-const { Orders, Customer } = require("../models");
+const { Orders, Customer,Invoice } = require("../models");
 
 // ✅ Create a new order
 const createOrder = async (req, res) => {
@@ -80,6 +80,52 @@ const getOrderById = async (req, res) => {
   }
 };
 
+const getOrdersByCustomer = async (req, res) => {
+  try {
+    const { customerId } = req.params;
+
+    const orders = await Orders.findAll({
+      where: { customer_id: customerId },
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: "No orders found for this customer." });
+    }
+
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error("Error fetching customer orders:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getOrdersByCustomer = async (req, res) => {
+  try {
+    const { customerId } = req.params;
+
+    // Ensure the customer exists
+    const customer = await Customer.findByPk(customerId);
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    // Fetch orders for this customer, including invoices
+    const orders = await Orders.findAll({
+      where: { customer_id: customerId },
+      include: [
+        { model: Customer, as: "customer" },
+        { model: Invoice, as: "invoices" } // Include invoice for 1:1 relation
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.status(200).json(orders);
+  } catch (err) {
+    console.error("Error fetching customer orders:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 // ✅ Update order
 const updateOrder = async (req, res) => {
   try {
@@ -153,6 +199,7 @@ module.exports = {
   createOrder,
   getAllOrders,
   getOrderById,
+  getOrdersByCustomer,
   updateOrder,
   deleteOrder,
   getUnattendedOrders,

@@ -22,56 +22,48 @@ const Vehicle = require("./vehicles.model")(sequelize, DataTypes);
 const Delivery = require("./delivery.model")(sequelize, DataTypes);
 
 // ========================
-// Define Associations
+// FINAL CORRECT ASSOCIATIONS
 // ========================
 
-// Users ↔ Customer
+// User ↔ Driver (1:1)
+Drivers.belongsTo(Users, { foreignKey: "user_id", as: "user" });
+Users.hasOne(Drivers, { foreignKey: "user_id", as: "driverProfile" });
+
+// User ↔ Customer (1:1)
 Customer.belongsTo(Users, { foreignKey: "user_id", as: "user" });
 Users.hasOne(Customer, { foreignKey: "user_id", as: "customerProfile" });
 
-// Users ↔ Drivers
-Drivers.belongsTo(Users, { foreignKey: "user_id", as: "user" });
-Users.hasMany(Drivers, { foreignKey: "user_id", as: "drivers" });
-
-// Customer ↔ Orders
+// Customer ↔ Orders (1:N)
 Orders.belongsTo(Customer, { foreignKey: "customer_id", as: "customer" });
 Customer.hasMany(Orders, { foreignKey: "customer_id", as: "orders" });
 
-// Customer ↔ Invoice
-Invoice.belongsTo(Customer, { foreignKey: "customer_id", as: "customer" });
-Customer.hasMany(Invoice, { foreignKey: "customer_id", as: "invoices" });
-
-// Orders ↔ Delivery
+// Order ↔ Delivery (1:1)
 Delivery.belongsTo(Orders, { foreignKey: "order_id", as: "order" });
-Orders.hasMany(Delivery, { foreignKey: "order_id", as: "deliveries" });
+Orders.hasOne(Delivery, { foreignKey: "order_id", as: "delivery" });
 
-// Orders ↔ Invoice
+// Order ↔ Invoice (1:1)
 Invoice.belongsTo(Orders, { foreignKey: "order_id", as: "order" });
-Orders.hasMany(Invoice, { foreignKey: "order_id", as: "invoices" });
+Orders.hasOne(Invoice, { foreignKey: "order_id", as: "invoice" });
 
-// Drivers ↔ Delivery
+// Delivery ↔ Invoice (1:1)
+Invoice.belongsTo(Delivery, { foreignKey: "delivery_id", as: "delivery" });
+Delivery.hasOne(Invoice, { foreignKey: "delivery_id", as: "invoice" });
+
+// Driver ↔ Delivery (1:N)
 Delivery.belongsTo(Drivers, { foreignKey: "driver_id", as: "driver" });
 Drivers.hasMany(Delivery, { foreignKey: "driver_id", as: "deliveries" });
 
-// Drivers ↔ Invoice
-Invoice.belongsTo(Drivers, { foreignKey: "driver_id", as: "driver" });
-Drivers.hasMany(Invoice, { foreignKey: "driver_id", as: "invoices" });
-
-// Vehicle ↔ Delivery
+// Vehicle ↔ Delivery (1:N)
 Delivery.belongsTo(Vehicle, { foreignKey: "vehicle_id", as: "vehicle" });
 Vehicle.hasMany(Delivery, { foreignKey: "vehicle_id", as: "deliveries" });
 
-// Vehicle ↔ Drivers
-Drivers.belongsTo(Vehicle, { foreignKey: "vehicle_id", as: "vehicle" });
-Vehicle.hasMany(Drivers, { foreignKey: "vehicle_id", as: "drivers" });
+// Driver ↔ Invoice (1:N)
+Invoice.belongsTo(Drivers, { foreignKey: "driver_id", as: "driver" });
+Drivers.hasMany(Invoice, { foreignKey: "driver_id", as: "invoices" });
 
-//Invoice ↔ Vehicle
+// Vehicle ↔ Invoice (1:N)
 Invoice.belongsTo(Vehicle, { foreignKey: "vehicle_id", as: "vehicle" });
 Vehicle.hasMany(Invoice, { foreignKey: "vehicle_id", as: "invoices" });
-
-//Delivery ↔ Invoice
-Invoice.belongsTo(Delivery, { foreignKey: "delivery_id", as: "delivery" });
-Delivery.hasMany(Invoice, { foreignKey: "delivery_id", as: "invoices" });
 
 
 // ========================
