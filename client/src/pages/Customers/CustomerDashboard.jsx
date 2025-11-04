@@ -30,7 +30,7 @@ export default function CustomerDashboard() {
         const [ordersRes, invoicesRes, driversRes] = await Promise.all([
           api.get(`/orders?customer_id=${customerId}`),
           api.get(`/invoices?customer_id=${customerId}`),
-          api.get(`/drivers?customer_id=${customerId}`)
+          
         ]);
 
         const allOrders = ordersRes.data;

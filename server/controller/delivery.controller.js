@@ -146,7 +146,6 @@ exports.updateDelivery = async (req, res) => {
   }
 };
 
-// Get deliveries assigned to a specific driver
 exports.getDeliveriesByDriver = async (req, res) => {
   try {
     const { driver_id } = req.query;
@@ -158,20 +157,19 @@ exports.getDeliveriesByDriver = async (req, res) => {
     const deliveries = await Delivery.findAll({
       where: { driver_id },
       include: [
-        { model: Orders },
-        { model: Drivers },
-        { model: Vehicle },
+        { model: Orders, as: "order" },
+        { model: Drivers, as: "driver", attributes: ["id", "name", "phone"] },
+        { model: Vehicle, as: "vehicle", attributes: ["id", "vehicle_name", "plate_number"] },
       ],
       order: [["delivery_date", "DESC"]],
     });
 
-    res.status(200).json(deliveries);
+    return res.status(200).json(deliveries);
   } catch (error) {
     console.error("Error fetching driver deliveries:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
 
 // Delete a delivery
 exports.deleteDelivery = async (req, res) => {

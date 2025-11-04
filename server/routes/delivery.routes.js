@@ -6,8 +6,8 @@ const { Deliveries } = require("../models"); // import your Sequelize model
 // Delivery CRUD
 router.post("/", deliveryController.createDelivery);
 router.get("/", deliveryController.getAllDeliveries);
-router.get("/:id", deliveryController.getDeliveryById);
 router.get("/driver", deliveryController.getDeliveriesByDriver);
+router.get("/:id", deliveryController.getDeliveryById);
 router.put("/:id", deliveryController.updateDelivery);
 router.delete("/:id", deliveryController.deleteDelivery);
 
