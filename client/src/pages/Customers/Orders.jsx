@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axiosConfig";
-import Button from "../../components/ui/Button";
+import { Link } from "react-router-dom";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -9,7 +9,9 @@ export default function Orders() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const customerId = localStorage.getItem("customer_id"); // stored on login
+        const customerId = localStorage.getItem("customer_id");
+        if (!customerId) return;
+
         const response = await api.get(`/orders?customer_id=${customerId}`);
         setOrders(response.data);
       } catch (err) {
@@ -40,8 +42,7 @@ export default function Orders() {
               <tr className="bg-gray-100 border-b">
                 <th className="text-left py-3 px-4">Order ID</th>
                 <th className="text-left py-3 px-4">Item</th>
-                <th className="text-left py-3 px-4">Quantity</th>
-                <th className="text-left py-3 px-4">Price</th>
+                <th className="text-left py-3 px-4">Qty</th>
                 <th className="text-left py-3 px-4">Total</th>
                 <th className="text-left py-3 px-4">Status</th>
                 <th className="text-left py-3 px-4">Date</th>
@@ -54,7 +55,6 @@ export default function Orders() {
                   <td className="py-3 px-4">{order.order_id}</td>
                   <td className="py-3 px-4">{order.order_item}</td>
                   <td className="py-3 px-4">{order.quantity}</td>
-                  <td className="py-3 px-4">${order.price}</td>
                   <td className="py-3 px-4 font-semibold">${order.total}</td>
                   <td className="py-3 px-4">
                     <span
@@ -72,8 +72,23 @@ export default function Orders() {
                   <td className="py-3 px-4">
                     {new Date(order.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="py-3 px-4 flex gap-2">
-                    <button className="text-blue-600 hover:underline">View</button>
+                  <td className="py-3 px-4 flex flex-col gap-1">
+                    <Link
+                      to={`/customer/orders/${order.order_id}`}
+                      className="text-blue-600 hover:underline"
+                    >
+                      View
+                    </Link>
+
+                    {order.delivery_id && (
+                      <Link
+                        to={`/customer/deliveries/${order.delivery_id}`}
+                        className="text-green-600 hover:underline"
+                      >
+                        Track Delivery
+                      </Link>
+                    )}
+
                     {order.status === "Pending" && (
                       <button className="text-red-600 hover:underline">
                         Cancel

@@ -1,4 +1,3 @@
-// src/pages/driver/DriverDeliveries.jsx
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../../api/axiosConfig";
@@ -6,7 +5,8 @@ import { useAuth } from "../../context/AuthContext";
 
 const STATUS_LABELS = {
   pending: "Pending",
-  on_route: "On route",
+  scheduled: "Scheduled",
+  on_route: "On Route",
   delivered: "Delivered",
   failed: "Failed",
 };
@@ -15,19 +15,17 @@ export default function DriverDeliveries() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
   const [deliveries, setDeliveries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [updatingId, setUpdatingId] = useState(null); // id being updated
+  const [updatingId, setUpdatingId] = useState(null);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  // get driver id defensively (user object shape differs across code)
-  const driverId = user?.user_id || user?.id || user?.userId || user?.driver_id;
+  const driverId = user?.user_id || user?.id || user?.driver_id;
 
   useEffect(() => {
     if (!user || (!driverId && user.role !== "admin")) {
-      console.warn("Driver not logged in");
-      // if not a driver, redirect to login
       navigate("/login");
       return;
     }
@@ -36,7 +34,6 @@ export default function DriverDeliveries() {
       setLoading(true);
       setError("");
       try {
-        // endpoint: /delivery/driver?driver_id=...
         const res = await api.get(`/delivery/driver?driver_id=${driverId}`);
         setDeliveries(res.data || []);
       } catch (err) {
@@ -48,11 +45,10 @@ export default function DriverDeliveries() {
     };
 
     fetchDeliveries();
-    // optionally refetch on location change (e.g. filter query)
   }, [user, driverId, navigate, location.key]);
 
   const updateStatus = async (deliveryId, newStatus) => {
-    if (!["pending", "on_route", "delivered", "failed"].includes(newStatus)) {
+    if (!["pending", "scheduled", "on_route", "delivered", "failed"].includes(newStatus)) {
       setError("Invalid status");
       return;
     }
@@ -65,10 +61,8 @@ export default function DriverDeliveries() {
     setMessage("");
 
     try {
-      // backend expects PUT /delivery/:id
       const res = await api.put(`/delivery/${deliveryId}`, { status: newStatus });
 
-      // optimistic update: update local state
       setDeliveries(prev =>
         prev.map(d => (d.delivery_id === deliveryId ? { ...d, status: newStatus } : d))
       );
@@ -79,34 +73,28 @@ export default function DriverDeliveries() {
       setError(err.response?.data?.message || "Failed to update status");
     } finally {
       setUpdatingId(null);
-      // option: re-fetch to ensure consistency
+      // Optionally re-fetch deliveries for consistency
       try {
         const r = await api.get(`/delivery/driver?driver_id=${driverId}`);
         setDeliveries(r.data || []);
-      } catch (e) {
-        // ignore
-      }
+      } catch {}
     }
   };
 
-  if (loading) {
-    return <p className="text-center text-gray-600 mt-10">Loading deliveries...</p>;
-  }
+  if (loading) return <p className="text-center text-gray-600 mt-10">Loading deliveries...</p>;
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="container mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-800">My Deliveries</h1>
-          <div className="flex gap-2">
-            <button
-              onClick={() => logout(navigate)}
-              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
+        <nav className="flex justify-between bg-gray-900 items-center mb-6 px-4 py-3 rounded">
+          <h1 className="text-2xl text-white font-semibold">My Deliveries</h1>
+          <button
+            onClick={() => logout(navigate)}
+            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+          >
+            Logout
+          </button>
+        </nav>
 
         {error && <div className="mb-4 text-red-600">{error}</div>}
         {message && <div className="mb-4 text-green-600">{message}</div>}
@@ -115,7 +103,7 @@ export default function DriverDeliveries() {
           <div className="bg-white p-6 rounded shadow text-gray-600">No deliveries assigned.</div>
         ) : (
           <div className="bg-white rounded shadow overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm border-collapse">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="p-3 text-left">Delivery ID</th>
@@ -128,22 +116,21 @@ export default function DriverDeliveries() {
                 </tr>
               </thead>
               <tbody>
-                {deliveries.map((d) => (
+                {deliveries.map(d => (
                   <tr key={d.delivery_id} className="border-t hover:bg-gray-50">
                     <td className="p-3">{d.delivery_id}</td>
-                    <td className="p-3">
-                      {/* delivery may include order info via include */}
-                      {d?.Order?.order_item || d?.order_item || "—"}
-                    </td>
+                    <td className="p-3">{d?.Order?.order_item || d?.order_item || "—"}</td>
                     <td className="p-3">{d.pickup_address}</td>
                     <td className="p-3">{d.dropoff_address}</td>
                     <td className="p-3">
                       <span
-                        className={`px-2 py-1 rounded font-semibold text-xs ${
+                        className={`px-2 py-1 rounded text-xs font-semibold ${
                           d.status === "delivered"
                             ? "bg-green-100 text-green-800"
                             : d.status === "on_route"
                             ? "bg-yellow-100 text-yellow-800"
+                            : d.status === "scheduled"
+                            ? "bg-blue-100 text-blue-800"
                             : d.status === "failed"
                             ? "bg-red-100 text-red-800"
                             : "bg-gray-100 text-gray-800"
@@ -152,42 +139,55 @@ export default function DriverDeliveries() {
                         {STATUS_LABELS[d.status] || d.status}
                       </span>
                     </td>
-                    <td className="p-3">{d.delivery_date ? new Date(d.delivery_date).toLocaleString() : "-"}</td>
-                    <td className="p-3">
-                      <div className="flex gap-2">
-                        {/* Action buttons — disable the current status button */}
+                    <td className="p-3">{new Date(d.delivery_date).toLocaleString()}</td>
+                    <td className="p-3 flex gap-2 flex-wrap">
+                      {d.status === "pending" || d.status === "scheduled" ? (
                         <button
+                          disabled={updatingId === d.delivery_id}
                           onClick={() => updateStatus(d.delivery_id, "on_route")}
-                          disabled={updatingId === d.delivery_id || d.status === "on_route"}
                           className="px-2 py-1 rounded bg-yellow-500 hover:bg-yellow-600 text-white text-xs disabled:opacity-50"
                         >
-                          On route
+                          Start Delivery
                         </button>
+                      ) : null}
 
-                        <button
-                          onClick={() => updateStatus(d.delivery_id, "delivered")}
-                          disabled={updatingId === d.delivery_id || d.status === "delivered"}
-                          className="px-2 py-1 rounded bg-green-600 hover:bg-green-700 text-white text-xs disabled:opacity-50"
-                        >
-                          Delivered
-                        </button>
+                      {d.status === "on_route" ? (
+                        <>
+                          <button
+                            disabled={updatingId === d.delivery_id}
+                            onClick={() => updateStatus(d.delivery_id, "delivered")}
+                            className="px-2 py-1 rounded bg-green-600 hover:bg-green-700 text-white text-xs disabled:opacity-50"
+                          >
+                            Delivered
+                          </button>
+                          <button
+                            disabled={updatingId === d.delivery_id}
+                            onClick={() => updateStatus(d.delivery_id, "failed")}
+                            className="px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs disabled:opacity-50"
+                          >
+                            Failed
+                          </button>
+                        </>
+                      ) : null}
 
-                        <button
-                          onClick={() => updateStatus(d.delivery_id, "failed")}
-                          disabled={updatingId === d.delivery_id || d.status === "failed"}
-                          className="px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs disabled:opacity-50"
-                        >
-                          Failed
-                        </button>
-
-                        <button
-                          onClick={() => updateStatus(d.delivery_id, "pending")}
-                          disabled={updatingId === d.delivery_id || d.status === "pending"}
-                          className="px-2 py-1 rounded bg-gray-600 hover:bg-gray-700 text-white text-xs disabled:opacity-50"
-                        >
-                          Mark Pending
-                        </button>
-                      </div>
+                      {d.status === "failed" && (
+                        <>
+                          <button
+                            disabled={updatingId === d.delivery_id}
+                            onClick={() => updateStatus(d.delivery_id, "scheduled")}
+                            className="px-2 py-1 rounded bg-blue-500 hover:bg-blue-600 text-white text-xs disabled:opacity-50"
+                          >
+                            Reschedule
+                          </button>
+                          <button
+                            disabled={updatingId === d.delivery_id}
+                            onClick={() => updateStatus(d.delivery_id, "on_route")}
+                            className="px-2 py-1 rounded bg-yellow-500 hover:bg-yellow-600 text-white text-xs disabled:opacity-50"
+                          >
+                            Retry Delivery
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}

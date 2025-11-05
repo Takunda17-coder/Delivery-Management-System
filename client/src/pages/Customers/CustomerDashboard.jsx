@@ -9,50 +9,52 @@ export default function CustomerDashboard() {
     completedOrders: 0,
     pendingOrders: 0,
     invoices: 0,
-    driversAssigned: 0,
   });
 
   const [recentOrders, setRecentOrders] = useState([]);
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();  // ✅ include loading
   const navigate = useNavigate();
+
   const handleLogout = () => logout(navigate);
 
   useEffect(() => {
+    // 🚦 Wait until AuthContext finishes loading
+    if (loading) return;
+
+    if (!user || !user.id) {
+      console.warn("No customer logged in — redirecting...");
+      navigate("/login");
+      return;
+    }
+
     const fetchCustomerData = async () => {
       try {
-        if (!user || !user.id) {
-          console.warn("No customer logged in");
-          return;
-        }
+        const customerId = user.id;
 
-        const customerId = user.id; // ✅ get from auth context
-
-        const [ordersRes, invoicesRes, driversRes] = await Promise.all([
+        const [ordersRes, invoicesRes] = await Promise.all([
           api.get(`/orders?customer_id=${customerId}`),
           api.get(`/invoices?customer_id=${customerId}`),
-          
         ]);
 
         const allOrders = ordersRes.data;
-        const completed = allOrders.filter(o => o.status === "Completed").length;
-        const pending = allOrders.filter(o => o.status === "Pending").length;
+        const completed = allOrders.filter((o) => o.status === "Completed").length;
+        const pending = allOrders.filter((o) => o.status === "Pending").length;
 
         setStats({
           myOrders: allOrders.length,
           completedOrders: completed,
           pendingOrders: pending,
           invoices: invoicesRes.data.length,
-          driversAssigned: driversRes.data.length,
         });
 
-        setRecentOrders(allOrders.slice(-5)); // last 5 orders
+        setRecentOrders(allOrders.slice(-5));
       } catch (err) {
         console.error("Failed to load customer dashboard data:", err);
       }
     };
 
     fetchCustomerData();
-  }, [user]);
+  }, [user, loading, navigate]);
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -62,7 +64,7 @@ export default function CustomerDashboard() {
 
           <button
             onClick={handleLogout}
-            className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-white"
+            className="bg-gray-100 text-gray-900 font-semibold hover:bg-gray-300 px-3 py-1 rounded text-gray-900 font-semibold"
           >
             Logout
           </button>

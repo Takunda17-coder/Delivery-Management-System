@@ -18,11 +18,13 @@ export default function DriverDashboard() {
 
   const handleLogout = () => logout(navigate);
 
+  const goToDeliveries = () => navigate("/driver/deliveries");
+
   useEffect(() => {
     const fetchDriverData = async () => {
       if (!user || user.role !== "driver") {
         console.warn("Driver not logged in");
-        logout(navigate); // ensure proper redirect
+        logout(navigate);
         return;
       }
 
@@ -62,13 +64,12 @@ export default function DriverDashboard() {
   }, [user, navigate]);
 
   if (loading) {
-    return (
-      <p className="text-center text-gray-600 mt-10">Loading dashboard...</p>
-    );
+    return <p className="text-center text-gray-600 mt-10">Loading dashboard...</p>;
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
+      {/* NAV */}
       <nav className="bg-gray-900 text-white px-6 py-3 flex justify-between items-center shadow">
         <h1 className="text-xl font-semibold">Driver Dashboard</h1>
         <button
@@ -82,12 +83,19 @@ export default function DriverDashboard() {
       <div className="p-6">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-          <StatCard
-            title="Assigned Deliveries"
-            value={stats.assignedDeliveries}
-          />
+          <StatCard title="Assigned Deliveries" value={stats.assignedDeliveries} />
           <StatCard title="Completed" value={stats.completedDeliveries} />
           <StatCard title="Pending" value={stats.pendingDeliveries} />
+        </div>
+
+        {/* Button to View All Deliveries */}
+        <div className="flex justify-end mb-3">
+          <button
+            onClick={goToDeliveries}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            View All Deliveries
+          </button>
         </div>
 
         {/* Recent Deliveries */}
@@ -112,7 +120,8 @@ export default function DriverDashboard() {
                 {recentDeliveries.map((delivery) => (
                   <tr
                     key={delivery.delivery_id}
-                    className="border-b hover:bg-gray-50"
+                    className="border-b hover:bg-gray-50 cursor-pointer"
+                    onClick={() => navigate(`/driver/deliveries/${delivery.delivery_id}`)} // Optional row link
                   >
                     <td className="py-2">{delivery.delivery_id}</td>
                     <td className="py-2">{delivery.pickup_address}</td>

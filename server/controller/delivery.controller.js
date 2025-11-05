@@ -155,18 +155,52 @@ exports.getDeliveriesByDriver = async (req, res) => {
     }
 
     const deliveries = await Delivery.findAll({
-  where: { driver_id },
-  include: [
-    { model: Orders, attributes: ["order_id", "customer_id", "order_item", "quantity", "price", "status"] },
-    { model: Drivers, attributes: ["driver_id", "first_name", "phone_number"] },
-    { model: Vehicle, attributes: ["vehicle_id", "vehicle_type","model","make", "plate_number"] },
-  ],
-  order: [["delivery_date", "DESC"]],
-});
+      where: { driver_id: Number(driver_id) },
+      include: [
+        { 
+          model: Orders,
+          attributes: ["order_id", "customer_id", "order_item", "quantity", "price", "status"]
+        },
+        { 
+          model: Drivers,
+          attributes: ["driver_id", "first_name", "phone_number"] 
+        },
+        {
+          model: Vehicle,
+          attributes: ["vehicle_id", "vehicle_type", "model", "make", "plate_number"]
+        },
+      ],
+      order: [["delivery_date", "DESC"]],
+    });
 
-    return res.status(200).json(deliveries);
+    if (!deliveries || deliveries.length === 0) {
+      return res.status(200).json([]); // returns empty array instead of 404
+    }
+
+    res.status(200).json(deliveries);
   } catch (error) {
     console.error("Error fetching driver deliveries:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.getDeliveriesByCustomer = async (req, res) => {
+  try {
+    const { customer_id } = req.query;
+    if (!customer_id) return res.status(400).json({ message: "customer_id is required" });
+
+    const deliveries = await Delivery.findAll({
+      include: [
+        { model: Orders, where: { customer_id }, attributes: ["order_id","order_item","status"] },
+        { model: Drivers, attributes: ["driver_id","first_name","phone_number"] },
+        { model: Vehicle, attributes: ["vehicle_id","vehicle_type","model","plate_number"] },
+      ],
+      order: [["delivery_date","DESC"]],
+    });
+
+    res.status(200).json(deliveries);
+  } catch (error) {
+    console.error("Error fetching customer deliveries:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
