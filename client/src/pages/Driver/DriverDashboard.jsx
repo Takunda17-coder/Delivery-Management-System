@@ -34,7 +34,7 @@ export default function DriverDashboard() {
       }
 
       try {
-        const res = await api.get(`/deliveries/driver?driver_id=${driverId}`);
+        const res = await api.get(`/delivery/driver?driver_id=${driverId}`);
         const allDeliveries = res.data;
 
         const completed = allDeliveries.filter(
