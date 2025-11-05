@@ -159,7 +159,7 @@ exports.getDeliveriesByDriver = async (req, res) => {
   include: [
     { model: Orders, attributes: ["order_id", "customer_id", "order_item", "quantity", "price", "status"] },
     { model: Drivers, attributes: ["driver_id", "first_name", "phone_number"] },
-    { model: Vehicle, attributes: ["vehicle_id", "vehicle_name", "plate_number"] },
+    { model: Vehicle, attributes: ["vehicle_id", "vehicle_type","model","make", "plate_number"] },
   ],
   order: [["delivery_date", "DESC"]],
 });
