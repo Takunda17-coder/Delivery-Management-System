@@ -28,7 +28,10 @@ export default function DriverDashboard() {
         return;
       }
 
-      const driverId = user?.user_id;
+      const driverRes = await api.get(`/drivers/user/${user.user_id}`);
+      const driver = driverRes.data;
+      const driverId = driver.driver_id; // ✅ Real driver_id
+
       if (!driverId) {
         console.warn("No driver ID found in user data");
         navigate("/login");
@@ -64,7 +67,9 @@ export default function DriverDashboard() {
   }, [user, navigate]);
 
   if (loading) {
-    return <p className="text-center text-gray-600 mt-10">Loading dashboard...</p>;
+    return (
+      <p className="text-center text-gray-600 mt-10">Loading dashboard...</p>
+    );
   }
 
   return (
@@ -83,7 +88,10 @@ export default function DriverDashboard() {
       <div className="p-6">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-          <StatCard title="Assigned Deliveries" value={stats.assignedDeliveries} />
+          <StatCard
+            title="Assigned Deliveries"
+            value={stats.assignedDeliveries}
+          />
           <StatCard title="Completed" value={stats.completedDeliveries} />
           <StatCard title="Pending" value={stats.pendingDeliveries} />
         </div>
@@ -121,7 +129,9 @@ export default function DriverDashboard() {
                   <tr
                     key={delivery.delivery_id}
                     className="border-b hover:bg-gray-50 cursor-pointer"
-                    onClick={() => navigate(`/driver/deliveries/${delivery.delivery_id}`)} // Optional row link
+                    onClick={() =>
+                      navigate(`/driver/deliveries/${delivery.delivery_id}`)
+                    } // Optional row link
                   >
                     <td className="py-2">{delivery.delivery_id}</td>
                     <td className="py-2">{delivery.pickup_address}</td>

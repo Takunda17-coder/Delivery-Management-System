@@ -14,7 +14,10 @@ export default function Orders() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const customerId = user?.user_id || localStorage.getItem("customer_id");
+        // 1️⃣ Fetch customer using logged-in user’s user_id
+        const customerRes = await api.get(`/customers/user/${user.user_id}`);
+        const customer = customerRes.data;
+        const customerId = customer.customer_id; // ✅ Real customer_id
         if (!customerId) return;
 
         const response = await api.get(`/orders?customer_id=${customerId}`);
@@ -45,28 +48,46 @@ export default function Orders() {
         </button>
       </nav>
 
+      <div className="flex gap-4 p-6 mb-4">
+        <Link
+          to={`/customer/dashboard`}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+        >
+          View Dashboard
+        </Link>
+        <Link
+          to={`/customer/deliveries`}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+        >
+          View Deliveries
+        </Link>
+      </div>
+
       {/* Orders table */}
+
       {orders.length === 0 ? (
-        <div className="bg-white shadow rounded py-6 px-6 text-center">
+        <div className="bg-white  rounded-lg  text-center p-6">
           <p className="text-gray-500">You have no orders yet.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto bg-white shadow rounded-lg">
-          <table className="w-full text-sm border-collapse">
+        <div className="overflow-x-auto bg-white shadow rounded-lg p-6">
+          <table className="w-full text-sm bg-white border-b-gray-300 border-b rounded-lg ">
             <thead>
-              <tr className="bg-gray-100 border-b">
+              <tr className=" border-b-gray-300 border-b">
                 <th className="text-left py-3 px-4">Order ID</th>
                 <th className="text-left py-3 px-4">Item</th>
                 <th className="text-left py-3 px-4">Qty</th>
                 <th className="text-left py-3 px-4">Total</th>
                 <th className="text-left py-3 px-4">Status</th>
                 <th className="text-left py-3 px-4">Date</th>
-                <th className="text-left py-3 px-4">Actions</th>
               </tr>
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order.order_id} className="border-b hover:bg-gray-50">
+                <tr
+                  key={order.order_id}
+                  className="border-b-gray-300 border-b hover:bg-gray-50"
+                >
                   <td className="py-3 px-4">{order.order_id}</td>
                   <td className="py-3 px-4">{order.order_item}</td>
                   <td className="py-3 px-4">{order.quantity}</td>
@@ -86,29 +107,6 @@ export default function Orders() {
                   </td>
                   <td className="py-3 px-4">
                     {new Date(order.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4 flex flex-col gap-1">
-                    <Link
-                      to={`/customer/orders/${order.order_id}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      View
-                    </Link>
-
-                    {order.delivery_id && (
-                      <Link
-                        to={`/customer/deliveries/${order.delivery_id}`}
-                        className="text-green-600 hover:underline"
-                      >
-                        Track Delivery
-                      </Link>
-                    )}
-
-                    {order.status === "Pending" && (
-                      <button className="text-red-600 hover:underline">
-                        Cancel
-                      </button>
-                    )}
                   </td>
                 </tr>
               ))}

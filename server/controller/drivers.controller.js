@@ -144,6 +144,39 @@ exports.getDriverById = async (req, res) => {
   }
 };
 
+/**
+ * Get driver by linked user_id
+ */
+exports.getDriverByUserId = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    if (!user_id) {
+      return res.status(400).json({ message: "user_id is required" });
+    }
+
+    const driver = await Drivers.findOne({
+      where: { user_id },
+      include: [
+        {
+          model: Users,
+          as: "user",
+          attributes: ["user_id", "name", "email", "role", "status"], // hide password
+        },
+      ],
+    });
+
+    if (!driver) {
+      return res.status(404).json({ message: "Driver not found for this user_id" });
+    }
+
+    res.status(200).json(driver);
+  } catch (error) {
+    console.error("Error fetching driver by user ID:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 
 

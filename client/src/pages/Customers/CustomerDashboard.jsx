@@ -144,7 +144,7 @@ export default function CustomerDashboard() {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b">
+                <tr className="border-b-gray-300 border-b">
                   <th className="py-2 text-left">Order ID</th>
                   <th className="py-2 text-left">Item</th>
                   <th className="py-2 text-left">Status</th>
@@ -153,7 +153,7 @@ export default function CustomerDashboard() {
               </thead>
               <tbody>
                 {recentOrders.map(order => (
-                  <tr key={order.order_id} className="border-b">
+                  <tr key={order.order_id} className="border-b-gray-300 border-b">
                     <td className="py-2">{order.order_id}</td>
                     <td className="py-2">{order.order_item}</td>
                     <td
