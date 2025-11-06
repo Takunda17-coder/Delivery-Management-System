@@ -21,7 +21,7 @@ export default function CustomerDashboard() {
   const handleLogout = () => logout(navigate);
 
   useEffect(() => {
-    if (authLoading) return; // Wait for Auth check
+    if (authLoading) return; // Wait for auth check
 
     if (!user?.user_id) {
       navigate("/login", { replace: true });
@@ -35,14 +35,15 @@ export default function CustomerDashboard() {
 
         const customerId = user.user_id;
 
+        // Fetch orders and invoices
         const [ordersRes, invoicesRes] = await Promise.all([
           api.get(`/orders?customer_id=${customerId}`),
-          api.get(`/invoices/customer/${customerId}`), // ✅ Correct endpoint
+          api.get(`/invoice/customer/${customerId}`),
         ]);
 
         const allOrders = ordersRes.data;
-        const completed = allOrders.filter((o) => o.status === "Completed").length;
-        const pending = allOrders.filter((o) => o.status === "Pending").length;
+        const completed = allOrders.filter(o => o.status === "Completed").length;
+        const pending = allOrders.filter(o => o.status === "Pending").length;
 
         setStats({
           myOrders: allOrders.length,
@@ -51,6 +52,7 @@ export default function CustomerDashboard() {
           invoices: invoicesRes.data.length,
         });
 
+        // Show the 5 most recent orders
         setRecentOrders(allOrders.slice(-5).reverse());
       } catch (err) {
         console.error("Failed to load customer dashboard data:", err);
@@ -63,7 +65,7 @@ export default function CustomerDashboard() {
     fetchCustomerData();
   }, [user, authLoading, navigate]);
 
-  // Show loading screen until auth + data ready
+  // Loading state
   if (authLoading || dataLoading) {
     return (
       <div className="p-6 text-center text-lg font-medium">
@@ -72,6 +74,7 @@ export default function CustomerDashboard() {
     );
   }
 
+  // Error state
   if (error) {
     return (
       <div className="p-6 text-center text-red-600">
@@ -144,7 +147,7 @@ export default function CustomerDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {recentOrders.map((order) => (
+                {recentOrders.map(order => (
                   <tr key={order.order_id} className="border-b">
                     <td className="py-2">{order.order_id}</td>
                     <td className="py-2">{order.order_item}</td>
@@ -152,9 +155,7 @@ export default function CustomerDashboard() {
                       className={`py-2 font-semibold ${
                         order.status === "Completed"
                           ? "text-green-600"
-                          : order.status === "Pending"
-                          ? "text-yellow-600"
-                          : "text-gray-600"
+                          : "text-yellow-600"
                       }`}
                     >
                       {order.status}

@@ -65,6 +65,10 @@ Drivers.hasMany(Invoice, { foreignKey: "driver_id", as: "invoices" });
 Invoice.belongsTo(Vehicle, { foreignKey: "vehicle_id", as: "vehicle" });
 Vehicle.hasMany(Invoice, { foreignKey: "vehicle_id", as: "invoices" });
 
+//Invoice ↔ Customer (1:N)
+Invoice.belongsTo(Customer, { foreignKey: "customer_id", as: "customer" });
+Customer.hasMany(Invoice, { foreignKey: "customer_id", as: "invoices" });
+
 
 // ========================
 // Sync all tables
