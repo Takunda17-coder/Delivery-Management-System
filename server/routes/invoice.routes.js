@@ -4,8 +4,8 @@ const invoiceController = require("../controller/invoice.controller");
 
 router.post("/", invoiceController.createInvoice);
 router.get("/", invoiceController.getAllInvoices);
-router.get("/:id", invoiceController.getInvoiceById);
 router.get("/customer/:customerId", invoiceController.getInvoicesByCustomer);
+router.get("/:id", invoiceController.getInvoiceById);
 router.put("/:id", invoiceController.updateInvoice);
 router.delete("/:id", invoiceController.deleteInvoice);
 

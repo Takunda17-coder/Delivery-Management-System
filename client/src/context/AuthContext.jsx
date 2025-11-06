@@ -1,40 +1,50 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Load user & token from localStorage ONCE
+  useEffect(() => {
     const savedUser = localStorage.getItem("user");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+    const savedToken = localStorage.getItem("token");
 
-  const [token, setToken] = useState(() => localStorage.getItem("token") || null);
+    if (savedUser && savedToken) {
+      setUser(JSON.parse(savedUser));
+      setToken(savedToken);
+    }
 
-  // ✅ Login with user normalization
-  // AuthContext.js
-const login = ({ token, user }) => {
-    setUser({
-        user_id: user.user_id,
-        username: user.name || user.username,
-        role: user.role,
-        email: user.email,
-    });
+    setLoading(false);
+  }, []);
+
+  const login = ({ token, user }) => {
+    const normalizedUser = {
+      user_id: user.user_id,
+      username: user.name || user.username,
+      role: user.role,
+      email: user.email,
+    };
+
+    setUser(normalizedUser);
+    setToken(token);
+
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
-};
+    localStorage.setItem("user", JSON.stringify(normalizedUser));
+  };
 
-  // ✅ Logout clears storage + state
   const logout = (navigate) => {
-    setUser(null);
-    setToken(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    setUser(null);
+    setToken(null);
     if (navigate) navigate("/login");
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

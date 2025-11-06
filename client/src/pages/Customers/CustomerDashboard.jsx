@@ -12,28 +12,32 @@ export default function CustomerDashboard() {
   });
 
   const [recentOrders, setRecentOrders] = useState([]);
-  const { user, logout, loading } = useAuth();  // ✅ include loading
+  const [dataLoading, setDataLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const { user, loading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => logout(navigate);
 
   useEffect(() => {
-    // 🚦 Wait until AuthContext finishes loading
-    if (loading) return;
+    if (authLoading) return; // Wait for Auth check
 
-    if (!user || !user.id) {
-      console.warn("No customer logged in — redirecting...");
-      navigate("/login");
+    if (!user?.user_id) {
+      navigate("/login", { replace: true });
       return;
     }
 
     const fetchCustomerData = async () => {
       try {
-        const customerId = user.id;
+        setDataLoading(true);
+        setError("");
+
+        const customerId = user.user_id;
 
         const [ordersRes, invoicesRes] = await Promise.all([
           api.get(`/orders?customer_id=${customerId}`),
-          api.get(`/invoices?customer_id=${customerId}`),
+          api.get(`/invoices/customer/${customerId}`), // ✅ Correct endpoint
         ]);
 
         const allOrders = ordersRes.data;
@@ -47,48 +51,75 @@ export default function CustomerDashboard() {
           invoices: invoicesRes.data.length,
         });
 
-        setRecentOrders(allOrders.slice(-5));
+        setRecentOrders(allOrders.slice(-5).reverse());
       } catch (err) {
         console.error("Failed to load customer dashboard data:", err);
+        setError("Failed to load dashboard data. Please try again.");
+      } finally {
+        setDataLoading(false);
       }
     };
 
     fetchCustomerData();
-  }, [user, loading, navigate]);
+  }, [user, authLoading, navigate]);
+
+  // Show loading screen until auth + data ready
+  if (authLoading || dataLoading) {
+    return (
+      <div className="p-6 text-center text-lg font-medium">
+        Loading dashboard...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-600">
+        <p className="mb-4">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-gray-900 text-white rounded"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="container mx-auto">
+        {/* Header */}
         <div className="bg-gray-900 shadow-lg rounded-lg p-6 mb-8 flex justify-between items-center">
-          <h1 className="text-2xl text-white font-bold">Customer Dashboard</h1>
-
+          <h1 className="text-2xl text-white font-bold">
+            Welcome, {user?.name || "Customer"}
+          </h1>
           <button
             onClick={handleLogout}
-            className="bg-gray-100 text-gray-900 font-semibold hover:bg-gray-300 px-3 py-1 rounded text-gray-900 font-semibold"
+            className="bg-gray-100 text-gray-900 font-semibold hover:bg-gray-300 px-3 py-1 rounded"
           >
             Logout
           </button>
         </div>
 
-        {/* Quick Navigation */}
+        {/* Quick Links */}
         <div className="flex gap-4 mb-6">
           <Link
-            to={`/customer/orders/${user?.id}`}
+            to={`/customer/orders/${user.user_id}`}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
           >
             View My Orders
           </Link>
-
           <Link
-            to={`/customer/deliveries/${user?.id}`}
+            to={`/customer/deliveries/${user.user_id}`}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
           >
             View Deliveries
           </Link>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-5 gap-4 mb-8">
+        {/* Stats */}
+        <div className="grid grid-cols-4 gap-4 mb-8">
           {Object.entries(stats).map(([key, value]) => (
             <div key={key} className="bg-white p-4 shadow rounded text-center">
               <h2 className="capitalize">{key.replace(/([A-Z])/g, " $1")}</h2>
