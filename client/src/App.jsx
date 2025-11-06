@@ -22,8 +22,9 @@ import DriverDashboard from "./pages/driver/DriverDashboard";
 import DriverDeliveries from "./pages/driver/DriverDeliveries";
 
 // Customer
-import CustomerDashboard from "./pages/customers/CustomerDashboard";
-import Orders from "./pages/customers/Orders";
+import CustomerDashboard from "./pages/Customers/CustomerDashboard";
+import Orders from "./pages/Customers/CustomerOrders";
+import CustomerDeliveries from "./pages/Customers/CustomerDeliveries";
 
 // Not Found
 import NotFound from "./pages/notfound";
@@ -132,6 +133,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={["customer"]}>
                 <Orders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/customer/deliveries"
+            element={
+              <ProtectedRoute allowedRoles={["customer"]}>
+                <CustomerDeliveries />
               </ProtectedRoute>
             }
           />

@@ -90,12 +90,12 @@ export default function CustomerDashboard() {
   }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="container mx-auto">
+    <div className=" bg-gray-100 min-h-screen">
+            
         {/* Header */}
-        <div className="bg-gray-900 shadow-lg rounded-lg p-6 mb-8 flex justify-between items-center">
-          <h1 className="text-2xl text-white font-bold">
-            Welcome, {user?.name || "Customer"}
+        <nav className="bg-gray-900 text-white px-6 py-3 flex justify-between items-center shadow">
+          <h1 className="text-2xl text-gray-100 font-bold">
+            Welcome, {user?.first_name || "Customer"}
           </h1>
           <button
             onClick={handleLogout}
@@ -103,18 +103,19 @@ export default function CustomerDashboard() {
           >
             Logout
           </button>
-        </div>
+        </nav>
 
         {/* Quick Links */}
-        <div className="flex gap-4 mb-6">
+      <div className="container p-4">  
+        <div className="flex gap-4 mb-4">
           <Link
-            to={`/customer/orders/${user.user_id}`}
+            to={`/customer/orders`}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
           >
             View My Orders
           </Link>
           <Link
-            to={`/customer/deliveries/${user.user_id}`}
+            to={`/customer/deliveries`}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
           >
             View Deliveries
@@ -170,6 +171,7 @@ export default function CustomerDashboard() {
           )}
         </div>
       </div>
+      
     </div>
   );
 }

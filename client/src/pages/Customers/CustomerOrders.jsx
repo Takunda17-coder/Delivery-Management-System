@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import api from "../../api/axiosConfig";
-import { Link } from "react-router-dom";
 
 export default function Orders() {
+  const { user, logout } = useAuth(); // <-- correct object destructuring
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const handleLogout = () => logout(navigate);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const customerId = localStorage.getItem("customer_id");
+        const customerId = user?.user_id || localStorage.getItem("customer_id");
         if (!customerId) return;
 
         const response = await api.get(`/orders?customer_id=${customerId}`);
@@ -21,18 +26,28 @@ export default function Orders() {
       }
     };
     fetchOrders();
-  }, []);
+  }, [user]);
 
   if (loading) {
     return <p className="text-center text-gray-600 mt-10">Loading orders...</p>;
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">My Orders</h1>
+    <div className="min-h-screen bg-gray-100">
+      {/* Nav */}
+      <nav className="bg-gray-900 text-white px-6 py-3 flex justify-between items-center shadow">
+        <h1 className="text-xl font-semibold">My Orders</h1>
+        <button
+          onClick={handleLogout}
+          className="bg-white text-black font-semibold hover:bg-gray-100 px-3 py-1 rounded"
+        >
+          Logout
+        </button>
+      </nav>
 
+      {/* Orders table */}
       {orders.length === 0 ? (
-        <div className="bg-white shadow rounded p-6 text-center">
+        <div className="bg-white shadow rounded py-6 px-6 text-center">
           <p className="text-gray-500">You have no orders yet.</p>
         </div>
       ) : (

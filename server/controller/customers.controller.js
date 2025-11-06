@@ -24,7 +24,10 @@ exports.createCustomer = async (req, res) => {
     }
 
     // Check if email already exists in Users
-    const existingUser = await Users.findOne({ where: { email }, transaction: t });
+    const existingUser = await Users.findOne({
+      where: { email },
+      transaction: t,
+    });
     if (existingUser) {
       await t.rollback();
       return res.status(400).json({ message: "Email already registered" });
@@ -88,7 +91,7 @@ exports.getAllCustomers = async (_req, res) => {
         {
           model: Orders,
           as: "orders",
-          include: [{ model: Invoice, as: "invoices" }],
+          include: [{ model: Invoice, as: "invoice" }], // ✅ match alias here
         },
       ],
     });
@@ -103,7 +106,6 @@ exports.getAllCustomers = async (_req, res) => {
 // ---------------------------- GET CUSTOMER BY ID ----------------------------
 exports.getCustomerById = async (req, res) => {
   try {
-    const { id } = req.params;
     const customer = await Customer.findByPk(id, {
       include: [
         {
@@ -114,12 +116,13 @@ exports.getCustomerById = async (req, res) => {
         {
           model: Orders,
           as: "orders",
-          include: [{ model: Invoice, as: "invoices" }],
+          include: [{ model: Invoice, as: "invoice" }], // ✅ match alias
         },
       ],
     });
 
-    if (!customer) return res.status(404).json({ message: "Customer not found" });
+    if (!customer)
+      return res.status(404).json({ message: "Customer not found" });
 
     res.status(200).json(customer);
   } catch (error) {
@@ -150,8 +153,16 @@ exports.updateCustomer = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { id } = req.params;
-    const { first_name, last_name, email, sex, address, age, phone_number, password } =
-      req.body;
+    const {
+      first_name,
+      last_name,
+      email,
+      sex,
+      address,
+      age,
+      phone_number,
+      password,
+    } = req.body;
 
     const customer = await Customer.findByPk(id, { transaction: t });
     if (!customer) {
@@ -167,7 +178,10 @@ exports.updateCustomer = async (req, res) => {
 
     // Update email if changed
     if (email && email !== user.email) {
-      const emailExists = await Users.findOne({ where: { email }, transaction: t });
+      const emailExists = await Users.findOne({
+        where: { email },
+        transaction: t,
+      });
       if (emailExists) {
         await t.rollback();
         return res.status(400).json({ message: "Email already in use" });
@@ -194,7 +208,9 @@ exports.updateCustomer = async (req, res) => {
     await customer.save({ transaction: t });
     await t.commit();
 
-    res.status(200).json({ message: "Customer updated successfully", customer });
+    res
+      .status(200)
+      .json({ message: "Customer updated successfully", customer });
   } catch (error) {
     await t.rollback();
     console.error("Error updating customer:", error);
