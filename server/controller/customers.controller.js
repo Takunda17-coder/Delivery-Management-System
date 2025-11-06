@@ -135,7 +135,16 @@ exports.getCustomerByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const customer = await Customers.findOne({ where: { user_id: userId } });
+    const customer = await Customer.findOne({
+      where: { user_id: userId },
+      include: [
+        {
+          model: Users,
+          as: "user",
+          attributes: ["user_id", "name", "email", "role", "status"],
+        },
+      ],
+    });
 
     if (!customer) {
       return res.status(404).json({ message: "Customer not found" });

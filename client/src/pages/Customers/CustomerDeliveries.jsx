@@ -55,9 +55,9 @@ export default function CustomerDeliveries() {
     );
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className=" bg-gray-100 min-h-screen">
       {/* Header */}
-      <div className="bg-gray-900 shadow-lg rounded-lg p-6 mb-6 flex justify-between items-center">
+      <div className="bg-gray-900 text-white px-6 py-3 flex justify-between items-center shadow">
         <h1 className="text-2xl text-white font-bold">My Deliveries</h1>
         <button
           onClick={handleLogout}

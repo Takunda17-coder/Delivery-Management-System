@@ -33,9 +33,12 @@ export default function CustomerDashboard() {
         setDataLoading(true);
         setError("");
 
-        const customerId = user.user_id;
+        // 1️⃣ Fetch customer using logged-in user’s user_id
+        const customerRes = await api.get(`/customers/user/${user.user_id}`);
+        const customer = customerRes.data;
+        const customerId = customer.customer_id; // ✅ Real customer_id
 
-        // Fetch orders and invoices
+        // 2️⃣ Fetch orders & invoices using customer_id
         const [ordersRes, invoicesRes] = await Promise.all([
           api.get(`/orders?customer_id=${customerId}`),
           api.get(`/invoice/customer/${customerId}`),
@@ -45,6 +48,7 @@ export default function CustomerDashboard() {
         const completed = allOrders.filter(o => o.status === "Completed").length;
         const pending = allOrders.filter(o => o.status === "Pending").length;
 
+        // 3️⃣ Update Stats
         setStats({
           myOrders: allOrders.length,
           completedOrders: completed,
@@ -52,8 +56,9 @@ export default function CustomerDashboard() {
           invoices: invoicesRes.data.length,
         });
 
-        // Show the 5 most recent orders
+        // 4️⃣ Show the 5 most recent orders
         setRecentOrders(allOrders.slice(-5).reverse());
+
       } catch (err) {
         console.error("Failed to load customer dashboard data:", err);
         setError("Failed to load dashboard data. Please try again.");
@@ -91,22 +96,21 @@ export default function CustomerDashboard() {
 
   return (
     <div className=" bg-gray-100 min-h-screen">
-            
-        {/* Header */}
-        <nav className="bg-gray-900 text-white px-6 py-3 flex justify-between items-center shadow">
-          <h1 className="text-2xl text-gray-100 font-bold">
-            Welcome, {user?.first_name || "Customer"}
-          </h1>
-          <button
-            onClick={handleLogout}
-            className="bg-gray-100 text-gray-900 font-semibold hover:bg-gray-300 px-3 py-1 rounded"
-          >
-            Logout
-          </button>
-        </nav>
+      {/* Header */}
+      <nav className="bg-gray-900 text-white px-6 py-3 flex justify-between items-center shadow">
+        <h1 className="text-2xl text-gray-100 font-bold">
+          Welcome, {user?.first_name || "Customer"}
+        </h1>
+        <button
+          onClick={handleLogout}
+          className="bg-gray-100 text-gray-900 font-semibold hover:bg-gray-300 px-3 py-1 rounded"
+        >
+          Logout
+        </button>
+      </nav>
 
-        {/* Quick Links */}
-      <div className="container p-4">  
+      {/* Quick Links */}
+      <div className="container p-4">
         <div className="flex gap-4 mb-4">
           <Link
             to={`/customer/orders`}
@@ -171,7 +175,6 @@ export default function CustomerDashboard() {
           )}
         </div>
       </div>
-      
     </div>
   );
 }
