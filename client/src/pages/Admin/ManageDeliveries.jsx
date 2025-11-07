@@ -142,10 +142,11 @@ export default function ManageDeliveries() {
               value={form.status || ""}
               onChange={(e) => setForm({ ...form, status: e.target.value })}
             >
-              <option value="">-- Select Status --</option>
+              <option value="pending">Pending</option>
               <option value="scheduled">Scheduled</option>
               <option value="on_route">On Route</option>
-              <option value="unscheduled">Unscheduled</option>
+              <option value="delivered">Delivered</option>
+              <option value="failed">Failed</option>
             </select>
           </div>
 

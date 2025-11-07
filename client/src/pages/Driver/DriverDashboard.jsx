@@ -21,13 +21,15 @@ export default function DriverDashboard() {
   const goToDeliveries = () => navigate("/driver/deliveries");
 
   useEffect(() => {
-    const fetchDriverData = async () => {
-      if (!user || user.role !== "driver") {
-        console.warn("Driver not logged in");
-        logout(navigate);
-        return;
-      }
+  const fetchDriverData = async () => {
+    if (!user || user.role !== "driver") {
+      console.warn("Driver not logged in");
+      logout(navigate);
+      return;
+    }
 
+    try {
+      // 1️⃣ Get driver using logged-in user's user_id
       const driverRes = await api.get(`/drivers/user/${user.user_id}`);
       const driver = driverRes.data;
       const driverId = driver.driver_id; // ✅ Real driver_id
@@ -38,33 +40,30 @@ export default function DriverDashboard() {
         return;
       }
 
-      try {
-        const res = await api.get(`/delivery/driver?driver_id=${driverId}`);
-        const allDeliveries = res.data;
+      // 2️⃣ Fetch deliveries assigned to this driver
+      const deliveriesRes = await api.get(`/delivery/driver?driver_id=${driverId}`);
+      const allDeliveries = deliveriesRes.data;
 
-        const completed = allDeliveries.filter(
-          (d) => d.status === "completed"
-        ).length;
-        const pending = allDeliveries.filter(
-          (d) => d.status === "pending"
-        ).length;
+      const completed = allDeliveries.filter((d) => d.status === "completed").length;
+      const pending = allDeliveries.filter((d) => d.status === "pending").length;
 
-        setStats({
-          assignedDeliveries: allDeliveries.length,
-          completedDeliveries: completed,
-          pendingDeliveries: pending,
-        });
+      setStats({
+        assignedDeliveries: allDeliveries.length,
+        completedDeliveries: completed,
+        pendingDeliveries: pending,
+      });
 
-        setRecentDeliveries(allDeliveries.slice(-5));
-      } catch (err) {
-        console.error("Failed to load driver dashboard:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      setRecentDeliveries(allDeliveries.slice(-5));
+    } catch (err) {
+      console.error("Failed to load driver dashboard:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchDriverData();
-  }, [user, navigate]);
+  fetchDriverData();
+}, [user, navigate]);
+
 
   if (loading) {
     return (
@@ -116,7 +115,7 @@ export default function DriverDashboard() {
           ) : (
             <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="border-b bg-gray-100">
+                <tr className="border-b-gray-100 text-gray-700 border-b text-center">
                   <th className="py-2 text-left">Delivery ID</th>
                   <th className="py-2 text-left">Pickup</th>
                   <th className="py-2 text-left">Dropoff</th>
@@ -128,7 +127,7 @@ export default function DriverDashboard() {
                 {recentDeliveries.map((delivery) => (
                   <tr
                     key={delivery.delivery_id}
-                    className="border-b hover:bg-gray-50 cursor-pointer"
+                    className="border-b-gray-100 border-b hover:bg-gray-50 cursor-pointer"
                     onClick={() =>
                       navigate(`/driver/deliveries/${delivery.delivery_id}`)
                     } // Optional row link

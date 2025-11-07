@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import api from "../../api/axiosConfig";
 import { useAuth } from "../../context/AuthContext";
 
@@ -22,23 +22,30 @@ export default function DriverDeliveries() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const driverId = user?.user_id || user?.id || user?.driver_id;
-
   useEffect(() => {
-    if (!user || (!driverId && user.role !== "admin")) {
-      navigate("/login");
-      return;
-    }
-
     const fetchDeliveries = async () => {
+      if (!user || user.role !== "driver") {
+        navigate("/login");
+        return;
+      }
+
       setLoading(true);
-      setError("");
+
       try {
+        // ✅ Fetch the driver profile using correct endpoint
         const driverRes = await api.get(`/drivers/user/${user.user_id}`);
         const driver = driverRes.data;
-        const driverId = driver.driver_id; // ✅ Real driver_id
-        const res = await api.get(`/delivery/driver?driver_id=${driverId}`);
-        setDeliveries(res.data || []);
+        const driverId = driver.driver_id;
+
+        if (!driverId) {
+          setError("Driver ID not found. Contact admin.");
+          setLoading(false);
+          return;
+        }
+
+        // ✅ Fetch all deliveries assigned to this driver
+        const deliveriesRes = await api.get(`/delivery/driver?driver_id=${driverId}`);
+        setDeliveries(deliveriesRes.data || []);
       } catch (err) {
         console.error("Failed to load deliveries:", err);
         setError(err.response?.data?.message || "Failed to load deliveries");
@@ -48,21 +55,10 @@ export default function DriverDeliveries() {
     };
 
     fetchDeliveries();
-  }, [user, driverId, navigate, location.key]);
+  }, [user, navigate, location.key]);
 
   const updateStatus = async (deliveryId, newStatus) => {
-    if (
-      !["pending", "scheduled", "on_route", "delivered", "failed"].includes(
-        newStatus
-      )
-    ) {
-      setError("Invalid status");
-      return;
-    }
-
-    const ok = window.confirm(
-      `Change status to "${STATUS_LABELS[newStatus]}"?`
-    );
+    const ok = window.confirm(`Change status to "${STATUS_LABELS[newStatus]}"?`);
     if (!ok) return;
 
     setUpdatingId(deliveryId);
@@ -70,9 +66,7 @@ export default function DriverDeliveries() {
     setMessage("");
 
     try {
-      const res = await api.put(`/delivery/${deliveryId}`, {
-        status: newStatus,
-      });
+      const res = await api.put(`/delivery/${deliveryId}`, { status: newStatus });
 
       setDeliveries((prev) =>
         prev.map((d) =>
@@ -86,11 +80,6 @@ export default function DriverDeliveries() {
       setError(err.response?.data?.message || "Failed to update status");
     } finally {
       setUpdatingId(null);
-      // Optionally re-fetch deliveries for consistency
-      try {
-        const r = await api.get(`/delivery/driver?driver_id=${driverId}`);
-        setDeliveries(r.data || []);
-      } catch {}
     }
   };
 
@@ -100,134 +89,130 @@ export default function DriverDeliveries() {
     );
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="container mx-auto">
-        <nav className="flex justify-between bg-gray-900 items-center mb-6 px-4 py-3 rounded">
-          <h1 className="text-2xl text-white font-semibold">My Deliveries</h1>
-          <button
-            onClick={() => logout(navigate)}
-            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-          >
-            Logout
-          </button>
-        </nav>
+    <div className="min-h-screen bg-gray-100">
+      <nav className="bg-gray-900 text-white px-6 py-3 flex justify-between items-center shadow">
+        <h1 className="text-2xl font-semibold">My Deliveries</h1>
+        <button
+          onClick={() => logout(navigate)}
+          className="bg-gray-100 text-gray-900 hover:bg-gray-400 px-3 py-1 rounded"
+        >
+          Logout
+        </button>
+      </nav>
 
-        {error && <div className="mb-4 text-red-600">{error}</div>}
-        {message && <div className="mb-4 text-green-600">{message}</div>}
+      <div className="flex justify-end mb-3 py-4 px-6">
+        <Link
+          to="/driver/dashboard"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+        >
+          View Dashboard
+        </Link>
+      </div>
 
-        {deliveries.length === 0 ? (
-          <div className="bg-white p-6 rounded shadow text-gray-600">
-            No deliveries assigned.
-          </div>
-        ) : (
-          <div className="bg-white rounded shadow overflow-x-auto">
-            <table className="w-full text-sm border-collapse">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="p-3 text-left">Delivery ID</th>
-                  <th className="p-3 text-left">Order Item</th>
-                  <th className="p-3 text-left">Pickup</th>
-                  <th className="p-3 text-left">Dropoff</th>
-                  <th className="p-3 text-left">Status</th>
-                  <th className="p-3 text-left">Date</th>
-                  <th className="p-3 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {deliveries.map((d) => (
-                  <tr key={d.delivery_id} className="border-t hover:bg-gray-50">
-                    <td className="p-3">{d.delivery_id}</td>
-                    <td className="p-3">
-                      {d?.Order?.order_item || d?.order_item || "—"}
-                    </td>
-                    <td className="p-3">{d.pickup_address}</td>
-                    <td className="p-3">{d.dropoff_address}</td>
-                    <td className="p-3">
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-semibold ${
-                          d.status === "delivered"
-                            ? "bg-green-100 text-green-800"
-                            : d.status === "on_route"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : d.status === "scheduled"
-                            ? "bg-blue-100 text-blue-800"
-                            : d.status === "failed"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
+      {error && <div className="mb-4 text-red-600">{error}</div>}
+      {message && <div className="mb-4 text-green-600">{message}</div>}
+
+      {deliveries.length === 0 ? (
+        <div className="bg-white p-6 rounded shadow text-gray-600">
+          No deliveries assigned.
+        </div>
+      ) : (
+        <div className="bg-white rounded shadow overflow-x-auto">
+          <table className="w-full text-sm border-collapse px-6 py-4">
+            <thead className="border-b-gray-100 border-b">
+              <tr>
+                <th className="p-3 text-left">Delivery ID</th>
+                <th className="p-3 text-left">Pickup</th>
+                <th className="p-3 text-left">Dropoff</th>
+                <th className="p-3 text-left">Status</th>
+                <th className="p-3 text-left">Date</th>
+                <th className="p-3 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {deliveries.map((d) => (
+                <tr key={d.delivery_id} className="border-b-gray-100 border-b hover:bg-gray-50">
+                  <td className="p-3">{d.delivery_id}</td>
+                  <td className="p-3">{d.pickup_address}</td>
+                  <td className="p-3">{d.dropoff_address}</td>
+                  <td className="p-3">
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-semibold ${
+                        d.status === "delivered"
+                          ? "bg-green-100 text-green-800"
+                          : d.status === "on_route"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : d.status === "scheduled"
+                          ? "bg-blue-100 text-blue-800"
+                          : d.status === "failed"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {STATUS_LABELS[d.status] || d.status}
+                    </span>
+                  </td>
+                  <td className="p-3">
+                    {new Date(d.delivery_date).toLocaleString()}
+                  </td>
+                  <td className="p-3 flex gap-2 flex-wrap">
+
+                    {(d.status === "pending" || d.status === "scheduled") && (
+                      <button
+                        disabled={updatingId === d.delivery_id}
+                        onClick={() => updateStatus(d.delivery_id, "on_route")}
+                        className="px-2 py-1 rounded bg-yellow-500 hover:bg-yellow-600 text-white text-xs disabled:opacity-50"
                       >
-                        {STATUS_LABELS[d.status] || d.status}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      {new Date(d.delivery_date).toLocaleString()}
-                    </td>
-                    <td className="p-3 flex gap-2 flex-wrap">
-                      {d.status === "pending" || d.status === "scheduled" ? (
+                        Start Delivery
+                      </button>
+                    )}
+
+                    {d.status === "on_route" && (
+                      <>
                         <button
                           disabled={updatingId === d.delivery_id}
-                          onClick={() =>
-                            updateStatus(d.delivery_id, "on_route")
-                          }
+                          onClick={() => updateStatus(d.delivery_id, "delivered")}
+                          className="px-2 py-1 rounded bg-green-600 hover:bg-green-700 text-white text-xs disabled:opacity-50"
+                        >
+                          Delivered
+                        </button>
+                        <button
+                          disabled={updatingId === d.delivery_id}
+                          onClick={() => updateStatus(d.delivery_id, "failed")}
+                          className="px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs disabled:opacity-50"
+                        >
+                          Failed
+                        </button>
+                      </>
+                    )}
+
+                    {d.status === "failed" && (
+                      <>
+                        <button
+                          disabled={updatingId === d.delivery_id}
+                          onClick={() => updateStatus(d.delivery_id, "scheduled")}
+                          className="px-2 py-1 rounded bg-blue-500 hover:bg-blue-600 text-white text-xs disabled:opacity-50"
+                        >
+                          Reschedule
+                        </button>
+
+                        <button
+                          disabled={updatingId === d.delivery_id}
+                          onClick={() => updateStatus(d.delivery_id, "on_route")}
                           className="px-2 py-1 rounded bg-yellow-500 hover:bg-yellow-600 text-white text-xs disabled:opacity-50"
                         >
-                          Start Delivery
+                          Retry Delivery
                         </button>
-                      ) : null}
+                      </>
+                    )}
 
-                      {d.status === "on_route" ? (
-                        <>
-                          <button
-                            disabled={updatingId === d.delivery_id}
-                            onClick={() =>
-                              updateStatus(d.delivery_id, "delivered")
-                            }
-                            className="px-2 py-1 rounded bg-green-600 hover:bg-green-700 text-white text-xs disabled:opacity-50"
-                          >
-                            Delivered
-                          </button>
-                          <button
-                            disabled={updatingId === d.delivery_id}
-                            onClick={() =>
-                              updateStatus(d.delivery_id, "failed")
-                            }
-                            className="px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs disabled:opacity-50"
-                          >
-                            Failed
-                          </button>
-                        </>
-                      ) : null}
-
-                      {d.status === "failed" && (
-                        <>
-                          <button
-                            disabled={updatingId === d.delivery_id}
-                            onClick={() =>
-                              updateStatus(d.delivery_id, "scheduled")
-                            }
-                            className="px-2 py-1 rounded bg-blue-500 hover:bg-blue-600 text-white text-xs disabled:opacity-50"
-                          >
-                            Reschedule
-                          </button>
-                          <button
-                            disabled={updatingId === d.delivery_id}
-                            onClick={() =>
-                              updateStatus(d.delivery_id, "on_route")
-                            }
-                            className="px-2 py-1 rounded bg-yellow-500 hover:bg-yellow-600 text-white text-xs disabled:opacity-50"
-                          >
-                            Retry Delivery
-                          </button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
