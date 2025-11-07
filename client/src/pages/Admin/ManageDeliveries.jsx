@@ -158,8 +158,8 @@ export default function ManageDeliveries() {
           </button>
         </form>
 
-        <table className="w-full rounded shadow">
-          <thead className="bg-gray-900 text-gray-200">
+        <table className="w-full rounded-lg shadow-md overflow-x-auto">
+          <thead className="bg-gray-900 text-gray-200 border-b-gray-100">
             <tr>
               <th>Delivery ID</th>
               <th>Order ID</th>
@@ -180,7 +180,7 @@ export default function ManageDeliveries() {
             {data.map((d) => (
               <tr
                 key={d.delivery_id}
-                className="border-b text-gray-900 text-center"
+                className="border-b-gray-100 border-b text-gray-900 text-center gap-1"
               >
                 <td>{d.delivery_id}</td>
                 <td>{d.order_id}</td>

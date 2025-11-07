@@ -219,17 +219,17 @@ export default function ManageDrivers() {
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-300 rounded-lg">
-            <thead className="bg-gray-900 text-gray-200">
+            <thead className="bg-gray-900 text-gray-200 border-b-gray-100 border-b">
               <tr>
-                <th className="py-2 px-4 border-b">Name</th>
-                <th className="py-2 px-4 border-b">Email</th>
-                <th className="py-2 px-4 border-b">Sex</th>
-                <th className="py-2 px-4 border-b">Phone</th>
-                <th className="py-2 px-4 border-b">License</th>
-                <th className="py-2 px-4 border-b">Vehicle Type</th>
-                <th className="py-2 px-4 border-b">Date Joined</th>
-                <th className="py-2 px-4 border-b">Status</th>
-                <th className="py-2 px-4 border-b">Actions</th>
+                <th className="py-2 px-4 ">Name</th>
+                <th className="py-2 px-4 ">Email</th>
+                <th className="py-2 px-4 ">Sex</th>
+                <th className="py-2 px-4 ">Phone</th>
+                <th className="py-2 px-4 ">License</th>
+                <th className="py-2 px-4 ">Vehicle Type</th>
+                <th className="py-2 px-4 ">Date Joined</th>
+                <th className="py-2 px-4 ">Status</th>
+                <th className="py-2 px-4 ">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -237,17 +237,17 @@ export default function ManageDrivers() {
                 data.map((d) => (
                   <tr
                     key={d.driver_id || d.id}
-                    className="text-center text-gray-900 hover:bg-gray-50"
+                    className="text-center text-gray-900 border-b-gray-100 border-b hover:bg-gray-50"
                   >
-                    <td className="py-2 px-4 border-b">{d.first_name} {d.last_name}</td>
-                    <td className="py-2 px-4 border-b">{d.email}</td>
-                    <td className="py-2 px-4 border-b">{d.sex}</td>
-                    <td className="py-2 px-4 border-b">{d.phone_number}</td>
-                    <td className="py-2 px-4 border-b">{d.license_number}</td>
-                    <td className="py-2 px-4 border-b">{d.vehicle_type}</td>
-                    <td className="py-2 px-4 border-b">{d.date_joined}</td>
-                    <td className="py-2 px-4 border-b">{d.status}</td>
-                    <td className="py-2 px-4 border-b">
+                    <td className="py-2 px-4 ">{d.first_name} {d.last_name}</td>
+                    <td className="py-2 px-4 ">{d.email}</td>
+                    <td className="py-2 px-4 ">{d.sex}</td>
+                    <td className="py-2 px-4 ">{d.phone_number}</td>
+                    <td className="py-2 px-4 ">{d.license_number}</td>
+                    <td className="py-2 px-4 ">{d.vehicle_type}</td>
+                    <td className="py-2 px-4 ">{d.date_joined}</td>
+                    <td className="py-2 px-4 ">{d.status}</td>
+                    <td className="py-2 px-4 ">
                       <button
                         onClick={() => handleEdit(d)}
                         className="text-yellow-600 mr-2"

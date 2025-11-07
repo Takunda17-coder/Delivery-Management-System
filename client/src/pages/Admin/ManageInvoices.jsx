@@ -147,7 +147,7 @@ export default function ManageInvoices() {
         {/* Invoice Table */}
         <div className="mt-8 overflow-x-auto">
           <table className="min-w-full bg-white text-gray-900 rounded-lg shadow-md divide-y divide-gray-200">
-            <thead className="bg-gray-900 text-gray-200">
+            <thead className="bg-gray-900 text-gray-200 border-b-gray-100 border-b">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Invoice ID</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Delivery ID</th>
@@ -161,7 +161,7 @@ export default function ManageInvoices() {
                 <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 border-b-gray-100 border-b">
               {data.map((i) => (
                 <tr key={i.invoice_id || i.id}>
                   <td className="px-6 py-4 text-sm">{i.invoice_id}</td>

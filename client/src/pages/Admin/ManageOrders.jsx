@@ -42,15 +42,19 @@ const ManageOrders = () => {
           Manage Orders
         </h2>
 
-        <form onSubmit={handleSubmit} className="mb-6 grid grid-cols-2 gap-4 text-gray-900">
-          
+        <form
+          onSubmit={handleSubmit}
+          className="mb-6 grid grid-cols-2 gap-4 text-gray-900"
+        >
           {/* Customer ID */}
           <div className="flex flex-col">
             <label className="font-medium">Customer ID</label>
             <input
               type="number"
               value={form.customer_id || ""}
-              onChange={(e) => setForm({ ...form, customer_id: Number(e.target.value) })}
+              onChange={(e) =>
+                setForm({ ...form, customer_id: Number(e.target.value) })
+              }
               className="border p-2 rounded"
             />
           </div>
@@ -92,7 +96,9 @@ const ManageOrders = () => {
             <label className="font-medium">Pickup Address</label>
             <input
               value={form.pickup_address || ""}
-              onChange={(e) => setForm({ ...form, pickup_address: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, pickup_address: e.target.value })
+              }
               className="border p-2 rounded"
             />
           </div>
@@ -114,7 +120,9 @@ const ManageOrders = () => {
             <input
               type="number"
               value={form.weight || ""}
-              onChange={(e) => setForm({ ...form, weight: Number(e.target.value) })}
+              onChange={(e) =>
+                setForm({ ...form, weight: Number(e.target.value) })
+              }
               className="border p-2 rounded"
             />
           </div>
@@ -140,13 +148,13 @@ const ManageOrders = () => {
               type="submit"
               className="bg-gray-900 text-white px-6 py-2 rounded hover:bg-gray-700"
             >
-              Save Order
+              {form.order_id ? "Update Order" : "Save Order"}
             </button>
           </div>
         </form>
 
         <table className="min-w-full border-b-gray-100 border-b rounded-lg">
-          <thead className="bg-gray-900 text-gray-200">
+          <thead className="bg-gray-900 text-gray-200 border-b-gray-100 border-b">
             <tr>
               <th>Order ID</th>
               <th>Customer ID</th>
@@ -172,7 +180,7 @@ const ManageOrders = () => {
               orders.map((o) => (
                 <tr
                   key={o.order_id}
-                  className="text-center text-gray-900 border-b hover:bg-gray-50"
+                  className="text-center text-gray-900 border-b-gray-100 border-b hover:bg-gray-50"
                 >
                   <td>{o.order_id}</td>
                   <td>{o.customer_id}</td>
@@ -183,16 +191,17 @@ const ManageOrders = () => {
                   <td>{o.total}</td>
                   <td>{o.weight}</td>
                   <td>{o.status}</td>
-                  <td>
+                  <td className="flex gap-2 justify-center">
                     <button
                       onClick={() => handleEdit(o)}
-                      className="text-yellow-600 mr-2"
+                      className="bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-700"
                     >
                       Edit
                     </button>
+
                     <button
                       onClick={() => handleDelete(o.order_id)}
-                      className="text-red-600"
+                      className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
                     >
                       Delete
                     </button>

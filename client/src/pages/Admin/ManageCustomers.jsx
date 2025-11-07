@@ -104,17 +104,17 @@ export default function ManageCustomers() {
 
         {/* Customers Table */}
         <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-300 rounded-lg">
+          <table className="min-w-full border-b-gray-100 border-b rounded-lg">
             <thead className="bg-gray-900 text-gray-200">
               <tr>
-                <th className="py-2 px-4 border-b">First Name</th>
-                <th className="py-2 px-4 border-b">Last Name</th>
-                <th className="py-2 px-4 border-b">Email</th>
-                <th className="py-2 px-4 border-b">Sex</th>
-                <th className="py-2 px-4 border-b">Address</th>
-                <th className="py-2 px-4 border-b">Age</th>
-                <th className="py-2 px-4 border-b">Phone</th>
-                <th className="py-2 px-4 border-b">Actions</th>
+                <th className="py-2 px-4 ">First Name</th>
+                <th className="py-2 px-4 ">Last Name</th>
+                <th className="py-2 px-4 ">Email</th>
+                <th className="py-2 px-4 ">Sex</th>
+                <th className="py-2 px-4 ">Address</th>
+                <th className="py-2 px-4 ">Age</th>
+                <th className="py-2 px-4 ">Phone</th>
+                <th className="py-2 px-4 ">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -122,16 +122,16 @@ export default function ManageCustomers() {
                 data.map((c) => (
                   <tr
                     key={c.customer_id}
-                    className="text-center text-gray-900 hover:bg-gray-50"
+                    className="text-center text-gray-900 border-b-gray-100 border-b hover:bg-gray-50"
                   >
-                    <td className="py-2 px-4 border-b">{c.first_name}</td>
-                    <td className="py-2 px-4 border-b">{c.last_name}</td>
-                    <td className="py-2 px-4 border-b">{c.email}</td>
-                    <td className="py-2 px-4 border-b">{c.sex}</td>
-                    <td className="py-2 px-4 border-b">{c.address}</td>
-                    <td className="py-2 px-4 border-b">{c.age}</td>
-                    <td className="py-2 px-4 border-b">{c.phone_number}</td>
-                    <td className="py-2 px-4 border-b">
+                    <td className="py-2 px-4 ">{c.first_name}</td>
+                    <td className="py-2 px-4 ">{c.last_name}</td>
+                    <td className="py-2 px-4 ">{c.email}</td>
+                    <td className="py-2 px-4 ">{c.sex}</td>
+                    <td className="py-2 px-4 ">{c.address}</td>
+                    <td className="py-2 px-4 ">{c.age}</td>
+                    <td className="py-2 px-4 ">{c.phone_number}</td>
+                    <td className="py-2 px-4 ">
                       <button
                         onClick={() => handleEdit(c)}
                         className="text-yellow-600 mr-2"

@@ -1,24 +1,27 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-/**
- * Generic CRUD hook for API resources.
- * 
- * @param {string} endpoint - Singular API endpoint e.g., 'invoice', 'delivery'
- * @param {object} defaultForm - Default form state
- * @param {string} idField - Primary key field name, default 'id'
- */
 export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
   const [data, setData] = useState([]);
   const [form, setForm] = useState(defaultForm);
+  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch all records
+  const API = "https://delivery-management-system-backend-2385.onrender.com/api";
+
+  const normalizeForm = (item) => {
+    const normalized = { ...defaultForm };
+    for (const key in normalized) {
+      normalized[key] = item[key] ?? ""; // convert null/undefined to ""
+    }
+    return normalized;
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`https://delivery-management-system-backend-2385.onrender.com/api/${endpoint}`);
+      const res = await axios.get(`${API}/${endpoint}`);
       setData(res.data);
     } catch (err) {
       console.error("❌ Fetch error:", err);
@@ -32,68 +35,44 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
     fetchData();
   }, [endpoint]);
 
-  // Normalize payload for numeric fields and defaults
   const buildPayload = (form) => {
     const payload = { ...form };
 
-    // Numeric fields across modules
     const numericFields = [
-      "customer_id",
-      "driver_id",
-      "vehicle_id",
-      "order_id",
-      "invoice_id",
-      "delivery_id",
-      "quantity",
-      "price",
-      "total",
-      "delivery_fee",
-      "weight",
+      "customer_id", "driver_id", "vehicle_id", "order_id", "invoice_id",
+      "delivery_id", "quantity", "price", "total", "delivery_fee", "weight",
     ];
+
     numericFields.forEach((field) => {
       if (payload[field] !== undefined && payload[field] !== "")
         payload[field] = Number(payload[field]);
     });
 
-    // Auto-calc total if price and quantity exist
-    if (payload.price && payload.quantity && !payload.total) {
-      payload.total = payload.price * payload.quantity;
-    }
-
-    // Default statuses
+    // Default statuses (plural versions)
     if (!payload.status) {
-      if (endpoint === "order") payload.status = "pending";
-      if (endpoint === "delivery") payload.status = "scheduled";
-      if (endpoint === "invoice") payload.status = "unpaid";
-    }
-
-    // Auto-fill dates
-    if (endpoint === "delivery" && !payload.delivery_date) {
-      payload.delivery_date = new Date().toISOString();
-    }
-    if (endpoint === "invoice" && !payload.issue_date) {
-      payload.issue_date = new Date().toISOString();
+      if (endpoint === "orders") payload.status = "Pending";
+      if (endpoint === "deliveries") payload.status = "Scheduled";
+      if (endpoint === "invoices") payload.status = "Unpaid";
     }
 
     return payload;
   };
 
-  // Create or update
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const id = form[idField];
       const payload = buildPayload(form);
+      const id = payload[idField];
 
-      if (!id) delete payload[idField]; // Remove id for new records
-
-      if (id) {
-        await axios.put(`https://delivery-management-system-backend-2385.onrender.com/api/${endpoint}/${id}`, payload);
+      if (isEditing) {
+        await axios.put(`${API}/${endpoint}/${id}`, payload);
       } else {
-        await axios.post(`https://delivery-management-system-backend-2385.onrender.com/api/${endpoint}`, payload);
+        delete payload[idField];
+        await axios.post(`${API}/${endpoint}`, payload);
       }
 
       setForm(defaultForm);
+      setIsEditing(false);
       fetchData();
     } catch (err) {
       console.error("❌ Submit error:", err);
@@ -101,14 +80,15 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
     }
   };
 
-  // Edit: populate form
-  const handleEdit = (item) => setForm(item);
+  const handleEdit = (item) => {
+    setForm(normalizeForm(item));
+    setIsEditing(true);
+  };
 
-  // Delete
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this record?")) return;
     try {
-      await axios.delete(`https://delivery-management-system-backend-2385.onrender.com/api/${endpoint}/${id}`);
+      await axios.delete(`${API}/${endpoint}/${id}`);
       fetchData();
     } catch (err) {
       console.error("❌ Delete error:", err);
@@ -123,6 +103,7 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
     handleSubmit,
     handleEdit,
     handleDelete,
+    isEditing,
     loading,
     error,
   };

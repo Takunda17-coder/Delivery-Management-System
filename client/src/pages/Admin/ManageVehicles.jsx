@@ -100,8 +100,8 @@ export default function ManageVehicles() {
 
         {/* Vehicles Table */}
         <div className="overflow-x-auto bg-white rounded shadow">
-          <table className="w-full border-collapse">
-            <thead className="bg-gray-800 text-white">
+          <table className="w-full border-collapse rounded-lg shadow-md">
+            <thead className="bg-gray-900 text-white border-b-gray-100 border-b">
               <tr>
                 <th className="px-4 py-2">Type</th>
                 <th className="px-4 py-2">Make</th>
@@ -120,7 +120,7 @@ export default function ManageVehicles() {
                 data.map((v) => (
                   <tr
                     key={v.vehicle_id}
-                    className="border-b text-gray-900 text-center hover:bg-gray-200"
+                    className="border-b-gray-100 border-b text-gray-900 text-center hover:bg-gray-200"
                   >
                     <td className="px-2 py-1">{v.vehicle_type}</td>
                     <td className="px-2 py-1">{v.make}</td>
