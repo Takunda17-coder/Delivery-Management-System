@@ -76,7 +76,7 @@ exports.getAllVehicles = async (_req, res) => {
       include: [
         {
           model: Drivers,
-          as: "drivers",
+          as: "driver",
           attributes: ["driver_id", "first_name", "last_name", "phone_number", "status"],
         },
       ],
@@ -97,7 +97,7 @@ exports.getVehicleById = async (req, res) => {
     const vehicle = await Vehicle.findByPk(id, {
       include: [
         { model: Drivers, 
-          as:"drivers",
+          as:"driver",
           attributes: ["driver_id", "first_name", "last_name", "phone_number", "status"] },
       ],
     });
