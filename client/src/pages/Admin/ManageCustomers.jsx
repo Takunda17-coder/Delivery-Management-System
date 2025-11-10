@@ -3,23 +3,22 @@ import AdminLayout from "../../components/AdminLayout";
 import { useCRUD } from "../../hooks/useCRUD";
 
 export default function ManageCustomers() {
-  // Default form state including password
   const defaultCustomerForm = {
     first_name: "",
     last_name: "",
     email: "",
-    sex: "male", // default value to prevent uncontrolled warning
+    sex: "male",
     address: "",
     age: "",
     phone_number: "",
-    password: "", // new field for password
+    password: "",
   };
 
-  // Get CRUD hooks
-  const { data, form, setForm, handleSubmit, handleEdit, handleDelete } =
-    useCRUD("customers", defaultCustomerForm);
+  const { data, form, setForm, handleSubmit, handleEdit, handleDelete, loading, error } =
+    useCRUD("customers", defaultCustomerForm, "customer_id");
 
-  if (!data) return <p>Loading...</p>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error loading customers.</p>;
 
   return (
     <div className="w-full min-h-screen">
@@ -28,11 +27,7 @@ export default function ManageCustomers() {
           Manage Customers
         </h1>
 
-        {/* Customer Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-900"
-        >
+        <form onSubmit={handleSubmit} className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-900">
           <input
             placeholder="First Name"
             value={form.first_name}
@@ -81,78 +76,64 @@ export default function ManageCustomers() {
             placeholder="Age"
             type="number"
             value={form.age}
-            onChange={(e) =>
-              setForm({ ...form, age: parseInt(e.target.value) || "" })
-            }
+            onChange={(e) => setForm({ ...form, age: Number(e.target.value) || "" })}
             className="border p-2 rounded"
           />
           <input
             placeholder="Phone Number"
             value={form.phone_number}
-            onChange={(e) =>
-              setForm({ ...form, phone_number: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
             className="border p-2 rounded"
           />
           <button
             type="submit"
             className="bg-gray-800 text-white px-4 py-2 rounded col-span-1 md:col-span-2"
           >
-            Save
+            {form.customer_id ? "Update Customer" : "Save Customer"}
           </button>
         </form>
 
-        {/* Customers Table */}
         <div className="overflow-x-auto">
           <table className="min-w-full border-b-gray-100 border-b rounded-lg">
             <thead className="bg-gray-900 text-gray-200">
               <tr>
-                <th className="py-2 px-4 ">First Name</th>
-                <th className="py-2 px-4 ">Last Name</th>
-                <th className="py-2 px-4 ">Email</th>
-                <th className="py-2 px-4 ">Sex</th>
-                <th className="py-2 px-4 ">Address</th>
-                <th className="py-2 px-4 ">Age</th>
-                <th className="py-2 px-4 ">Phone</th>
-                <th className="py-2 px-4 ">Actions</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Sex</th>
+                <th>Address</th>
+                <th>Age</th>
+                <th>Phone</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {Array.isArray(data) && data.length > 0 ? (
-                data.map((c) => (
-                  <tr
-                    key={c.customer_id}
-                    className="text-center text-gray-900 border-b-gray-100 border-b hover:bg-gray-50"
-                  >
-                    <td className="py-2 px-4 ">{c.first_name}</td>
-                    <td className="py-2 px-4 ">{c.last_name}</td>
-                    <td className="py-2 px-4 ">{c.email}</td>
-                    <td className="py-2 px-4 ">{c.sex}</td>
-                    <td className="py-2 px-4 ">{c.address}</td>
-                    <td className="py-2 px-4 ">{c.age}</td>
-                    <td className="py-2 px-4 ">{c.phone_number}</td>
-                    <td className="py-2 px-4 ">
-                      <button
-                        onClick={() => handleEdit(c)}
-                        className="text-yellow-600 mr-2"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(c.customer_id)}
-                        className="text-red-600"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
+              {data.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="text-center py-4 text-gray-500">
                     No customers found
                   </td>
                 </tr>
+              ) : (
+                data.map((c) => (
+                  <tr key={c.customer_id} className="text-center text-gray-900 border-b-gray-100 border-b hover:bg-gray-50">
+                    <td>{c.first_name}</td>
+                    <td>{c.last_name}</td>
+                    <td>{c.email}</td>
+                    <td>{c.sex}</td>
+                    <td>{c.address}</td>
+                    <td>{c.age}</td>
+                    <td>{c.phone_number}</td>
+                    <td>
+                      <button onClick={() => handleEdit(c)} className="text-yellow-600 mr-2">
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(c.customer_id)} className="text-red-600">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>

@@ -13,7 +13,7 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
   const normalizeForm = (item) => {
     const normalized = { ...defaultForm };
     for (const key in normalized) {
-      normalized[key] = item[key] ?? ""; // convert null/undefined to ""
+      normalized[key] = item[key] ?? "";
     }
     return normalized;
   };
@@ -37,10 +37,18 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
 
   const buildPayload = (form) => {
     const payload = { ...form };
-
     const numericFields = [
-      "customer_id", "driver_id", "vehicle_id", "order_id", "invoice_id",
-      "delivery_id", "quantity", "price", "total", "delivery_fee", "weight",
+      "customer_id",
+      "driver_id",
+      "vehicle_id",
+      "order_id",
+      "invoice_id",
+      "delivery_id",
+      "quantity",
+      "price",
+      "total",
+      "delivery_fee",
+      "weight",
     ];
 
     numericFields.forEach((field) => {
@@ -48,7 +56,7 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
         payload[field] = Number(payload[field]);
     });
 
-    // Default statuses (plural versions)
+    // Default statuses
     if (!payload.status) {
       if (endpoint === "orders") payload.status = "Pending";
       if (endpoint === "deliveries") payload.status = "Scheduled";
@@ -61,19 +69,21 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const id = form[idField];
       const payload = buildPayload(form);
-      const id = payload[idField];
 
-      if (isEditing) {
+      if (id) {
+        // PUT request for update
         await axios.put(`${API}/${endpoint}/${id}`, payload);
       } else {
-        delete payload[idField];
+        // POST request for create
         await axios.post(`${API}/${endpoint}`, payload);
       }
 
       setForm(defaultForm);
       setIsEditing(false);
       fetchData();
+      alert(`${endpoint.slice(0, -1)} saved successfully!`);
     } catch (err) {
       console.error("❌ Submit error:", err);
       setError(err);
