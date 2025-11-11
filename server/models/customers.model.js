@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
         validate: { isEmail: true },
       },
-      sex: { type: DataTypes.STRING, allowNull: true },
+      sex: { type: DataTypes.ENUM("Male", "Female", "Other"), allowNull: true, defaultValue: "Male"},
       address: { type: DataTypes.STRING, allowNull: true },
       age: { type: DataTypes.INTEGER, allowNull: true },
       phone_number: { type: DataTypes.STRING, allowNull: true },
@@ -36,8 +36,14 @@ module.exports = (sequelize, DataTypes) => {
 
   Customer.associate = (models) => {
     Customer.belongsTo(models.Users, { foreignKey: "user_id", as: "user" });
-    Customer.hasMany(models.Orders, { foreignKey: "customer_id", as: "orders" });
-    Customer.hasMany(models.Invoice, { foreignKey: "customer_id", as: "invoices" });
+    Customer.hasMany(models.Orders, {
+      foreignKey: "customer_id",
+      as: "orders",
+    });
+    Customer.hasMany(models.Invoice, {
+      foreignKey: "customer_id",
+      as: "invoices",
+    });
   };
 
   return Customer;

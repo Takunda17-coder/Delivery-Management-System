@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoutes";
+import { Toaster } from "react-hot-toast";
 
 // Auth
 import Login from "./pages/auth/Login";

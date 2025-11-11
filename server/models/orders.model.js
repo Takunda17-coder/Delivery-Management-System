@@ -21,10 +21,23 @@ module.exports = (sequelize, DataTypes) => {
       order_item: { type: DataTypes.STRING, allowNull: false },
       quantity: { type: DataTypes.INTEGER, allowNull: false },
       price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-      order_date: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+      order_date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
       pickup_address: { type: DataTypes.STRING, allowNull: false },
       total: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-      status: { type: DataTypes.STRING, allowNull: false, defaultValue: "pending" },
+      status: {
+        type: DataTypes.ENUM(
+          "Pending",
+          "Scheduled",
+          "Completed",
+          "Cancelled",
+        ),
+        allowNull: false,
+        defaultValue: "Pending",
+      },
       weight: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
     },
     {
@@ -34,8 +47,14 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Orders.associate = (models) => {
-    Orders.belongsTo(models.Customer, { foreignKey: "customer_id", as: "customer" });
-    Orders.hasMany(models.Delivery, { foreignKey: "order_id", as: "deliveries" });
+    Orders.belongsTo(models.Customer, {
+      foreignKey: "customer_id",
+      as: "customer",
+    });
+    Orders.hasMany(models.Delivery, {
+      foreignKey: "order_id",
+      as: "deliveries",
+    });
     Orders.hasMany(models.Invoice, { foreignKey: "order_id", as: "invoices" });
   };
 
