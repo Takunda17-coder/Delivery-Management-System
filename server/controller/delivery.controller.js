@@ -1,12 +1,8 @@
 // controllers/delivery.controller.js
 const { sequelize, Delivery, Orders, Drivers, Vehicle } = require("../models");
 
-// Ensure associations exist (run this once, ideally in models/index.js)
-Delivery.belongsTo(Orders, { foreignKey: "order_id" });
-Delivery.belongsTo(Drivers, { foreignKey: "driver_id" });
-Delivery.belongsTo(Vehicle, { foreignKey: "vehicle_id" });
 
-// Create a new Delivery
+// ---------------------------- CREATE DELIVERY ----------------------------
 exports.createDelivery = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -21,11 +17,12 @@ exports.createDelivery = async (req, res) => {
       delivery_fee,
       total,
       priority,
+      status,
       recipient_name,
       recipient_contact,
     } = req.body;
 
-    // Validate required fields
+    // ✅ Validate required fields
     if (
       !order_id ||
       !driver_id ||
@@ -36,14 +33,13 @@ exports.createDelivery = async (req, res) => {
       !expected_delivery_time ||
       !delivery_fee ||
       !total ||
-      !priority ||
       !recipient_name ||
       !recipient_contact
     ) {
       return res.status(400).json({ message: "All required fields must be provided." });
     }
 
-    // Ensure related records exist
+    // ✅ Check if related entities exist
     const [order, driver, vehicle] = await Promise.all([
       Orders.findByPk(order_id, { transaction: t }),
       Drivers.findByPk(driver_id, { transaction: t }),
@@ -54,7 +50,14 @@ exports.createDelivery = async (req, res) => {
     if (!driver) return res.status(404).json({ message: "Driver not found" });
     if (!vehicle) return res.status(404).json({ message: "Vehicle not found" });
 
-    // Create delivery
+    // ✅ Valid ENUMs
+    const validStatus = ["Scheduled", "On Route", "Completed", "Cancelled"];
+    const validPriority = ["High", "Medium", "Low"];
+
+    const finalStatus = validStatus.includes(status) ? status : "Scheduled";
+    const finalPriority = validPriority.includes(priority) ? priority : "Low";
+
+    // ✅ Create Delivery
     const newDelivery = await Delivery.create(
       {
         order_id,
@@ -66,10 +69,10 @@ exports.createDelivery = async (req, res) => {
         expected_delivery_time,
         delivery_fee,
         total,
-        priority: priority || "low",
+        status: finalStatus,
+        priority: finalPriority,
         recipient_name,
         recipient_contact,
-        status: "scheduled",
       },
       { transaction: t }
     );
@@ -83,15 +86,11 @@ exports.createDelivery = async (req, res) => {
   }
 };
 
-// Get all deliveries
+// ---------------------------- GET ALL DELIVERIES ----------------------------
 exports.getAllDeliveries = async (req, res) => {
   try {
     const deliveries = await Delivery.findAll({
-      include: [
-        { model: Orders },
-        { model: Drivers },
-        { model: Vehicle },
-      ],
+      include: [{ model: Orders }, { model: Drivers }, { model: Vehicle }],
     });
     res.status(200).json(deliveries);
   } catch (error) {
@@ -100,18 +99,16 @@ exports.getAllDeliveries = async (req, res) => {
   }
 };
 
-// Get a single delivery by ID
+// ---------------------------- GET DELIVERY BY ID ----------------------------
 exports.getDeliveryById = async (req, res) => {
   try {
     const { id } = req.params;
     const delivery = await Delivery.findByPk(id, {
-      include: [
-        { model: Orders },
-        { model: Drivers },
-        { model: Vehicle },
-      ],
+      include: [{ model: Orders }, { model: Drivers }, { model: Vehicle }],
     });
+
     if (!delivery) return res.status(404).json({ message: "Delivery not found" });
+
     res.status(200).json(delivery);
   } catch (error) {
     console.error("Error fetching delivery:", error);
@@ -119,7 +116,7 @@ exports.getDeliveryById = async (req, res) => {
   }
 };
 
-// Update a delivery
+// ---------------------------- UPDATE DELIVERY ----------------------------
 exports.updateDelivery = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -132,6 +129,21 @@ exports.updateDelivery = async (req, res) => {
       return res.status(404).json({ message: "Delivery not found" });
     }
 
+    // ✅ ENUM validation
+    const validStatus = ["Scheduled", "On Route", "Completed", "Cancelled"];
+    const validPriority = ["High", "Medium", "Low"];
+
+    if (updates.status && !validStatus.includes(updates.status)) {
+      await t.rollback();
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    if (updates.priority && !validPriority.includes(updates.priority)) {
+      await t.rollback();
+      return res.status(400).json({ message: "Invalid priority value" });
+    }
+
+    // ✅ Apply updates
     Object.keys(updates).forEach((key) => {
       if (updates[key] !== undefined) delivery[key] = updates[key];
     });
@@ -147,44 +159,33 @@ exports.updateDelivery = async (req, res) => {
   }
 };
 
+// ---------------------------- GET DELIVERIES BY DRIVER ----------------------------
 exports.getDeliveriesByDriver = async (req, res) => {
   try {
     const { driver_id } = req.query;
-
-    if (!driver_id) {
-      return res.status(400).json({ message: "driver_id is required" });
-    }
+    if (!driver_id) return res.status(400).json({ message: "driver_id is required" });
 
     const deliveries = await Delivery.findAll({
       where: { driver_id: Number(driver_id) },
       include: [
-        { 
-          model: Orders,
-          attributes: ["order_id", "customer_id", "order_item", "quantity", "price", "status"]
-        },
-        { 
-          model: Drivers,
-          attributes: ["driver_id", "first_name", "phone_number"] 
-        },
         {
-          model: Vehicle,
-          attributes: ["vehicle_id", "vehicle_type", "model", "make", "plate_number"]
+          model: Orders,
+          attributes: ["order_id", "customer_id", "order_item", "quantity", "price", "status"],
         },
+        { model: Drivers, attributes: ["driver_id", "first_name", "phone_number"] },
+        { model: Vehicle, attributes: ["vehicle_id", "vehicle_type", "model", "make", "plate_number"] },
       ],
       order: [["delivery_date", "DESC"]],
     });
 
-    if (!deliveries || deliveries.length === 0) {
-      return res.status(200).json([]); // returns empty array instead of 404
-    }
-
-    res.status(200).json(deliveries);
+    res.status(200).json(deliveries || []);
   } catch (error) {
     console.error("Error fetching driver deliveries:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
+// ---------------------------- GET DELIVERIES BY CUSTOMER ----------------------------
 exports.getDeliveriesByCustomer = async (req, res) => {
   try {
     const { customer_id } = req.query;
@@ -192,11 +193,11 @@ exports.getDeliveriesByCustomer = async (req, res) => {
 
     const deliveries = await Delivery.findAll({
       include: [
-        { model: Orders, where: { customer_id }, attributes: ["order_id","order_item","status"] },
-        { model: Drivers, attributes: ["driver_id","first_name","phone_number"] },
-        { model: Vehicle, attributes: ["vehicle_id","vehicle_type","model","plate_number"] },
+        { model: Orders, where: { customer_id }, attributes: ["order_id", "order_item", "status"] },
+        { model: Drivers, attributes: ["driver_id", "first_name", "phone_number"] },
+        { model: Vehicle, attributes: ["vehicle_id", "vehicle_type", "model", "plate_number"] },
       ],
-      order: [["delivery_date","DESC"]],
+      order: [["delivery_date", "DESC"]],
     });
 
     res.status(200).json(deliveries);
@@ -206,12 +207,13 @@ exports.getDeliveriesByCustomer = async (req, res) => {
   }
 };
 
-// Delete a delivery
+// ---------------------------- DELETE DELIVERY ----------------------------
 exports.deleteDelivery = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { id } = req.params;
     const delivery = await Delivery.findByPk(id, { transaction: t });
+
     if (!delivery) {
       await t.rollback();
       return res.status(404).json({ message: "Delivery not found" });
@@ -219,6 +221,7 @@ exports.deleteDelivery = async (req, res) => {
 
     await delivery.destroy({ transaction: t });
     await t.commit();
+
     res.status(200).json({ message: "Delivery deleted successfully" });
   } catch (error) {
     await t.rollback();

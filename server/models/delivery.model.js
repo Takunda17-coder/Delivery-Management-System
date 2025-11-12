@@ -8,10 +8,10 @@ module.exports = (sequelize, DataTypes) => {
     dropoff_address: { type: DataTypes.STRING, allowNull: false },
     delivery_date: { type: DataTypes.DATE, allowNull: false },
     expected_delivery_time: { type: DataTypes.TIME, allowNull: false },
-    status: { type: DataTypes.STRING, defaultValue: "scheduled" },
+    status: { type: DataTypes.ENUM("Scheduled","On Route","Completed","Cancelled"), defaultValue: "Scheduled" },
     delivery_fee: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
     total: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-    priority: { type: DataTypes.ENUM("High","Medium","Low"), defaultValue: "low" },
+    priority: { type: DataTypes.ENUM("High","Medium","Low"), defaultValue: "Low" },
     recipient_name: { type: DataTypes.STRING, allowNull: false },
     recipient_contact: { type: DataTypes.STRING, allowNull: false },
   }, {
