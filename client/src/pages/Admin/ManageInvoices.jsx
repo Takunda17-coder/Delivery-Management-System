@@ -27,6 +27,7 @@ export default function ManageInvoices() {
             total:
               delivery.total || 
               (delivery.quantity && delivery.price ? delivery.quantity * delivery.price : prev.total),
+
             // Customer ID may need manual entry if not in delivery
             customer_id: delivery.customer_id || prev.customer_id,
           }));
@@ -130,7 +131,7 @@ export default function ManageInvoices() {
           <div>
             <label className="block font-semibold mb-1">Status</label>
             <select
-              value={form.status || "unpaid"}
+              value={form.status || "Unpaid"}
               onChange={(e) => setForm({ ...form, status: e.target.value })}
               className="border p-3 rounded w-full"
             >

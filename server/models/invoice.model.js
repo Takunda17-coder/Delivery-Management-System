@@ -19,9 +19,9 @@ module.exports = (sequelize, DataTypes) => {
       total: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
       delivery_fee: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
       status: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM("Paid","Unpaid"),
         allowNull: false,
-        defaultValue: "unpaid",
+        defaultValue: "Unpaid",
       },
       issue_date: {
         type: DataTypes.DATE,

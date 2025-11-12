@@ -47,7 +47,7 @@ exports.createInvoice = async (req, res) => {
         total,
         delivery_fee,
         issue_date: issue_date || new Date(),
-        status: status || "unpaid",
+        status: status || "Unpaid",
       },
       { transaction: t }
     );
