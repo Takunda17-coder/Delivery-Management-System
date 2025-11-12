@@ -36,6 +36,7 @@ exports.createDelivery = async (req, res) => {
       !expected_delivery_time ||
       !delivery_fee ||
       !total ||
+      !priority ||
       !recipient_name ||
       !recipient_contact
     ) {
@@ -65,7 +66,7 @@ exports.createDelivery = async (req, res) => {
         expected_delivery_time,
         delivery_fee,
         total,
-        priority: priority || "normal",
+        priority: priority || "low",
         recipient_name,
         recipient_contact,
         status: "scheduled",

@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     status: { type: DataTypes.STRING, defaultValue: "scheduled" },
     delivery_fee: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
     total: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-    priority: { type: DataTypes.STRING, defaultValue: "normal" },
+    priority: { type: DataTypes.ENUM("High","Medium","Low"), defaultValue: "low" },
     recipient_name: { type: DataTypes.STRING, allowNull: false },
     recipient_contact: { type: DataTypes.STRING, allowNull: false },
   }, {
