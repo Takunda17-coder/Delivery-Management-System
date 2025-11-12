@@ -202,8 +202,8 @@ export default function ManageDrivers() {
               onChange={(e) => setForm({ ...form, status: e.target.value })}
               className="border p-2 rounded"
             >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
             </select>
           </div>
 

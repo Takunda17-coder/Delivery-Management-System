@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       plate_number: { type: DataTypes.STRING, allowNull: false, unique: true },
       colour: { type: DataTypes.STRING, allowNull: false },
       date_acquired: { type: DataTypes.DATE, allowNull: false },
-      status: { type: DataTypes.STRING, allowNull: false, defaultValue: 'active' },
+      status: { type: DataTypes.ENUM("Active","Inactive"), allowNull: false, defaultValue: 'Active' },
       capacity: { type: DataTypes.INTEGER, allowNull: false },
     },
     {

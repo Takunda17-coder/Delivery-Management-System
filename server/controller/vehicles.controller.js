@@ -52,7 +52,7 @@ exports.createVehicle = async (req, res) => {
         colour,
         date_acquired,
         capacity,
-        status: status || "active",
+        status: status || "Active",
         driver_id: driver_id || null,
       },
       { transaction: t }

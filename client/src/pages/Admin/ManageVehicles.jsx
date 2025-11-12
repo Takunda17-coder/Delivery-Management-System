@@ -14,7 +14,7 @@ export default function ManageVehicles() {
     plate_number: "",
     colour: "",
     date_acquired: "",
-    status: "active",
+    status: "Active",
     capacity: "",
   };
 
@@ -81,7 +81,7 @@ export default function ManageVehicles() {
             className="p-2 border rounded"
           >
             <option value="active">Active</option>
-            <option value="not active">Not Active</option>
+            <option value="not active">Inactive</option>
           </select>
           <input
             type="number"

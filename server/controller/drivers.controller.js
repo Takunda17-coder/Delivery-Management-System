@@ -36,7 +36,8 @@ exports.createDriver = async (req, res) => {
       !license_qualification ||
       !license_expiry ||
       !vehicle_type ||
-      !date_joined
+      !date_joined ||
+      !status
     ) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -79,7 +80,7 @@ exports.createDriver = async (req, res) => {
         license_expiry,
         vehicle_type,
         date_joined,
-        status: status || "active",
+        status: status || "Active",
       },
       { transaction: t }
     );

@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       license_qualification: { type: DataTypes.STRING, allowNull: false },
       license_expiry: { type: DataTypes.DATE, allowNull: false },
       vehicle_type: { type: DataTypes.STRING, allowNull: false },
-      status: { type: DataTypes.STRING, defaultValue: 'active' },
+      status: { type: DataTypes.ENUM("Active","Inactive"), defaultValue: 'Active' },
       date_joined: { type: DataTypes.DATE, allowNull: false },
     },
     {
