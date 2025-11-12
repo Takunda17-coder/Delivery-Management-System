@@ -1,42 +1,33 @@
-// src/hooks/useCRUD.js
 import { useState, useEffect } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
-
-const API = "https://delivery-management-system-backend-2385.onrender.com/api";
 
 /**
- * useCRUD(endpoint, defaultForm, idField)
- * - endpoint: plural resource e.g. "orders", "customers", "deliveries"
- * - defaultForm: object with default values (including idField if you want)
- * - idField: primary key field name (defaults to "id")
+ * useCRUD hook
+ * - endpoint: plural resource name used by your API e.g. "orders", "customers"
+ * - defaultForm: default shape for the form
+ * - idField: primary key field name in that resource (e.g. "order_id", "customer_id")
  */
 export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
   const [data, setData] = useState([]);
   const [form, setForm] = useState(defaultForm);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [message, setMessage] = useState("");
 
-  const normalizeFormForEdit = (item) => {
-    // create a shallow copy that guarantees defined fields (avoid controlled/uncontrolled warnings)
-    const normalized = { ...defaultForm, ...item };
-    // ensure numbers remain numbers (but keep blanks as "")
-    Object.keys(normalized).forEach((k) => {
-      if (normalized[k] === null || normalized[k] === undefined) normalized[k] = "";
-    });
-    return normalized;
-  };
+  const API = process.env.REACT_APP_API_BASE || "https://delivery-management-system-backend-2385.onrender.com/api";
 
+  // fetch all records
   const fetchData = async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await axios.get(`${API}/${endpoint}`);
-      setData(Array.isArray(res.data) ? res.data : []);
+      setData(res.data || []);
     } catch (err) {
       console.error("❌ Fetch error:", err);
       setError(err);
-      toast.error(`Failed to load ${endpoint}`);
     } finally {
       setLoading(false);
     }
@@ -47,97 +38,121 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endpoint]);
 
-  const numericFields = [
-    "customer_id",
-    "driver_id",
-    "vehicle_id",
-    "order_id",
-    "invoice_id",
-    "delivery_id",
-    "quantity",
-    "price",
-    "total",
-    "delivery_fee",
-    "weight",
-    "age",
-  ];
+  // Normalize an item into the form shape without dropping the id
+  const normalizeForm = (item = {}) => {
+    // Keep all keys from defaultForm, but allow item to override.
+    const normalized = { ...defaultForm };
+    // copy any keys in defaultForm from item (use null -> "" fallback)
+    Object.keys(normalized).forEach((k) => {
+      normalized[k] = item[k] !== undefined && item[k] !== null ? item[k] : normalized[k] === undefined ? "" : normalized[k];
+    });
+    // also ensure idField preserved if present in item
+    if (item[idField] !== undefined && item[idField] !== null) {
+      normalized[idField] = item[idField];
+    } else {
+      // if defaultForm included idField, keep that, otherwise remove
+      if (defaultForm[idField] !== undefined) normalized[idField] = defaultForm[idField];
+    }
 
+    return normalized;
+  };
+
+  // build payload: cast numeric fields, keep strings as-is (including status and sex)
   const buildPayload = (raw) => {
     const payload = { ...raw };
 
-    // Convert numeric fields where appropriate (allow floats for weight/price)
+    const numericFields = [
+      "customer_id",
+      "driver_id",
+      "vehicle_id",
+      "order_id",
+      "invoice_id",
+      "delivery_id",
+      "quantity",
+      "price",
+      "total",
+      "delivery_fee",
+      "weight",
+      "age",
+    ];
+
     numericFields.forEach((f) => {
-      if (payload[f] === "" || payload[f] === undefined) {
-        delete payload[f];
-        return;
-      }
-      // weight, price, delivery_fee, total => float; ids & quantity & age => integer
-      if (["weight", "price", "delivery_fee", "total"].includes(f)) {
-        payload[f] = parseFloat(payload[f]);
-      } else {
+      if (payload[f] !== undefined && payload[f] !== "" && payload[f] !== null) {
+        // allow decimals where appropriate
         payload[f] = Number(payload[f]);
       }
     });
 
-    // Default status cases (normalize capitalization/strings to whatever backend expects)
-    if (!payload.status) {
-      if (endpoint === "orders") payload.status = "pending";
-      if (endpoint === "deliveries") payload.status = "scheduled";
-      if (endpoint === "invoices") payload.status = "unpaid";
+    // ensure status defaults if missing (match backend enum capitalization)
+    if (payload.status === undefined || payload.status === null || payload.status === "") {
+      if (endpoint === "orders") payload.status = "Pending";
+      if (endpoint === "deliveries") payload.status = "Scheduled";
+      if (endpoint === "invoices") payload.status = "Unpaid";
     }
 
     return payload;
   };
 
+  // Submit (create or update)
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    setMessage("");
+
     try {
       const id = form[idField];
       const payload = buildPayload(form);
 
-      // special case: if updating a user/customer and password is empty -> do not send password
-      if ((endpoint === "customers" || endpoint === "drivers" || endpoint === "users") && payload.password === "") {
-        delete payload.password;
-      }
-
-      if (id) {
-        // PUT update
+      // backend expects plural endpoint e.g. /api/orders/:id
+      if (id !== undefined && id !== null && id !== "") {
+        // UPDATE
         await axios.put(`${API}/${endpoint}/${id}`, payload);
-        toast.success(`${endpoint.slice(0, -1)} updated`);
+        setMessage("Updated successfully");
       } else {
-        // POST create
+        // CREATE
         await axios.post(`${API}/${endpoint}`, payload);
-        toast.success(`${endpoint.slice(0, -1)} created`);
+        setMessage("Created successfully");
       }
 
+      // reset form and state
       setForm(defaultForm);
       setIsEditing(false);
-      fetchData();
+      await fetchData();
     } catch (err) {
       console.error("❌ Submit error:", err);
       setError(err);
-      const msg = err.response?.data?.message || "Request failed";
-      toast.error(msg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  // Edit -> populate form and set editing state
   const handleEdit = (item) => {
-    setForm(normalizeFormForEdit(item));
+    const normalized = normalizeForm(item);
+    setForm(normalized);
     setIsEditing(true);
-    // scroll to top a little nicer for UX (optional)
-    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this record?")) return;
+  // Cancel editing helper
+  const cancelEdit = () => {
+    setForm(defaultForm);
+    setIsEditing(false);
+    setError(null);
+    setMessage("");
+  };
+
+  // Delete with confirm
+  const handleDelete = async (id, confirmMessage = "Are you sure you want to delete this record?") => {
+    if (!window.confirm(confirmMessage)) return;
     try {
       await axios.delete(`${API}/${endpoint}/${id}`);
-      toast.success("Deleted");
-      fetchData();
+      await fetchData();
+      setMessage("Deleted");
     } catch (err) {
       console.error("❌ Delete error:", err);
       setError(err);
-      toast.error("Failed to delete");
     }
   };
 
@@ -148,10 +163,12 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
     handleSubmit,
     handleEdit,
     handleDelete,
+    cancelEdit,
     isEditing,
-    setIsEditing,
     loading,
+    submitting,
     error,
-    refresh: fetchData,
+    message,
+    fetchData,
   };
 };

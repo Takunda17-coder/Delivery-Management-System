@@ -11,6 +11,7 @@ const createOrder = async (req, res) => {
       pickup_address,
       total,
       weight,
+      status,
     } = req.body;
 
     // Debug request body
@@ -31,6 +32,7 @@ const createOrder = async (req, res) => {
       pickup_address,
       total,
       weight,
+      status: status || "Pending", // default to "Pending" if not provided
     });
 
     res.status(201).json(newOrder);
@@ -138,6 +140,7 @@ const updateOrder = async (req, res) => {
       pickup_address,
       total,
       weight,
+      status,
     } = req.body;
 
     const order = await Orders.findByPk(id);
@@ -157,6 +160,7 @@ const updateOrder = async (req, res) => {
     if (pickup_address) order.pickup_address = pickup_address;
     if (total) order.total = total;
     if (weight) order.weight = weight;
+    if (status) order.status = status;
 
     await order.save();
     res.status(200).json(order);

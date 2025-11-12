@@ -206,13 +206,16 @@ exports.updateCustomer = async (req, res) => {
 
     await user.save({ transaction: t });
 
-    // Update customer fields
-    customer.first_name = first_name || customer.first_name;
-    customer.last_name = last_name || customer.last_name;
-    customer.age = age || customer.age;
-    customer.sex = sex || customer.sex;
-    customer.phone_number = phone_number || customer.phone_number;
-    customer.address = address || customer.address;
+    // Update customer fields only if provided
+    if (first_name !== undefined) customer.first_name = first_name;
+    if (last_name !== undefined) customer.last_name = last_name;
+    if (age !== undefined) customer.age = age;
+    if (sex !== undefined) customer.sex = sex;  // ✅ This fixes the issue
+    if (phone_number !== undefined) customer.phone_number = phone_number;
+    if (address !== undefined) customer.address = address;
+
+
+
 
     await customer.save({ transaction: t });
     await t.commit();
