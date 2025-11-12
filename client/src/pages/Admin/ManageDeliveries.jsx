@@ -8,7 +8,9 @@ export default function ManageDeliveries() {
   return (
     <AdminLayout>
       <div className="p-4">
-        <h1 className="text-2xl text-gray-900 font-bold mb-4">Manage Deliveries</h1>
+        <h1 className="text-2xl text-gray-900 font-bold mb-4">
+          Manage Deliveries
+        </h1>
 
         <form
           onSubmit={handleSubmit}
@@ -52,7 +54,9 @@ export default function ManageDeliveries() {
             <input
               type="text"
               value={form.pickup_address || ""}
-              onChange={(e) => setForm({ ...form, pickup_address: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, pickup_address: e.target.value })
+              }
               className="border p-2 rounded"
               required
             />
@@ -63,7 +67,9 @@ export default function ManageDeliveries() {
             <input
               type="text"
               value={form.dropoff_address || ""}
-              onChange={(e) => setForm({ ...form, dropoff_address: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, dropoff_address: e.target.value })
+              }
               className="border p-2 rounded"
               required
             />
@@ -74,7 +80,9 @@ export default function ManageDeliveries() {
             <input
               type="datetime-local"
               value={form.delivery_date || ""}
-              onChange={(e) => setForm({ ...form, delivery_date: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, delivery_date: e.target.value })
+              }
               className="border p-2 rounded"
               required
             />
@@ -85,7 +93,9 @@ export default function ManageDeliveries() {
             <input
               type="time"
               value={form.expected_delivery_time || ""}
-              onChange={(e) => setForm({ ...form, expected_delivery_time: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, expected_delivery_time: e.target.value })
+              }
               className="border p-2 rounded"
               required
             />
@@ -96,7 +106,9 @@ export default function ManageDeliveries() {
             <input
               type="text"
               value={form.recipient_name || ""}
-              onChange={(e) => setForm({ ...form, recipient_name: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, recipient_name: e.target.value })
+              }
               className="border p-2 rounded"
               required
             />
@@ -107,7 +119,9 @@ export default function ManageDeliveries() {
             <input
               type="text"
               value={form.recipient_contact || ""}
-              onChange={(e) => setForm({ ...form, recipient_contact: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, recipient_contact: e.target.value })
+              }
               className="border p-2 rounded"
               required
             />
@@ -118,7 +132,9 @@ export default function ManageDeliveries() {
             <input
               type="number"
               value={form.delivery_fee || ""}
-              onChange={(e) => setForm({ ...form, delivery_fee: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, delivery_fee: e.target.value })
+              }
               className="border p-2 rounded"
               required
             />
@@ -133,6 +149,19 @@ export default function ManageDeliveries() {
               className="border p-2 rounded"
               required
             />
+          </div>
+
+          <div className="col-span-2 flex flex-col gap-1">
+            <label className="font-medium">Priority</label>
+            <select
+              className="border p-2 rounded"
+              value={form.priority || ""}
+              onChange={(e) => setForm({ ...form, priority: e.target.value })}
+            >
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
           </div>
 
           <div className="col-span-2 flex flex-col gap-1">
@@ -172,6 +201,7 @@ export default function ManageDeliveries() {
               <th>Recipient</th>
               <th>Fee</th>
               <th>Total</th>
+              <th>Priority</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -193,9 +223,13 @@ export default function ManageDeliveries() {
                 <td>{d.recipient_name}</td>
                 <td>{d.delivery_fee}</td>
                 <td>{d.total}</td>
+                <td>{d.priority}</td>
                 <td>{d.status}</td>
                 <td>
-                  <button onClick={() => handleEdit(d)} className="text-yellow-600 mr-2">
+                  <button
+                    onClick={() => handleEdit(d)}
+                    className="text-yellow-600 mr-2"
+                  >
                     Edit
                   </button>
                   <button

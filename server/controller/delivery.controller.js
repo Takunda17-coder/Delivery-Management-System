@@ -33,6 +33,7 @@ exports.createDelivery = async (req, res) => {
       !expected_delivery_time ||
       !delivery_fee ||
       !total ||
+      !priority ||
       !recipient_name ||
       !recipient_contact
     ) {

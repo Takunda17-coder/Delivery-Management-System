@@ -30,6 +30,8 @@ const ManageCustomers = () => {
     message,
   } = useCRUD("customers", defaultCustomerForm, "customer_id");
 
+
+
   if (loading) return <p className="p-6">Loading customers...</p>;
 
   return (
@@ -37,7 +39,7 @@ const ManageCustomers = () => {
       <AdminLayout>
         <h1 className="text-2xl font-bold mb-6 text-gray-900">Manage Customers</h1>
 
-        <form onSubmit={handleSubmit} className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="mb-6 grid grid-cols-1 text-black md:grid-cols-2 gap-4">
           <div>
             <label className="block mb-1 font-medium">First Name</label>
             <input

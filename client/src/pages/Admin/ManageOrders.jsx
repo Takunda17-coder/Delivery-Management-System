@@ -3,7 +3,6 @@ import { useCRUD } from "../../hooks/useCRUD";
 import AdminLayout from "../../components/AdminLayout";
 import axios from "axios";
 
-const API = process.env.REACT_APP_API_BASE || "https://delivery-management-system-backend-2385.onrender.com/api";
 
 const ManageOrders = () => {
   const defaultForm = {
@@ -39,7 +38,7 @@ const ManageOrders = () => {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const res = await axios.get(`${API}/customers`);
+        const res = await axios.get(`https://delivery-management-system-backend-2385.onrender.com/api/orders`);
         if (Array.isArray(res.data)) {
           setCustomers(res.data.filter((c) => c.status === "active" || c.status === undefined));
         } else {
@@ -71,7 +70,7 @@ const ManageOrders = () => {
       <div className="p-6">
         <h2 className="text-2xl font-bold mb-4">Manage Orders</h2>
 
-        <form onSubmit={handleSubmit} className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="mb-6 grid grid-cols-1 text-black md:grid-cols-2 gap-4">
           {/* Customer */}
           <div>
             <label className="block mb-1 font-medium">Customer</label>
@@ -153,6 +152,8 @@ const ManageOrders = () => {
               required
             />
           </div>
+
+          
 
           {/* Total */}
           <div>

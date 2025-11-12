@@ -16,7 +16,7 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState("");
 
-  const API = process.env.REACT_APP_API_BASE || "https://delivery-management-system-backend-2385.onrender.com/api";
+  const API = "https://delivery-management-system-backend-2385.onrender.com/api";
 
   // fetch all records
   const fetchData = async () => {
@@ -70,6 +70,7 @@ export const useCRUD = (endpoint, defaultForm = {}, idField = "id") => {
       "delivery_id",
       "quantity",
       "price",
+      "priority",
       "total",
       "delivery_fee",
       "weight",
