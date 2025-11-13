@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       first_name: { type: DataTypes.STRING, allowNull: false },
       last_name: { type: DataTypes.STRING, allowNull: false },
       age: { type: DataTypes.INTEGER, allowNull: false },
-      sex: { type: DataTypes.STRING, allowNull: false },
+      sex: { type: DataTypes.ENUM("Male","Female","Other"), allowNull: false, defaultValue:"Male" },
       email: { type: DataTypes.STRING, allowNull: false, unique: true, validate: { isEmail: true } },
       phone_number: { type: DataTypes.STRING, allowNull: false, unique: true },
       license_number: { type: DataTypes.STRING, allowNull: false, unique: true },

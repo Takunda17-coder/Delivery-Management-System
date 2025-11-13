@@ -8,37 +8,41 @@ export default function ManageInvoices() {
 
   // Auto-fill fields based on delivery_id
   useEffect(() => {
-    const fetchDelivery = async () => {
-      if (!form.delivery_id) return;
+  // only run when we actually have a form and delivery_id
+  if (!form || !form.delivery_id) return;
 
-      try {
-        const res = await axios.get(`https://delivery-management-system-backend-2385.onrender.com/api/delivery/${form.delivery_id}`);
-        const delivery = res.data;
+  const fetchDelivery = async () => {
+    try {
+      const res = await axios.get(
+        `https://delivery-management-system-backend-2385.onrender.com/api/delivery/${form.delivery_id}`
+      );
+      const delivery = res.data;
 
-        if (delivery) {
-          setForm((prev) => ({
-            ...prev,
-            order_id: delivery.order_id || prev.order_id,
-            driver_id: delivery.driver_id || prev.driver_id,
-            vehicle_id: delivery.vehicle_id || prev.vehicle_id,
-            quantity: delivery.quantity || prev.quantity,
-            price: delivery.price || prev.price,
-            delivery_fee: delivery.delivery_fee || prev.delivery_fee,
-            total:
-              delivery.total || 
-              (delivery.quantity && delivery.price ? delivery.quantity * delivery.price : prev.total),
-
-            // Customer ID may need manual entry if not in delivery
-            customer_id: delivery.customer_id || prev.customer_id,
-          }));
-        }
-      } catch (err) {
-        console.error("❌ Fetch delivery error:", err);
+      if (delivery) {
+        setForm((prev) => ({
+          ...prev,
+          order_id: delivery.order_id || prev.order_id,
+          driver_id: delivery.driver_id || prev.driver_id,
+          vehicle_id: delivery.vehicle_id || prev.vehicle_id,
+          quantity: delivery.quantity || prev.quantity,
+          price: delivery.price || prev.price,
+          delivery_fee: delivery.delivery_fee || prev.delivery_fee,
+          total:
+            delivery.total ||
+            (delivery.quantity && delivery.price
+              ? delivery.quantity * delivery.price
+              : prev.total),
+          customer_id: delivery.customer_id || prev.customer_id,
+        }));
       }
-    };
+    } catch (err) {
+      console.error("❌ Fetch delivery error:", err);
+    }
+  };
 
-    fetchDelivery();
-  }, [form.delivery_id]);
+  fetchDelivery();
+}, [form?.delivery_id]); // use optional chaining in dependency
+
 
   return (
     <AdminLayout>

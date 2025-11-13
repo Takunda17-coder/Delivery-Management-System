@@ -8,7 +8,7 @@ export default function ManageDrivers() {
     last_name: "",
     email: "",
     password: "",
-    sex: "male",
+    sex: "Male",
     age: "",
     phone_number: "",
     license_number: "",
@@ -16,7 +16,7 @@ export default function ManageDrivers() {
     license_expiry: "",
     vehicle_type: "",
     date_joined: "",
-    status: "active",
+    status: "Active",
   };
 
   const { data, form, setForm, handleSubmit, handleEdit, handleDelete } =
@@ -225,7 +225,9 @@ export default function ManageDrivers() {
                 <th className="py-2 px-4 ">Email</th>
                 <th className="py-2 px-4 ">Sex</th>
                 <th className="py-2 px-4 ">Phone</th>
-                <th className="py-2 px-4 ">License</th>
+                <th className="py-2 px-4 ">License Number</th>
+                <th className="py-2 px-4 ">License Qualification</th>
+                <th className="py-2 px-4">License Expiry</th>
                 <th className="py-2 px-4 ">Vehicle Type</th>
                 <th className="py-2 px-4 ">Date Joined</th>
                 <th className="py-2 px-4 ">Status</th>
@@ -244,6 +246,8 @@ export default function ManageDrivers() {
                     <td className="py-2 px-4 ">{d.sex}</td>
                     <td className="py-2 px-4 ">{d.phone_number}</td>
                     <td className="py-2 px-4 ">{d.license_number}</td>
+                    <td className="py-2 px-4 ">{d.license_qualification}</td>
+                    <td className="py-2 px-4 ">{d.license_expiry}</td>
                     <td className="py-2 px-4 ">{d.vehicle_type}</td>
                     <td className="py-2 px-4 ">{d.date_joined}</td>
                     <td className="py-2 px-4 ">{d.status}</td>
