@@ -1,51 +1,97 @@
 import { useEffect } from "react";
-import { useCRUD } from "../../hooks/useCRUD";
+import useCRUD from "../../hooks/useCRUD";
 import axios from "axios";
 import AdminLayout from "../../components/AdminLayout";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+
 
 export default function ManageInvoices() {
-  const { data, form, setForm, handleSubmit, handleEdit, handleDelete, loading } = useCRUD("invoice");
-
-  // Auto-fill fields based on delivery_id
- useEffect(() => {
-  // Guard clause: don't run until form exists
-  if (!form || typeof form.delivery_id === "undefined" || form.delivery_id === null || form.delivery_id === "") {
-    return;
-  }
-
-  const fetchDelivery = async () => {
-    try {
-      const res = await axios.get(
-        `https://delivery-management-system-backend-2385.onrender.com/api/delivery/${form.delivery_id}`
-      );
-      const delivery = res.data;
-
-      if (delivery) {
-        setForm((prev) => ({
-          ...prev,
-          order_id: delivery.order_id ?? prev.order_id,
-          driver_id: delivery.driver_id ?? prev.driver_id,
-          vehicle_id: delivery.vehicle_id ?? prev.vehicle_id,
-          quantity: delivery.quantity ?? prev.quantity,
-          price: delivery.price ?? prev.price,
-          delivery_fee: delivery.delivery_fee ?? prev.delivery_fee,
-          total:
-            delivery.total ??
-            (delivery.quantity && delivery.price
-              ? delivery.quantity * delivery.price
-              : prev.total),
-          customer_id: delivery.customer_id ?? prev.customer_id,
-        }));
-      }
-    } catch (err) {
-      console.error("❌ Fetch delivery error:", err);
-    }
+  const defaultForm = {
+    delivery_id: "",
+    order_id: "",
+    customer_id: "",
+    driver_id: "",
+    vehicle_id: "",
+    quantity: "",
+    price: "",
+    delivery_fee: "",
+    total: "",
+    order_items: "",
+    status: "Unpaid",
   };
 
-  fetchDelivery();
-}, [form?.delivery_id]);
- // use optional chaining in dependency
+  const { data, form, setForm, handleSubmit, handleEdit, handleDelete, loading } = useCRUD("invoice", defaultForm, "invoice_id");
 
+  // Auto-fill invoice fields based on delivery_id
+  useEffect(() => {
+    if (!form?.delivery_id) return;
+
+    const fetchDelivery = async () => {
+      try {
+        const res = await axios.get(
+          `https://delivery-management-system-backend-2385.onrender.com/api/delivery/${form.delivery_id}`
+        );
+        const delivery = res.data;
+
+        if (delivery) {
+          setForm((prev) => ({
+            ...prev,
+            order_id: delivery.order_id ?? prev.order_id,
+            driver_id: delivery.driver_id ?? prev.driver_id,
+            vehicle_id: delivery.vehicle_id ?? prev.vehicle_id,
+            quantity: delivery.quantity ?? prev.quantity,
+            price: delivery.price ?? prev.price,
+            delivery_fee: delivery.delivery_fee ?? prev.delivery_fee,
+            total:
+              delivery.total ??
+              (delivery.quantity && delivery.price
+                ? delivery.quantity * delivery.price
+                : prev.total),
+            customer_id: delivery.customer_id ?? prev.customer_id,
+          }));
+        }
+      } catch (err) {
+        console.error("❌ Fetch delivery error:", err);
+      }
+    };
+
+    fetchDelivery();
+  }, [form?.delivery_id]);
+
+  // Generate PDF for invoice
+  const generatePDF = (invoice) => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("Invoice", 14, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Invoice ID: ${invoice.invoice_id || ""}`, 14, 30);
+    doc.text(`Delivery ID: ${invoice.delivery_id || ""}`, 14, 36);
+    doc.text(`Order ID: ${invoice.order_id || ""}`, 14, 42);
+    doc.text(`Customer ID: ${invoice.customer_id || ""}`, 14, 48);
+    doc.text(`Driver ID: ${invoice.driver_id || ""}`, 14, 54);
+    doc.text(`Vehicle ID: ${invoice.vehicle_id || ""}`, 14, 60);
+    doc.text(`Issue Date: ${invoice.issue_date ? new Date(invoice.issue_date).toLocaleDateString() : ""}`, 14, 66);
+    doc.text(`Status: ${invoice.status || ""}`, 14, 72);
+
+    // Table for order items
+    const items = invoice.order_items
+      ? invoice.order_items.split(",").map((item) => [item, invoice.quantity || "", invoice.price || ""])
+      : [];
+
+    doc.autoTable({
+      startY: 80,
+      head: [["Item", "Quantity", "Price"]],
+      body: items,
+    });
+
+    doc.text(`Delivery Fee: ${invoice.delivery_fee || 0}`, 14, doc.lastAutoTable.finalY + 10);
+    doc.text(`Total: ${invoice.total || 0}`, 14, doc.lastAutoTable.finalY + 16);
+
+    doc.save(`Invoice_${invoice.invoice_id || "new"}.pdf`);
+  };
 
   return (
     <AdminLayout>
@@ -54,7 +100,6 @@ export default function ManageInvoices() {
 
         {/* Invoice Form */}
         <form onSubmit={handleSubmit} className="bg-white text-gray-900 p-6 rounded-lg shadow-md space-y-4">
-          {/* Delivery ID */}
           <div>
             <label className="block font-semibold mb-1">Delivery ID</label>
             <input
@@ -69,61 +114,23 @@ export default function ManageInvoices() {
 
           {/* Auto-filled fields */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block font-semibold mb-1">Order ID</label>
-              <input type="number" value={form.order_id || ""} className="border p-3 rounded w-full bg-gray-100" readOnly />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">Customer ID</label>
-              <input
-                type="number"
-                value={form.customer_id || ""}
-                onChange={(e) => setForm({ ...form, customer_id: e.target.value })}
-                className="border p-3 rounded w-full"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">Driver ID</label>
-              <input type="number" value={form.driver_id || ""} className="border p-3 rounded w-full bg-gray-100" readOnly />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">Vehicle ID</label>
-              <input type="number" value={form.vehicle_id || ""} className="border p-3 rounded w-full bg-gray-100" readOnly />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">Quantity</label>
-              <input
-                type="number"
-                value={form.quantity || ""}
-                onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-                className="border p-3 rounded w-full"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">Price</label>
-              <input
-                type="number"
-                value={form.price || ""}
-                onChange={(e) => setForm({ ...form, price: e.target.value })}
-                className="border p-3 rounded w-full"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">Delivery Fee</label>
-              <input
-                type="number"
-                value={form.delivery_fee || ""}
-                onChange={(e) => setForm({ ...form, delivery_fee: e.target.value })}
-                className="border p-3 rounded w-full"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">Total</label>
-              <input type="number" value={form.total || ""} className="border p-3 rounded w-full bg-gray-100" readOnly />
-            </div>
+            {["order_id", "customer_id", "driver_id", "vehicle_id", "quantity", "price", "delivery_fee", "total"].map((key) => (
+              <div key={key}>
+                <label className="block font-semibold mb-1">{key.replace("_", " ").toUpperCase()}</label>
+                <input
+                  type={["quantity", "price", "delivery_fee", "total"].includes(key) ? "number" : "text"}
+                  value={form[key] || ""}
+                  onChange={["order_id", "customer_id", "quantity", "price", "delivery_fee"].includes(key)
+                    ? (e) => setForm({ ...form, [key]: e.target.value })
+                    : undefined
+                  }
+                  className={`border p-3 rounded w-full ${["driver_id","vehicle_id","total","order_id"].includes(key) ? "bg-gray-100" : ""}`}
+                  readOnly={["driver_id","vehicle_id","total","order_id"].includes(key)}
+                />
+              </div>
+            ))}
           </div>
 
-          {/* Order Items */}
           <div>
             <label className="block font-semibold mb-1">Order Items</label>
             <input
@@ -134,11 +141,10 @@ export default function ManageInvoices() {
             />
           </div>
 
-          {/* Status */}
           <div>
             <label className="block font-semibold mb-1">Status</label>
             <select
-              value={form.status || "Unpaid"}
+              value={form.status || "unpaid"}
               onChange={(e) => setForm({ ...form, status: e.target.value })}
               className="border p-3 rounded w-full"
             >
@@ -148,7 +154,7 @@ export default function ManageInvoices() {
           </div>
 
           <button type="submit" className="bg-gray-600 text-white px-6 py-3 rounded hover:bg-gray-700 transition">
-            Save Invoice
+            {loading ? "Saving..." : "Save Invoice"}
           </button>
         </form>
 
@@ -157,16 +163,9 @@ export default function ManageInvoices() {
           <table className="min-w-full bg-white text-gray-900 rounded-lg shadow-md divide-y divide-gray-200">
             <thead className="bg-gray-900 text-gray-200 border-b-gray-100 border-b">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Invoice ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Delivery ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Order ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Customer ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Driver ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Vehicle ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Total</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Issue Date</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
+                {["Invoice ID","Delivery ID","Order ID","Customer ID","Driver ID","Vehicle ID","Total","Status","Issue Date","Actions"].map((col) => (
+                  <th key={col} className="px-6 py-3 text-left text-sm font-semibold">{col}</th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 border-b-gray-100 border-b">
@@ -180,14 +179,11 @@ export default function ManageInvoices() {
                   <td className="px-6 py-4 text-sm">{i.vehicle_id}</td>
                   <td className="px-6 py-4 text-sm">{i.total}</td>
                   <td className="px-6 py-4 text-sm">{i.status}</td>
-                  <td className="px-6 py-4 text-sm">{new Date(i.issue_date).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 text-sm">{i.issue_date ? new Date(i.issue_date).toLocaleDateString() : ""}</td>
                   <td className="px-6 py-4 text-sm flex gap-2">
-                    <button onClick={() => handleEdit(i)} className="text-yellow-600 hover:underline">
-                      Edit
-                    </button>
-                    <button onClick={() => handleDelete(i.invoice_id || i.id)} className="text-red-600 hover:underline">
-                      Delete
-                    </button>
+                    <button onClick={() => handleEdit(i)} className="text-yellow-600 hover:underline">Edit</button>
+                    <button onClick={() => handleDelete(i.invoice_id || i.id)} className="text-red-600 hover:underline">Delete</button>
+                    <button onClick={() => generatePDF(i)} className="text-blue-600 hover:underline">PDF</button>
                   </td>
                 </tr>
               ))}

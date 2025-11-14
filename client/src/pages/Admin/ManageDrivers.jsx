@@ -1,6 +1,7 @@
 import React from "react";
 import AdminLayout from "../../components/AdminLayout";
-import { useCRUD } from "../../hooks/useCRUD";
+import useCRUD from "../../hooks/useCRUD";
+
 
 export default function ManageDrivers() {
   const defaultDriverForm = {

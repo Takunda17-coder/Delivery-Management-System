@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useCRUD } from "../../hooks/useCRUD";
+import useCRUD from "../../hooks/useCRUD";
 import AdminLayout from "../../components/AdminLayout";
 import axios from "axios";
 

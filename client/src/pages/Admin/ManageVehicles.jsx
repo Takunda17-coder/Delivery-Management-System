@@ -1,5 +1,6 @@
 import AdminLayout from "../../components/AdminLayout";
-import { useCRUD } from "../../hooks/useCRUD";
+import useCRUD from "../../hooks/useCRUD";
+
 
 export default function ManageVehicles() {
   const { data, form, setForm, handleSubmit, handleEdit, handleDelete } =
