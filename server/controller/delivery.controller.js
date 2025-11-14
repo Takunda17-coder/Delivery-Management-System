@@ -91,7 +91,12 @@ exports.createDelivery = async (req, res) => {
 exports.getAllDeliveries = async (req, res) => {
   try {
     const deliveries = await Delivery.findAll({
-      include: [{ model: Orders }, { model: Drivers }, { model: Vehicle }],
+      include: [
+        { model: Orders, as: "order" },
+        { model: Drivers, as: "driver" },
+        { model: Vehicle, as: "vehicle" }
+      ],
+      order: [["delivery_date", "DESC"]],
     });
     res.status(200).json(deliveries);
   } catch (error) {
@@ -105,7 +110,12 @@ exports.getDeliveryById = async (req, res) => {
   try {
     const { id } = req.params;
     const delivery = await Delivery.findByPk(id, {
-      include: [{ model: Orders }, { model: Drivers }, { model: Vehicle }],
+      include: [
+        { model: Orders, as: "order" },
+        { model: Drivers, as: "driver" },
+        { model: Vehicle, as: "vehicle" }
+      ],
+
     });
 
     if (!delivery) return res.status(404).json({ message: "Delivery not found" });
@@ -170,11 +180,11 @@ exports.getDeliveriesByDriver = async (req, res) => {
       where: { driver_id: Number(driver_id) },
       include: [
         {
-          model: Orders,
+          model: Orders, as: "order",
           attributes: ["order_id", "customer_id", "order_item", "quantity", "price", "status"],
         },
-        { model: Drivers, attributes: ["driver_id", "first_name", "phone_number"] },
-        { model: Vehicle, attributes: ["vehicle_id", "vehicle_type", "model", "make", "plate_number"] },
+        { model: Drivers, as: "driver", attributes: ["driver_id", "first_name", "phone_number"] },
+        { model: Vehicle, as: "vehicle", attributes: ["vehicle_id", "vehicle_type", "model", "make", "plate_number"] },
       ],
       order: [["delivery_date", "DESC"]],
     });
@@ -194,9 +204,9 @@ exports.getDeliveriesByCustomer = async (req, res) => {
 
     const deliveries = await Delivery.findAll({
       include: [
-        { model: Orders,as: "order", where: { customer_id }, attributes: ["order_id", "order_item", "status"] },
-        { model: Drivers,as:"driver", attributes: ["driver_id", "first_name", "phone_number"] },
-        { model: Vehicle,as:"vehicle", attributes: ["vehicle_id", "vehicle_type", "model", "plate_number"] },
+        { model: Orders, as: "order", where: { customer_id }, attributes: ["order_id", "order_item", "status"] },
+        { model: Drivers, as: "driver", attributes: ["driver_id", "first_name", "phone_number"] },
+        { model: Vehicle, as: "vehicle", attributes: ["vehicle_id", "vehicle_type", "model", "plate_number"] },
       ],
       order: [["delivery_date", "DESC"]],
     });
