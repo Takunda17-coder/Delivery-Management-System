@@ -148,8 +148,8 @@ export default function ManageInvoices() {
               onChange={(e) => setForm({ ...form, status: e.target.value })}
               className="border p-3 rounded w-full"
             >
-              <option value="unpaid">Unpaid</option>
-              <option value="paid">Paid</option>
+              <option value="Unpaid">Unpaid</option>
+              <option value="Paid">Paid</option>
             </select>
           </div>
 
