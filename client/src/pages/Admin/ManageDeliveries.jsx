@@ -2,15 +2,12 @@ import { useCRUD } from "../../hooks/useCRUD";
 import AdminLayout from "../../components/AdminLayout";
 
 export default function ManageDeliveries() {
-  const { data, form, setForm, handleSubmit, handleEdit, handleDelete } =
-    useCRUD("delivery");
+  const { data, form = {}, setForm, handleSubmit, handleEdit, handleDelete } = useCRUD("delivery");
 
   return (
     <AdminLayout>
       <div className="p-4">
-        <h1 className="text-2xl text-gray-900 font-bold mb-4">
-          Manage Deliveries
-        </h1>
+        <h1 className="text-2xl text-gray-900 font-bold mb-4">Manage Deliveries</h1>
 
         <form
           onSubmit={handleSubmit}
@@ -20,7 +17,7 @@ export default function ManageDeliveries() {
             <label className="font-medium">Order ID</label>
             <input
               type="number"
-              value={form.order_id || ""}
+              value={form?.order_id || ""}
               onChange={(e) => setForm({ ...form, order_id: e.target.value })}
               className="border p-2 rounded"
               required
@@ -31,7 +28,7 @@ export default function ManageDeliveries() {
             <label className="font-medium">Driver ID</label>
             <input
               type="number"
-              value={form.driver_id || ""}
+              value={form?.driver_id || ""}
               onChange={(e) => setForm({ ...form, driver_id: e.target.value })}
               className="border p-2 rounded"
               required
@@ -42,7 +39,7 @@ export default function ManageDeliveries() {
             <label className="font-medium">Vehicle ID</label>
             <input
               type="number"
-              value={form.vehicle_id || ""}
+              value={form?.vehicle_id || ""}
               onChange={(e) => setForm({ ...form, vehicle_id: e.target.value })}
               className="border p-2 rounded"
               required
@@ -53,10 +50,8 @@ export default function ManageDeliveries() {
             <label className="font-medium">Pickup Address</label>
             <input
               type="text"
-              value={form.pickup_address || ""}
-              onChange={(e) =>
-                setForm({ ...form, pickup_address: e.target.value })
-              }
+              value={form?.pickup_address || ""}
+              onChange={(e) => setForm({ ...form, pickup_address: e.target.value })}
               className="border p-2 rounded"
               required
             />
@@ -66,10 +61,8 @@ export default function ManageDeliveries() {
             <label className="font-medium">Dropoff Address</label>
             <input
               type="text"
-              value={form.dropoff_address || ""}
-              onChange={(e) =>
-                setForm({ ...form, dropoff_address: e.target.value })
-              }
+              value={form?.dropoff_address || ""}
+              onChange={(e) => setForm({ ...form, dropoff_address: e.target.value })}
               className="border p-2 rounded"
               required
             />
@@ -79,10 +72,8 @@ export default function ManageDeliveries() {
             <label className="font-medium">Delivery Date</label>
             <input
               type="datetime-local"
-              value={form.delivery_date || ""}
-              onChange={(e) =>
-                setForm({ ...form, delivery_date: e.target.value })
-              }
+              value={form?.delivery_date || ""}
+              onChange={(e) => setForm({ ...form, delivery_date: e.target.value })}
               className="border p-2 rounded"
               required
             />
@@ -92,10 +83,8 @@ export default function ManageDeliveries() {
             <label className="font-medium">Expected Delivery Time</label>
             <input
               type="time"
-              value={form.expected_delivery_time || ""}
-              onChange={(e) =>
-                setForm({ ...form, expected_delivery_time: e.target.value })
-              }
+              value={form?.expected_delivery_time || ""}
+              onChange={(e) => setForm({ ...form, expected_delivery_time: e.target.value })}
               className="border p-2 rounded"
               required
             />
@@ -105,10 +94,8 @@ export default function ManageDeliveries() {
             <label className="font-medium">Recipient Name</label>
             <input
               type="text"
-              value={form.recipient_name || ""}
-              onChange={(e) =>
-                setForm({ ...form, recipient_name: e.target.value })
-              }
+              value={form?.recipient_name || ""}
+              onChange={(e) => setForm({ ...form, recipient_name: e.target.value })}
               className="border p-2 rounded"
               required
             />
@@ -118,10 +105,8 @@ export default function ManageDeliveries() {
             <label className="font-medium">Recipient Contact</label>
             <input
               type="text"
-              value={form.recipient_contact || ""}
-              onChange={(e) =>
-                setForm({ ...form, recipient_contact: e.target.value })
-              }
+              value={form?.recipient_contact || ""}
+              onChange={(e) => setForm({ ...form, recipient_contact: e.target.value })}
               className="border p-2 rounded"
               required
             />
@@ -131,10 +116,8 @@ export default function ManageDeliveries() {
             <label className="font-medium">Delivery Fee</label>
             <input
               type="number"
-              value={form.delivery_fee || ""}
-              onChange={(e) =>
-                setForm({ ...form, delivery_fee: e.target.value })
-              }
+              value={form?.delivery_fee || ""}
+              onChange={(e) => setForm({ ...form, delivery_fee: e.target.value })}
               className="border p-2 rounded"
               required
             />
@@ -144,7 +127,7 @@ export default function ManageDeliveries() {
             <label className="font-medium">Total</label>
             <input
               type="number"
-              value={form.total || ""}
+              value={form?.total || ""}
               onChange={(e) => setForm({ ...form, total: e.target.value })}
               className="border p-2 rounded"
               required
@@ -155,7 +138,7 @@ export default function ManageDeliveries() {
             <label className="font-medium">Priority</label>
             <select
               className="border p-2 rounded"
-              value={form.priority || ""}
+              value={form?.priority || ""}
               onChange={(e) => setForm({ ...form, priority: e.target.value })}
             >
               <option value="High">High</option>
@@ -168,7 +151,7 @@ export default function ManageDeliveries() {
             <label className="font-medium">Status</label>
             <select
               className="border p-2 rounded"
-              value={form.status || ""}
+              value={form?.status || ""}
               onChange={(e) => setForm({ ...form, status: e.target.value })}
             >
               <option value="pending">Pending</option>
@@ -187,6 +170,7 @@ export default function ManageDeliveries() {
           </button>
         </form>
 
+        {/* Deliveries Table */}
         <table className="w-full rounded-lg shadow-md overflow-x-auto">
           <thead className="bg-gray-900 text-gray-200 border-b-gray-100">
             <tr>
@@ -207,11 +191,8 @@ export default function ManageDeliveries() {
             </tr>
           </thead>
           <tbody>
-            {data.map((d) => (
-              <tr
-                key={d.delivery_id}
-                className="border-b-gray-100 border-b text-gray-900 text-center gap-1"
-              >
+            {Array.isArray(data) && data.map((d) => (
+              <tr key={d.delivery_id} className="border-b text-gray-900 text-center">
                 <td>{d.delivery_id}</td>
                 <td>{d.order_id}</td>
                 <td>{d.driver_id}</td>
@@ -226,18 +207,8 @@ export default function ManageDeliveries() {
                 <td>{d.priority}</td>
                 <td>{d.status}</td>
                 <td>
-                  <button
-                    onClick={() => handleEdit(d)}
-                    className="text-yellow-600 mr-2"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(d.delivery_id)}
-                    className="text-red-600"
-                  >
-                    Delete
-                  </button>
+                  <button onClick={() => handleEdit(d)} className="text-yellow-600 mr-2">Edit</button>
+                  <button onClick={() => handleDelete(d.delivery_id)} className="text-red-600">Delete</button>
                 </td>
               </tr>
             ))}

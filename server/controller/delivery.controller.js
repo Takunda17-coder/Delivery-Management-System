@@ -194,9 +194,9 @@ exports.getDeliveriesByCustomer = async (req, res) => {
 
     const deliveries = await Delivery.findAll({
       include: [
-        { model: Orders, where: { customer_id }, attributes: ["order_id", "order_item", "status"] },
-        { model: Drivers, attributes: ["driver_id", "first_name", "phone_number"] },
-        { model: Vehicle, attributes: ["vehicle_id", "vehicle_type", "model", "plate_number"] },
+        { model: Orders,as: "order", where: { customer_id }, attributes: ["order_id", "order_item", "status"] },
+        { model: Drivers,as:"driver", attributes: ["driver_id", "first_name", "phone_number"] },
+        { model: Vehicle,as:"vehicle", attributes: ["vehicle_id", "vehicle_type", "model", "plate_number"] },
       ],
       order: [["delivery_date", "DESC"]],
     });

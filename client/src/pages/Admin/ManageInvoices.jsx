@@ -7,9 +7,11 @@ export default function ManageInvoices() {
   const { data, form, setForm, handleSubmit, handleEdit, handleDelete, loading } = useCRUD("invoice");
 
   // Auto-fill fields based on delivery_id
-  useEffect(() => {
-  // only run when we actually have a form and delivery_id
-  if (!form || !form.delivery_id) return;
+ useEffect(() => {
+  // Guard clause: don't run until form exists
+  if (!form || typeof form.delivery_id === "undefined" || form.delivery_id === null || form.delivery_id === "") {
+    return;
+  }
 
   const fetchDelivery = async () => {
     try {
@@ -21,18 +23,18 @@ export default function ManageInvoices() {
       if (delivery) {
         setForm((prev) => ({
           ...prev,
-          order_id: delivery.order_id || prev.order_id,
-          driver_id: delivery.driver_id || prev.driver_id,
-          vehicle_id: delivery.vehicle_id || prev.vehicle_id,
-          quantity: delivery.quantity || prev.quantity,
-          price: delivery.price || prev.price,
-          delivery_fee: delivery.delivery_fee || prev.delivery_fee,
+          order_id: delivery.order_id ?? prev.order_id,
+          driver_id: delivery.driver_id ?? prev.driver_id,
+          vehicle_id: delivery.vehicle_id ?? prev.vehicle_id,
+          quantity: delivery.quantity ?? prev.quantity,
+          price: delivery.price ?? prev.price,
+          delivery_fee: delivery.delivery_fee ?? prev.delivery_fee,
           total:
-            delivery.total ||
+            delivery.total ??
             (delivery.quantity && delivery.price
               ? delivery.quantity * delivery.price
               : prev.total),
-          customer_id: delivery.customer_id || prev.customer_id,
+          customer_id: delivery.customer_id ?? prev.customer_id,
         }));
       }
     } catch (err) {
@@ -41,7 +43,8 @@ export default function ManageInvoices() {
   };
 
   fetchDelivery();
-}, [form?.delivery_id]); // use optional chaining in dependency
+}, [form?.delivery_id]);
+ // use optional chaining in dependency
 
 
   return (
