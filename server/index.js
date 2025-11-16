@@ -9,9 +9,9 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "*", // Accept all origins (frontend can be deployed anywhere)
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
+    credentials: false, // Set to false for wildcard origin
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
