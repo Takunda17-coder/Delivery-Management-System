@@ -3,11 +3,7 @@ import useCRUD from "../../hooks/useCRUD";
 
 
 export default function ManageVehicles() {
-  const { data, form, setForm, handleSubmit, handleEdit, handleDelete } =
-    useCRUD("vehicles");
-
-  // Ensure form is always defined
-  const safeForm = form || {
+  const defaultVehicleForm = {
     vehicle_type: "",
     make: "",
     model: "",
@@ -19,7 +15,8 @@ export default function ManageVehicles() {
     capacity: "",
   };
 
-  if (!data) return <p>Loading...</p>;
+  const { data, form, setForm, handleSubmit, handleEdit, handleDelete } =
+    useCRUD("vehicles", defaultVehicleForm, "vehicle_id");
 
   return (
     <div className="w-full min-h-screen bg-gray-100 ">
@@ -33,52 +30,52 @@ export default function ManageVehicles() {
         >
           <input
             placeholder="Vehicle Type"
-            value={safeForm.vehicle_type}
-            onChange={(e) => setForm({ ...safeForm, vehicle_type: e.target.value })}
+            value={form.vehicle_type}
+            onChange={(e) => setForm({ ...form, vehicle_type: e.target.value })}
             className="p-2 border rounded"
           />
           <input
             placeholder="Make"
-            value={safeForm.make}
-            onChange={(e) => setForm({ ...safeForm, make: e.target.value })}
+            value={form.make}
+            onChange={(e) => setForm({ ...form, make: e.target.value })}
             className="p-2 border rounded"
           />
           <input
             placeholder="Model"
-            value={safeForm.model}
-            onChange={(e) => setForm({ ...safeForm, model: e.target.value })}
+            value={form.model}
+            onChange={(e) => setForm({ ...form, model: e.target.value })}
             className="p-2 border rounded"
           />
           <input
             type="number"
             placeholder="Year"
-            value={safeForm.year}
-            onChange={(e) => setForm({ ...safeForm, year: parseInt(e.target.value) })}
+            value={form.year}
+            onChange={(e) => setForm({ ...form, year: parseInt(e.target.value) })}
             className="p-2 border rounded"
           />
           <input
             placeholder="Plate Number"
-            value={safeForm.plate_number}
-            onChange={(e) => setForm({ ...safeForm, plate_number: e.target.value })}
+            value={form.plate_number}
+            onChange={(e) => setForm({ ...form, plate_number: e.target.value })}
             className="p-2 border rounded"
           />
           <input
             placeholder="Colour"
-            value={safeForm.colour}
-            onChange={(e) => setForm({ ...safeForm, colour: e.target.value })}
+            value={form.colour}
+            onChange={(e) => setForm({ ...form, colour: e.target.value })}
             className="p-2 border rounded"
           />
           <input
             type="date"
             placeholder="Date Acquired"
-            value={safeForm.date_acquired}
-            onChange={(e) => setForm({ ...safeForm, date_acquired: e.target.value })}
+            value={form.date_acquired}
+            onChange={(e) => setForm({ ...form, date_acquired: e.target.value })}
             className="p-2 border rounded"
           />
           {/* ✅ Status combo box */}
           <select
-            value={safeForm.status}
-            onChange={(e) => setForm({ ...safeForm, status: e.target.value })}
+            value={form.status}
+            onChange={(e) => setForm({ ...form, status: e.target.value })}
             className="p-2 border rounded"
           >
             <option value="active">Active</option>
@@ -87,8 +84,8 @@ export default function ManageVehicles() {
           <input
             type="number"
             placeholder="Capacity"
-            value={safeForm.capacity}
-            onChange={(e) => setForm({ ...safeForm, capacity: parseInt(e.target.value) })}
+            value={form.capacity}
+            onChange={(e) => setForm({ ...form, capacity: parseInt(e.target.value) })}
             className="p-2 border rounded"
           />
           <button

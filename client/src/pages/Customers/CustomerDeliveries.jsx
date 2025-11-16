@@ -4,11 +4,10 @@ import { useAuth } from "../../context/AuthContext";
 import api from "../../api/axiosConfig";
 
 const STATUS_LABELS = {
-  pending: "Pending",
-  scheduled: "Scheduled",
-  on_route: "On Route",
-  delivered: "Delivered",
-  failed: "Failed",
+  Scheduled: "Scheduled",
+  "On Route": "On Route",
+  Completed: "Completed",
+  Cancelled: "Cancelled",
 };
 
 export default function CustomerDeliveries() {
@@ -118,13 +117,13 @@ export default function CustomerDeliveries() {
                   <td className="p-3">
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${
-                        d.status === "delivered"
+                        d.status === "Completed"
                           ? "bg-green-100 text-green-800"
-                          : d.status === "on_route"
+                          : d.status === "On Route"
                           ? "bg-yellow-100 text-yellow-800"
-                          : d.status === "scheduled"
+                          : d.status === "Scheduled"
                           ? "bg-blue-100 text-blue-800"
-                          : d.status === "failed"
+                          : d.status === "Cancelled"
                           ? "bg-red-100 text-red-800"
                           : "bg-gray-100 text-gray-800"
                       }`}

@@ -23,7 +23,6 @@ const ManageCustomers = () => {
     handleSubmit,
     handleEdit,
     handleDelete,
-    cancelEdit,
     isEditing,
     loading,
     submitting,
@@ -135,7 +134,7 @@ const ManageCustomers = () => {
               <button
                 type="button"
                 onClick={() => {
-                  cancelEdit();
+                  setForm(defaultCustomerForm);
                 }}
                 className="px-4 py-2 border rounded"
               >

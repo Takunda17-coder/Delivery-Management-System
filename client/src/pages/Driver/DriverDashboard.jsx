@@ -44,8 +44,8 @@ export default function DriverDashboard() {
       const deliveriesRes = await api.get(`/delivery/driver?driver_id=${driverId}`);
       const allDeliveries = deliveriesRes.data;
 
-      const completed = allDeliveries.filter((d) => d.status === "completed").length;
-      const pending = allDeliveries.filter((d) => d.status === "pending").length;
+      const completed = allDeliveries.filter((d) => d.status === "Completed").length;
+      const pending = allDeliveries.filter((d) => d.status === "Scheduled").length;
 
       setStats({
         assignedDeliveries: allDeliveries.length,
@@ -137,9 +137,9 @@ export default function DriverDashboard() {
                     <td className="py-2">{delivery.dropoff_address}</td>
                     <td
                       className={`py-2 font-semibold ${
-                        delivery.status === "completed"
+                        delivery.status === "Completed"
                           ? "text-green-600"
-                          : delivery.status === "on_route"
+                          : delivery.status === "On Route"
                           ? "text-yellow-600"
                           : "text-blue-600"
                       }`}

@@ -78,6 +78,17 @@ exports.createDelivery = async (req, res) => {
       { transaction: t }
     );
 
+    // ✅ Also update the linked order status to 'Scheduled' (if not already)
+    try {
+      if (order && order.status !== 'Scheduled') {
+        order.status = 'Scheduled';
+        await order.save({ transaction: t });
+      }
+    } catch (err) {
+      console.error('Failed to update order status after creating delivery:', err);
+      // continue - we'll still commit delivery creation
+    }
+
     await t.commit();
     res.status(201).json({ message: "Delivery created successfully", delivery: newDelivery });
   } catch (error) {
@@ -160,6 +171,19 @@ exports.updateDelivery = async (req, res) => {
     });
 
     await delivery.save({ transaction: t });
+    // If delivery status updated to Completed, mark the related order as Completed
+    try {
+      if (delivery.order_id && updates.status === 'Completed') {
+        const order = await Orders.findByPk(delivery.order_id, { transaction: t });
+        if (order) {
+          order.status = 'Completed';
+          await order.save({ transaction: t });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to update order status after delivery update:', err);
+    }
+
     await t.commit();
 
     res.status(200).json({ message: "Delivery updated successfully", delivery });

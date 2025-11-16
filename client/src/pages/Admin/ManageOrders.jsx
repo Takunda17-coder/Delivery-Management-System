@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import useCRUD from "../../hooks/useCRUD";
 import AdminLayout from "../../components/AdminLayout";
-import axios from "axios";
+import api from "../../api/axiosConfig";
+import { Modal, FormInput, FormSelect, Badge } from "../../components/ui";
 
 
 const ManageOrders = () => {
@@ -14,7 +15,7 @@ const ManageOrders = () => {
     total: 0,
     weight: 0.0,
     pickup_address: "",
-    status: "Pending", // match backend enum
+    status: "Pending", // ✅ Default to Pending when creating new order (auto -> Scheduled when delivery assigned -> Completed when delivered)
   };
 
   const {
@@ -24,13 +25,12 @@ const ManageOrders = () => {
     handleSubmit,
     handleEdit,
     handleDelete,
-    cancelEdit,
     isEditing,
     loading,
     submitting,
     error,
     message,
-    fetchData,
+    fetchAll,
   } = useCRUD("orders", defaultForm, "order_id");
 
   const [customers, setCustomers] = useState([]);
@@ -38,9 +38,9 @@ const ManageOrders = () => {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const res = await axios.get(`https://delivery-management-system-backend-2385.onrender.com/api/orders`);
+        const res = await api.get(`/customers`);
         if (Array.isArray(res.data)) {
-          setCustomers(res.data.filter((c) => c.status === "active" || c.status === undefined));
+          setCustomers(res.data);
         } else {
           console.error("Invalid customers response:", res.data);
         }
@@ -50,6 +50,28 @@ const ManageOrders = () => {
     };
     fetchCustomers();
   }, []);
+
+  // Assign Delivery modal state
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [deliveryForm, setDeliveryForm] = useState({
+    order_id: "",
+    driver_id: "",
+    vehicle_id: "",
+    pickup_address: "",
+    dropoff_address: "",
+    delivery_date: "",
+    expected_delivery_time: "",
+    delivery_fee: "",
+    total: "",
+    priority: "Low",
+    status: "Scheduled",
+    recipient_name: "",
+    recipient_contact: "",
+  });
+  const [drivers, setDrivers] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [assigning, setAssigning] = useState(false);
 
   // keep total accurate when quantity/price/weight change
   const updateNumberField = (field, value) => {
@@ -61,6 +83,47 @@ const ManageOrders = () => {
       newForm.total = Number(newForm.quantity || 0) * Number(newForm.price || 0);
     }
     setForm(newForm);
+  };
+
+  const openAssignModal = async (order) => {
+    setSelectedOrder(order);
+    setDeliveryForm((prev) => ({
+      ...prev,
+      order_id: order.order_id,
+      pickup_address: order.pickup_address || "",
+      dropoff_address: order.pickup_address || "",
+      total: order.total || 0,
+      delivery_date: new Date().toISOString().slice(0,16),
+    }));
+
+    // fetch drivers and vehicles
+    try {
+      const [drvRes, vehRes] = await Promise.all([api.get('/drivers'), api.get('/vehicles')]);
+      setDrivers(Array.isArray(drvRes.data) ? drvRes.data : []);
+      setVehicles(Array.isArray(vehRes.data) ? vehRes.data : []);
+    } catch (err) {
+      console.error('Failed to load drivers/vehicles', err);
+    }
+
+    setAssignModalOpen(true);
+  };
+
+  const handleAssignSubmit = async (e) => {
+    e.preventDefault();
+    setAssigning(true);
+    try {
+      const res = await api.post('/delivery', deliveryForm);
+      // refresh orders & deliveries
+      fetchAll();
+      setAssignModalOpen(false);
+      setSelectedOrder(null);
+      alert(res.data?.message || 'Delivery assigned');
+    } catch (err) {
+      console.error('Failed to assign delivery', err);
+      alert(err.response?.data?.message || 'Failed to assign delivery');
+    } finally {
+      setAssigning(false);
+    }
   };
 
   if (loading) return <p className="p-6">Loading orders...</p>;
@@ -197,7 +260,7 @@ const ManageOrders = () => {
               <button
                 type="button"
                 onClick={() => {
-                  cancelEdit();
+                  setForm(defaultForm);
                 }}
                 className="px-4 py-2 border rounded"
               >
@@ -252,16 +315,53 @@ const ManageOrders = () => {
                   <td>{o.pickup_address}</td>
                   <td>{o.total}</td>
                   <td>{o.weight}</td>
-                  <td>{o.status}</td>
+                  <td><Badge status={o.status} label={o.status} /></td>
                   <td className="flex gap-2 justify-center">
                     <button onClick={() => handleEdit(o)} className="text-yellow-600">Edit</button>
                     <button onClick={() => handleDelete(o.order_id)} className="text-red-600">Delete</button>
+                    {o.status === 'Pending' && (
+                      <button onClick={() => openAssignModal(o)} className="text-blue-600">Assign</button>
+                    )}
                   </td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
+        {/* Assign Delivery Modal */}
+        {assignModalOpen && (
+          <Modal isOpen={assignModalOpen} title={`Assign Delivery - Order #${selectedOrder?.order_id}`} onClose={() => setAssignModalOpen(false)} footer={null}>
+            <form onSubmit={handleAssignSubmit} className="space-y-4">
+              <FormSelect
+                label="Driver"
+                value={deliveryForm.driver_id}
+                onChange={(e) => setDeliveryForm({ ...deliveryForm, driver_id: e.target.value })}
+                options={drivers.map(d => ({ value: d.driver_id, label: `${d.first_name} ${d.last_name}` }))}
+                required
+              />
+
+              <FormSelect
+                label="Vehicle"
+                value={deliveryForm.vehicle_id}
+                onChange={(e) => setDeliveryForm({ ...deliveryForm, vehicle_id: e.target.value })}
+                options={vehicles.map(v => ({ value: v.vehicle_id, label: `${v.make} ${v.model} (${v.plate_number})` }))}
+                required
+              />
+
+              <FormInput label="Pickup Address" value={deliveryForm.pickup_address} onChange={(e) => setDeliveryForm({ ...deliveryForm, pickup_address: e.target.value })} required />
+              <FormInput label="Dropoff Address" value={deliveryForm.dropoff_address} onChange={(e) => setDeliveryForm({ ...deliveryForm, dropoff_address: e.target.value })} required />
+              <div className="grid grid-cols-2 gap-4">
+                <FormInput label="Delivery Date" type="datetime-local" value={deliveryForm.delivery_date} onChange={(e) => setDeliveryForm({ ...deliveryForm, delivery_date: e.target.value })} required />
+                <FormInput label="Expected Time" type="time" value={deliveryForm.expected_delivery_time} onChange={(e) => setDeliveryForm({ ...deliveryForm, expected_delivery_time: e.target.value })} required />
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={() => setAssignModalOpen(false)} className="px-4 py-2 border rounded">Cancel</button>
+                <button type="submit" disabled={assigning} className="bg-blue-600 text-white px-4 py-2 rounded">{assigning ? 'Assigning...' : 'Assign Delivery'}</button>
+              </div>
+            </form>
+          </Modal>
+        )}
       </div>
     </AdminLayout>
   );

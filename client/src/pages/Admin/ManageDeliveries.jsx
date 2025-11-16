@@ -3,15 +3,31 @@ import useCRUD from "../../hooks/useCRUD";
 
 
 export default function ManageDeliveries() {
+  const defaultDeliveryForm = {
+    order_id: "",
+    driver_id: "",
+    vehicle_id: "",
+    pickup_address: "",
+    dropoff_address: "",
+    delivery_date: "",
+    expected_delivery_time: "",
+    delivery_fee: "",
+    total: "",
+    priority: "Low",
+    status: "Scheduled",
+    recipient_name: "",
+    recipient_contact: "",
+  };
+
   const {
     data,
-    form = {},
+    form,
     setForm,
     handleSubmit,
     handleEdit,
     handleDelete,
     loading,
-  } = useCRUD("delivery");
+  } = useCRUD("delivery", defaultDeliveryForm);
 
   // Format datetime-local value for input
   const formatDateForInput = (date) => {

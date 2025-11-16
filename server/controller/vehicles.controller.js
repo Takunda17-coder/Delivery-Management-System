@@ -96,9 +96,11 @@ exports.getVehicleById = async (req, res) => {
     const { id } = req.params;
     const vehicle = await Vehicle.findByPk(id, {
       include: [
-        { model: Drivers, 
-          as:"driver",
-          attributes: ["driver_id", "first_name", "last_name", "phone_number", "status"] },
+        {
+          model: Drivers,
+          as: "driver",
+          attributes: ["driver_id", "first_name", "last_name", "phone_number", "status"]
+        },
       ],
     });
 
@@ -148,11 +150,15 @@ exports.updateVehicle = async (req, res) => {
       vehicle.driver_id = null; // unassign driver
     }
 
-    vehicle.model = model || vehicle.model;
-    vehicle.make = make || vehicle.make;
-    vehicle.year = year || vehicle.year;
-    vehicle.capacity = capacity || vehicle.capacity;
-    vehicle.status = status || vehicle.status;
+    vehicle.vehicle_type = req.body.vehicle_type ?? vehicle.vehicle_type;
+    vehicle.make = req.body.make ?? vehicle.make;
+    vehicle.model = req.body.model ?? vehicle.model;
+    vehicle.year = req.body.year ?? vehicle.year;
+    vehicle.colour = req.body.colour ?? vehicle.colour;
+    vehicle.date_acquired = req.body.date_acquired ?? vehicle.date_acquired;
+    vehicle.capacity = req.body.capacity ?? vehicle.capacity;
+    vehicle.status = req.body.status ?? vehicle.status;
+
 
     await vehicle.save({ transaction: t });
     await t.commit();

@@ -1,27 +1,26 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api/axiosConfig";
 
-const useCRUD = (endpoint, defaultForm, idField = "id") => {
+export default function useCRUD(endpoint, defaultForm = {}, idField = "id") {
   const [data, setData] = useState([]);
   const [form, setForm] = useState(defaultForm);
-  const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState(null);
 
-  const api = `https://delivery-management-system-backend-2385.onrender.com/api/${endpoint}`;
+  // Determine if we're editing
+  const isEditing = editingId !== null;
 
-  // --- FETCH DATA -----------------------------------------------------
-  const fetchData = async () => {
+  const fetchAll = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(api);
-
-      // Always ensure data is an array
-      setData(Array.isArray(res.data) ? res.data : []);
+      const res = await api.get(`/${endpoint}`);
+      const items = Array.isArray(res.data) ? res.data : res.data.data || [];
+      setData(items);
     } catch (err) {
-      console.error("Fetch Error:", err);
+      console.error("❌ Fetch error:", err);
       setError(err);
     } finally {
       setLoading(false);
@@ -29,65 +28,65 @@ const useCRUD = (endpoint, defaultForm, idField = "id") => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchAll();
+  }, [endpoint]);
 
-  // --- CREATE / UPDATE ------------------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setMessage("");
-    setError(null);
-
     try {
-      if (form[idField]) {
-        // UPDATE
-        await axios.put(`${api}/${form[idField]}`, form);
-        setMessage("Updated successfully.");
+      setSubmitting(true);
+      setMessage("");
+      setError(null);
+      
+      if (editingId) {
+        const res = await api.put(`/${endpoint}/${editingId}`, form);
+        setMessage(res.data?.message || "Updated successfully");
       } else {
-        // CREATE
-        await axios.post(api, form);
-        setMessage("Created successfully.");
+        const res = await api.post(`/${endpoint}`, form);
+        setMessage(res.data?.message || "Created successfully");
       }
-
-      // Reset form & reload
+      
       setForm(defaultForm);
-      setIsEditing(false);
-      fetchData();
+      setEditingId(null);
+      fetchAll();
     } catch (err) {
-      console.error("Submit Error:", err);
-      setError(err);
+      const errMsg = err.response?.data?.message || err.message || "An error occurred";
+      console.error("❌ Submit error:", errMsg);
+      setError({ message: errMsg });
     } finally {
       setSubmitting(false);
     }
   };
 
-  // --- EDIT -----------------------------------------------------------
-  const handleEdit = (row) => {
-    setIsEditing(true);
-
-    // Merge to avoid undefined fields
-    setForm({
-      ...defaultForm,
-      ...row,
-    });
+  const handleEdit = (item) => {
+    // Try to find ID field (prioritize idField param, then common id fields)
+    const id = item[idField] || item.id || item[Object.keys(item)[0]];
+    setEditingId(id);
+    setForm(item);
   };
 
-  // --- DELETE ---------------------------------------------------------
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`${api}/${id}`);
-      fetchData();
-    } catch (err) {
-      console.error("Delete Error:", err);
-      setError(err);
+    if (window.confirm("Are you sure you want to delete this item?")) {
+      try {
+        setLoading(true);
+        const res = await api.delete(`/${endpoint}/${id}`);
+        setMessage(res.data?.message || "Deleted successfully");
+        fetchAll();
+      } catch (err) {
+        const errMsg = err.response?.data?.message || err.message || "Delete failed";
+        console.error("❌ Delete error:", errMsg);
+        setError({ message: errMsg });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  // --- CANCEL EDIT ----------------------------------------------------
   const cancelEdit = () => {
-    setIsEditing(false);
+    setEditingId(null);
     setForm(defaultForm);
+    setMessage("");
+    setError(null);
   };
 
   return {
@@ -98,13 +97,11 @@ const useCRUD = (endpoint, defaultForm, idField = "id") => {
     handleEdit,
     handleDelete,
     cancelEdit,
-    isEditing,
     loading,
     submitting,
-    error,
+    isEditing,
     message,
+    error,
+    fetchAll,
   };
-};
-
-// REQUIRED because you import like: `import useCRUD from ...`
-export default useCRUD;
+}

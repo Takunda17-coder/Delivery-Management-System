@@ -4,11 +4,10 @@ import api from "../../api/axiosConfig";
 import { useAuth } from "../../context/AuthContext";
 
 const STATUS_LABELS = {
-  pending: "Pending",
-  scheduled: "Scheduled",
-  on_route: "On Route",
-  delivered: "Delivered",
-  failed: "Failed",
+  Scheduled: "Scheduled",
+  "On Route": "On Route",
+  Completed: "Completed",
+  Cancelled: "Cancelled",
 };
 
 export default function DriverDeliveries() {
@@ -138,13 +137,13 @@ export default function DriverDeliveries() {
                   <td className="p-3">
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${
-                        d.status === "delivered"
+                        d.status === "Completed"
                           ? "bg-green-100 text-green-800"
-                          : d.status === "on_route"
+                          : d.status === "On Route"
                           ? "bg-yellow-100 text-yellow-800"
-                          : d.status === "scheduled"
+                          : d.status === "Scheduled"
                           ? "bg-blue-100 text-blue-800"
-                          : d.status === "failed"
+                          : d.status === "Cancelled"
                           ? "bg-red-100 text-red-800"
                           : "bg-gray-100 text-gray-800"
                       }`}
@@ -157,40 +156,40 @@ export default function DriverDeliveries() {
                   </td>
                   <td className="p-3 flex gap-2 flex-wrap">
 
-                    {(d.status === "pending" || d.status === "scheduled") && (
+                    {(d.status === "Scheduled") && (
                       <button
                         disabled={updatingId === d.delivery_id}
-                        onClick={() => updateStatus(d.delivery_id, "on_route")}
+                        onClick={() => updateStatus(d.delivery_id, "On Route")}
                         className="px-2 py-1 rounded bg-yellow-500 hover:bg-yellow-600 text-white text-xs disabled:opacity-50"
                       >
                         Start Delivery
                       </button>
                     )}
 
-                    {d.status === "on_route" && (
+                    {d.status === "On Route" && (
                       <>
                         <button
                           disabled={updatingId === d.delivery_id}
-                          onClick={() => updateStatus(d.delivery_id, "delivered")}
+                          onClick={() => updateStatus(d.delivery_id, "Completed")}
                           className="px-2 py-1 rounded bg-green-600 hover:bg-green-700 text-white text-xs disabled:opacity-50"
                         >
                           Delivered
                         </button>
                         <button
                           disabled={updatingId === d.delivery_id}
-                          onClick={() => updateStatus(d.delivery_id, "failed")}
+                          onClick={() => updateStatus(d.delivery_id, "Cancelled")}
                           className="px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs disabled:opacity-50"
                         >
-                          Failed
+                          Cancel
                         </button>
                       </>
                     )}
 
-                    {d.status === "failed" && (
+                    {d.status === "Cancelled" && (
                       <>
                         <button
                           disabled={updatingId === d.delivery_id}
-                          onClick={() => updateStatus(d.delivery_id, "scheduled")}
+                          onClick={() => updateStatus(d.delivery_id, "Scheduled")}
                           className="px-2 py-1 rounded bg-blue-500 hover:bg-blue-600 text-white text-xs disabled:opacity-50"
                         >
                           Reschedule
@@ -198,7 +197,7 @@ export default function DriverDeliveries() {
 
                         <button
                           disabled={updatingId === d.delivery_id}
-                          onClick={() => updateStatus(d.delivery_id, "on_route")}
+                          onClick={() => updateStatus(d.delivery_id, "On Route")}
                           className="px-2 py-1 rounded bg-yellow-500 hover:bg-yellow-600 text-white text-xs disabled:opacity-50"
                         >
                           Retry Delivery
