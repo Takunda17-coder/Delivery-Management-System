@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../../api/axiosConfig";
 import AdminLayout from "../../components/AdminLayout";
 import { TAILWIND_CLASSES, formatCurrency, formatDate, formatDateTime } from "../../styles/designSystem";
-import { StatCard, Badge, Alert } from "../../components/ui";
+import { StatCard, Badge, Alert } from "../../components/ui/index.jsx";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({

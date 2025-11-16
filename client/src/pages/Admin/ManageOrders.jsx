@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import useCRUD from "../../hooks/useCRUD";
 import AdminLayout from "../../components/AdminLayout";
 import api from "../../api/axiosConfig";
-import { Modal, FormInput, FormSelect, Badge } from "../../components/ui";
+import { Modal, FormInput, FormSelect, Badge } from "../../components/ui/index.jsx";
 
 
 const ManageOrders = () => {
