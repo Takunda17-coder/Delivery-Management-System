@@ -5,22 +5,22 @@ import ProtectedRoute from "./components/ProtectedRoutes";
 import { Toaster } from "react-hot-toast";
 
 // Auth
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
 
 // Admin
-import AdminDashboard from "./pages/admin/Dashboard";
-import ManageCustomers from "./pages/admin/ManageCustomers";
-import ManageDrivers from "./pages/admin/ManageDrivers";
-import ManageVehicles from "./pages/admin/ManageVehicles";
-import ManageOrders from "./pages/admin/ManageOrders";
-import ManageInvoices from "./pages/admin/ManageInvoices";
-import ManageDeliveries from "./pages/admin/ManageDeliveries";
+import AdminDashboard from "./pages/Admin/Dashboard";
+import ManageCustomers from "./pages/Admin/ManageCustomers";
+import ManageDrivers from "./pages/Admin/ManageDrivers";
+import ManageVehicles from "./pages/Admin/ManageVehicles";
+import ManageOrders from "./pages/Admin/ManageOrders";
+import ManageInvoices from "./pages/Admin/ManageInvoices";
+import ManageDeliveries from "./pages/Admin/ManageDeliveries";
 
 
 // Driver
-import DriverDashboard from "./pages/driver/DriverDashboard";
-import DriverDeliveries from "./pages/driver/DriverDeliveries";
+import DriverDashboard from "./pages/Driver/DriverDashboard";
+import DriverDeliveries from "./pages/Driver/DriverDeliveries";
 
 // Customer
 import CustomerDashboard from "./pages/Customers/CustomerDashboard";
