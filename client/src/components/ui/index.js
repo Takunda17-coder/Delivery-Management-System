@@ -7,13 +7,13 @@ import { TAILWIND_CLASSES, getStatusBadgeClass } from "../../styles/designSystem
 export function Badge({ label, status, className = "" }) {
   if (status) {
     return (
-      <span className={`${TAILWIND_CLASSES.badge} ${getStatusBadgeClass(status)}`}>
+      <span className={TAILWIND_CLASSES.badge + " " + getStatusBadgeClass(status) + " " + className}>
         {label || status}
       </span>
     );
   }
   return (
-    <span className={`${TAILWIND_CLASSES.badge} bg-gray-100 text-gray-700 ${className}`}>
+    <span className={TAILWIND_CLASSES.badge + " bg-gray-100 text-gray-700 " + className}>
       {label}
     </span>
   );

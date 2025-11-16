@@ -1,19 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import SummaryCard from "../../components/ui/SummaryCard";
-import DataTable from "../../components/ui/DataTable";
-import OrdersChart from "../../components/ui/OrdersChart";
-import DriversChart from "../../components/ui/DriversChart";
+import api from "../../api/axiosConfig";
 import AdminLayout from "../../components/AdminLayout";
+import { TAILWIND_CLASSES, formatCurrency, formatDate, formatDateTime } from "../../styles/designSystem";
+import { StatCard, Badge, Alert } from "../../components/ui";
 
-const Dashboard = () => {
-  import AdminLayout from "../../components/AdminLayout";
-  import api from "../../api/axiosConfig";
-  import { TAILWIND_CLASSES, formatCurrency, formatDate, formatDateTime } from "../../styles/designSystem";
-  import { StatCard, Badge, Alert } from "../../components/ui";
-
-  export default function Dashboard() {
-    const [stats, setStats] = useState({
+export default function Dashboard() {
+  const [stats, setStats] = useState({
       totalOrders: 0,
       totalDeliveries: 0,
       totalDrivers: 0,
