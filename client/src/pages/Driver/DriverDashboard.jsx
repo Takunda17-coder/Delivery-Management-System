@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axiosConfig";
 import { useAuth } from "../../context/AuthContext";
+import { StatCard } from "../../components/ui/index.jsx";
+import DriverLayout from "../../components/DriverLayout";
 
 export default function DriverDashboard() {
   const { user, logout } = useAuth();
@@ -21,48 +23,48 @@ export default function DriverDashboard() {
   const goToDeliveries = () => navigate("/driver/deliveries");
 
   useEffect(() => {
-  const fetchDriverData = async () => {
-    if (!user || user.role !== "driver") {
-      console.warn("Driver not logged in");
-      logout(navigate);
-      return;
-    }
-
-    try {
-      // 1️⃣ Get driver using logged-in user's user_id
-      const driverRes = await api.get(`/drivers/user/${user.user_id}`);
-      const driver = driverRes.data;
-      const driverId = driver.driver_id; // ✅ Real driver_id
-
-      if (!driverId) {
-        console.warn("No driver ID found in user data");
-        navigate("/login");
+    const fetchDriverData = async () => {
+      if (!user || user.role !== "driver") {
+        console.warn("Driver not logged in");
+        logout(navigate);
         return;
       }
 
-      // 2️⃣ Fetch deliveries assigned to this driver
-      const deliveriesRes = await api.get(`/delivery/driver?driver_id=${driverId}`);
-      const allDeliveries = deliveriesRes.data;
+      try {
+        // 1️⃣ Get driver using logged-in user's user_id
+        const driverRes = await api.get(`/drivers/user/${user.user_id}`);
+        const driver = driverRes.data;
+        const driverId = driver.driver_id; // ✅ Real driver_id
 
-      const completed = allDeliveries.filter((d) => d.status === "Completed").length;
-      const pending = allDeliveries.filter((d) => d.status === "Scheduled").length;
+        if (!driverId) {
+          console.warn("No driver ID found in user data");
+          navigate("/login");
+          return;
+        }
 
-      setStats({
-        assignedDeliveries: allDeliveries.length,
-        completedDeliveries: completed,
-        pendingDeliveries: pending,
-      });
+        // 2️⃣ Fetch deliveries assigned to this driver
+        const deliveriesRes = await api.get(`/delivery/driver?driver_id=${driverId}`);
+        const allDeliveries = deliveriesRes.data;
 
-      setRecentDeliveries(allDeliveries.slice(-5));
-    } catch (err) {
-      console.error("Failed to load driver dashboard:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+        const completed = allDeliveries.filter((d) => d.status === "Completed").length;
+        const pending = allDeliveries.filter((d) => d.status === "Scheduled").length;
 
-  fetchDriverData();
-}, [user, navigate]);
+        setStats({
+          assignedDeliveries: allDeliveries.length,
+          completedDeliveries: completed,
+          pendingDeliveries: pending,
+        });
+
+        setRecentDeliveries(allDeliveries.slice(-5));
+      } catch (err) {
+        console.error("Failed to load driver dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDriverData();
+  }, [user, navigate]);
 
 
   if (loading) {
@@ -72,81 +74,87 @@ export default function DriverDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* NAV */}
-      <nav className="bg-gray-900 text-white px-6 py-3 flex justify-between items-center shadow">
-        <h1 className="text-xl font-semibold">Driver Dashboard</h1>
-        <button
-          onClick={handleLogout}
-          className="bg-white text-black font-semibold hover:bg-gray-100 px-3 py-1 rounded"
-        >
-          Logout
-        </button>
-      </nav>
-
-      <div className="p-6">
+    <DriverLayout>
+      <div className="max-w-7xl mx-auto">
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <StatCard
             title="Assigned Deliveries"
             value={stats.assignedDeliveries}
+            icon="📦"
+            color="blue"
           />
-          <StatCard title="Completed" value={stats.completedDeliveries} />
-          <StatCard title="Pending" value={stats.pendingDeliveries} />
+          <StatCard
+            title="Completed"
+            value={stats.completedDeliveries}
+            icon="✅"
+            color="green"
+
+          />
+          <StatCard
+            title="Pending"
+            value={stats.pendingDeliveries}
+            icon="⏳"
+            color="orange"
+          />
         </div>
 
         {/* Button to View All Deliveries */}
-        <div className="flex justify-end mb-3">
+        <div className="flex justify-end mb-4">
           <button
             onClick={goToDeliveries}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            className="bg-orange-secondary text-black px-5 py-2.5 rounded-lg shadow-md hover:bg-orange-300 transition font-medium"
           >
             View All Deliveries
           </button>
         </div>
 
         {/* Recent Deliveries */}
-        <div className="bg-white shadow rounded p-4">
-          <h2 className="text-xl font-semibold mb-3 text-gray-800">
-            Recent Deliveries
-          </h2>
+        <div className="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
+          <div className="p-6 border-b border-gray-100">
+            <h2 className="text-xl font-bold text-gray-900">Recent Deliveries</h2>
+          </div>
+
           {recentDeliveries.length === 0 ? (
-            <p className="text-gray-500">No deliveries assigned yet.</p>
+            <p className="text-gray-500 p-8 text-center italic">No deliveries assigned yet.</p>
           ) : (
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="border-b-gray-100 text-gray-700 border-b text-center">
-                  <th className="py-2 text-left">Delivery ID</th>
-                  <th className="py-2 text-left">Pickup</th>
-                  <th className="py-2 text-left">Dropoff</th>
-                  <th className="py-2 text-left">Status</th>
-                  <th className="py-2 text-left">Date</th>
+            <table className="w-full border-separate border-spacing-y-0">
+              <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
+                <tr>
+                  <th className="py-4 px-6 text-left">Delivery ID</th>
+                  <th className="py-4 px-6 text-left">Pickup</th>
+                  <th className="py-4 px-6 text-left">Dropoff</th>
+                  <th className="py-4 px-6 text-left">Status</th>
+                  <th className="py-4 px-6 text-left">Date</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100">
                 {recentDeliveries.map((delivery) => (
                   <tr
                     key={delivery.delivery_id}
-                    className="border-b-gray-100 border-b hover:bg-gray-50 cursor-pointer"
+                    className="hover:bg-orange-50 transition-colors duration-200 cursor-pointer"
                     onClick={() =>
-                      navigate(`/driver/deliveries/${delivery.delivery_id}`)
-                    } // Optional row link
+                      navigate(`/delivery/${delivery.delivery_id}`) // Standardized route
+                    }
                   >
-                    <td className="py-2">{delivery.delivery_id}</td>
-                    <td className="py-2">{delivery.pickup_address}</td>
-                    <td className="py-2">{delivery.dropoff_address}</td>
-                    <td
-                      className={`py-2 font-semibold ${
-                        delivery.status === "Completed"
-                          ? "text-green-600"
+                    <td className="py-4 px-6 font-medium text-gray-900">#{delivery.delivery_id}</td>
+                    <td className="py-4 px-6 text-gray-600 truncate max-w-[200px]" title={delivery.pickup_address}>{delivery.pickup_address}</td>
+                    <td className="py-4 px-6 text-gray-600 truncate max-w-[200px]" title={delivery.dropoff_address}>{delivery.dropoff_address}</td>
+                    <td className="py-4 px-6">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${delivery.status === "Completed"
+                          ? "bg-green-100 text-green-800"
                           : delivery.status === "On Route"
-                          ? "text-yellow-600"
-                          : "text-blue-600"
-                      }`}
-                    >
-                      {delivery.status}
+                            ? "bg-yellow-100 text-yellow-800"
+                            : delivery.status === "Scheduled"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                      >
+                        {delivery.status}
+                      </span>
                     </td>
-                    <td className="py-2">
+                    <td className="py-4 px-6 text-gray-600">
                       {new Date(delivery.delivery_date).toLocaleDateString()}
                     </td>
                   </tr>
@@ -156,15 +164,6 @@ export default function DriverDashboard() {
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function StatCard({ title, value }) {
-  return (
-    <div className="bg-white p-4 shadow rounded text-center">
-      <h2 className="text-gray-600">{title}</h2>
-      <p className="text-3xl font-bold text-gray-900">{value}</p>
-    </div>
+    </DriverLayout>
   );
 }

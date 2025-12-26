@@ -20,6 +20,7 @@ const Invoice = require("./invoice.model")(sequelize, DataTypes);
 const Drivers = require("./drivers.model")(sequelize, DataTypes);
 const Vehicle = require("./vehicles.model")(sequelize, DataTypes);
 const Delivery = require("./delivery.model")(sequelize, DataTypes);
+const Device = require("./devices.model")(sequelize, DataTypes);
 
 // ========================
 // FINAL CORRECT ASSOCIATIONS
@@ -73,6 +74,10 @@ Customer.hasMany(Invoice, { foreignKey: "customer_id", as: "invoices" });
 Vehicle.belongsTo(Drivers, { foreignKey: "driver_id", as: "driver" });
 Drivers.hasOne(Vehicle, { foreignKey: "driver_id", as: "vehicle" });
 
+// Device ↔ Driver (1:1)
+Device.belongsTo(Drivers, { foreignKey: "driver_id", as: "driver" });
+Drivers.hasOne(Device, { foreignKey: "driver_id", as: "device" });
+
 // ========================
 // Sync all tables
 // ========================
@@ -97,4 +102,5 @@ module.exports = {
   Drivers,
   Vehicle,
   Delivery,
+  Device,
 };

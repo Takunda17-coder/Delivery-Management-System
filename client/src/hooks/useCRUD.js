@@ -7,6 +7,7 @@ export default function useCRUD(endpoint, defaultForm = {}, idField = "id") {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false); // ✅ Fix: Add modal state
   const [message, setMessage] = useState("");
   const [error, setError] = useState(null);
 
@@ -37,7 +38,7 @@ export default function useCRUD(endpoint, defaultForm = {}, idField = "id") {
       setSubmitting(true);
       setMessage("");
       setError(null);
-      
+
       if (editingId) {
         const res = await api.put(`/${endpoint}/${editingId}`, form);
         setMessage(res.data?.message || "Updated successfully");
@@ -45,9 +46,10 @@ export default function useCRUD(endpoint, defaultForm = {}, idField = "id") {
         const res = await api.post(`/${endpoint}`, form);
         setMessage(res.data?.message || "Created successfully");
       }
-      
+
       setForm(defaultForm);
       setEditingId(null);
+      setModalOpen(false);
       fetchAll();
     } catch (err) {
       const errMsg = err.response?.data?.message || err.message || "An error occurred";
@@ -63,6 +65,7 @@ export default function useCRUD(endpoint, defaultForm = {}, idField = "id") {
     const id = item[idField] || item.id || item[Object.keys(item)[0]];
     setEditingId(id);
     setForm(item);
+    setModalOpen(true); // ✅ Open modal
   };
 
   const handleDelete = async (id) => {
@@ -103,5 +106,7 @@ export default function useCRUD(endpoint, defaultForm = {}, idField = "id") {
     message,
     error,
     fetchAll,
+    modalOpen, // ✅ Export
+    setModalOpen, // ✅ Export
   };
 }

@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.NOW,
       },
       pickup_address: { type: DataTypes.STRING, allowNull: false },
+      dropoff_address: { type: DataTypes.STRING, allowNull: true }, // ✅ Changed to true to fix migration error
       total: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
       status: {
         type: DataTypes.ENUM(

@@ -1,4 +1,4 @@
-const { Orders, Customer,Invoice } = require("../models");
+const { Orders, Customer, Invoice } = require("../models");
 
 // ✅ Create a new order
 const createOrder = async (req, res) => {
@@ -28,12 +28,21 @@ const createOrder = async (req, res) => {
       customer_id: customer_id,
       order_item,
       quantity,
-      price,
+      price: price || 0, // ✅ Default to 0 if not provided (Quote Pending)
       pickup_address,
-      total,
+      dropoff_address,
+      total: total || 0,
       weight,
       status: status || "Pending", // default to "Pending" if not provided
     });
+
+    // ✅ Emit New Order Event to Admins
+    if (req.io) {
+      req.io.to("admin_room").emit("new_order", {
+        message: `New order from ${customer.first_name} ${customer.last_name}`,
+        order: newOrder,
+      });
+    }
 
     res.status(201).json(newOrder);
   } catch (error) {
@@ -54,7 +63,7 @@ const getAllOrders = async (req, res) => {
 
     const orders = await Orders.findAll({
       where: filter,
-      include: [{ model: Customer, as: "customer" }],
+      include: [{ model: Customer, as: "customer" }, { model: require('../models').Delivery, as: "deliveries" }],
       order: [["createdAt", "DESC"]],
     });
 
@@ -70,7 +79,7 @@ const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
     const order = await Orders.findByPk(id, {
-      include: [{ model: Customer, as: "customer" }],
+      include: [{ model: Customer, as: "customer" }, { model: require('../models').Delivery, as: "deliveries" }],
     });
 
     if (!order) return res.status(404).json({ error: "Order not found" });
@@ -153,16 +162,30 @@ const updateOrder = async (req, res) => {
       order.customer_id = customer_id;
     }
 
+    // Check if status is changing for notification
+    const oldStatus = order.status;
+
     // Update fields if provided
     if (order_item) order.order_item = order_item;
     if (quantity) order.quantity = quantity;
     if (price) order.price = price;
     if (pickup_address) order.pickup_address = pickup_address;
+    if (dropoff_address) order.dropoff_address = dropoff_address;
     if (total) order.total = total;
     if (weight) order.weight = weight;
     if (status) order.status = status;
 
     await order.save();
+
+    // ✅ Emit Status Update Event to Specific Customer
+    if (req.io && status && status !== oldStatus) {
+      req.io.to(`customer_${order.customer_id}_room`).emit("order_status_updated", {
+        message: `Your order #${order.order_id} is now ${status}`,
+        order_id: order.order_id,
+        status: status,
+      });
+    }
+
     res.status(200).json(order);
   } catch (error) {
     console.error("Error updating order:", error);

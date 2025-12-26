@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axiosConfig";
 import { useAuth } from "../../context/AuthContext";
+import BackgroundVideo from "../../assets/Login.mp4";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -33,19 +34,34 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-blue-50 p-4">
-      <div className="bg-white shadow-2xl rounded-xl p-8 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+    <div className="relative flex items-center justify-center min-h-screen overflow-hidden">
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        className="absolute z-0 w-auto min-w-full min-h-full max-w-none"
+      >
+        <source src={BackgroundVideo} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/60 z-10"></div>
+
+      {/* Login Card */}
+      <div className="relative z-20 bg-white/90 backdrop-blur-md shadow-2xl rounded-xl p-8 w-full max-w-md border border-white/20">
+        <h2 className="text-3xl font-bold text-center text-gray-900 mb-6 font-heading">
           Welcome Back
         </h2>
-        <p className="text-center text-gray-500 mb-6">
+        <p className="text-center text-gray-600 mb-6">
           Login to your account to continue
         </p>
 
         {error && (
-          <p className="text-red-500 text-sm mb-4 text-center font-medium">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4 text-center">
             {error}
-          </p>
+          </div>
         )}
 
         <form onSubmit={handleLogin} className="space-y-5">
@@ -57,7 +73,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-deep-orange focus:border-transparent outline-none transition"
             />
           </div>
 
@@ -69,13 +85,13 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-deep-orange focus:border-transparent outline-none transition"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-gray-900 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200"
+            className="w-full bg-deep-orange hover:bg-orange-700 text-white font-bold py-3 rounded-lg shadow-md transition-all duration-200 transform hover:scale-[1.02]"
           >
             Login
           </button>
@@ -85,7 +101,7 @@ const Login = () => {
           Don’t have an account?{" "}
           <span
             onClick={() => navigate("/register")}
-            className="text-gray-900 font-semibold hover:underline cursor-pointer"
+            className="text-deep-orange font-bold hover:text-orange-800 hover:underline cursor-pointer transition"
           >
             Register
           </span>

@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import useCRUD from "../../hooks/useCRUD";
 import AdminLayout from "../../components/AdminLayout";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axiosConfig";
 import { Modal, FormInput, FormSelect, Badge } from "../../components/ui/index.jsx";
+import { toast } from "react-hot-toast";
+
+
 
 
 const ManageOrders = () => {
+  const navigate = useNavigate();
   const defaultForm = {
     order_id: null,
     customer_id: "",
@@ -91,9 +96,12 @@ const ManageOrders = () => {
       ...prev,
       order_id: order.order_id,
       pickup_address: order.pickup_address || "",
-      dropoff_address: order.pickup_address || "",
+      dropoff_address: order.dropoff_address || "", // ✅ Use dropoff_address
       total: order.total || 0,
-      delivery_date: new Date().toISOString().slice(0,16),
+      delivery_date: new Date().toISOString().slice(0, 16),
+      recipient_name: order.customer ? `${order.customer.first_name} ${order.customer.last_name}` : "",
+      recipient_contact: order.customer ? order.customer.phone_number : "",
+      delivery_fee: "", // manual entry
     }));
 
     // fetch drivers and vehicles
@@ -117,10 +125,10 @@ const ManageOrders = () => {
       fetchAll();
       setAssignModalOpen(false);
       setSelectedOrder(null);
-      alert(res.data?.message || 'Delivery assigned');
+      toast.success(res.data?.message || 'Delivery assigned successfully!');
     } catch (err) {
       console.error('Failed to assign delivery', err);
-      alert(err.response?.data?.message || 'Failed to assign delivery');
+      toast.error(err.response?.data?.message || 'Failed to assign delivery');
     } finally {
       setAssigning(false);
     }
@@ -130,13 +138,13 @@ const ManageOrders = () => {
 
   return (
     <AdminLayout>
-      <div className="p-6">
-        <h2 className="text-2xl font-bold mb-4">Manage Orders</h2>
+      <div className="p-4">
+        <h2 className="text-2xl font-bold mb-6 text-gray-900">Manage Orders</h2>
 
-        <form onSubmit={handleSubmit} className="mb-6 grid grid-cols-1 text-black md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="mb-6 grid grid-cols-1 text-black md:grid-cols-2 gap-4 bg-white p-6 rounded-xl shadow-md border border-gray-100">
           {/* Customer */}
           <div>
-            <label className="block mb-1 font-medium">Customer</label>
+            <label className="block mb-1 font-medium text-gray-700">Customer</label>
             {isEditing ? (
               // show readonly label when editing (you requested customer not editable when editing)
               <input
@@ -147,13 +155,13 @@ const ManageOrders = () => {
                     ? `${customers.find((c) => c.customer_id === form.customer_id).first_name} ${customers.find((c) => c.customer_id === form.customer_id).last_name}`
                     : form.customer_id || ""
                 }
-                className="border p-2 rounded bg-gray-100 w-full"
+                className="border border-gray-300 p-2 rounded-lg bg-gray-50 w-full text-gray-600"
               />
             ) : (
               <select
                 value={form.customer_id || ""}
                 onChange={(e) => setForm({ ...form, customer_id: e.target.value ? Number(e.target.value) : "" })}
-                className="border p-2 rounded w-full"
+                className="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-deep-orange focus:border-transparent outline-none transition"
                 required
               >
                 <option value="">Select Customer</option>
@@ -168,83 +176,83 @@ const ManageOrders = () => {
 
           {/* Item */}
           <div>
-            <label className="block mb-1 font-medium">Order Item</label>
+            <label className="block mb-1 font-medium text-gray-700">Order Item</label>
             <input
               value={form.order_item || ""}
               onChange={(e) => setForm({ ...form, order_item: e.target.value })}
-              className="border p-2 rounded w-full"
+              className="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-deep-orange focus:border-transparent outline-none transition"
               required
             />
           </div>
 
           {/* Quantity */}
           <div>
-            <label className="block mb-1 font-medium">Quantity</label>
+            <label className="block mb-1 font-medium text-gray-700">Quantity</label>
             <input
               type="number"
               min="1"
               step="1"
               value={form.quantity === "" ? "" : form.quantity}
               onChange={(e) => updateNumberField("quantity", e.target.value)}
-              className="border p-2 rounded w-full"
+              className="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-deep-orange focus:border-transparent outline-none transition"
               required
             />
           </div>
 
           {/* Price */}
           <div>
-            <label className="block mb-1 font-medium">Price</label>
+            <label className="block mb-1 font-medium text-gray-700">Price</label>
             <input
               type="number"
               min="0"
               step="0.01"
               value={form.price === "" ? "" : form.price}
               onChange={(e) => updateNumberField("price", e.target.value)}
-              className="border p-2 rounded w-full"
+              className="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-deep-orange focus:border-transparent outline-none transition"
               required
             />
           </div>
 
           {/* Pickup Address (span full width) */}
           <div className="col-span-1 md:col-span-2">
-            <label className="block mb-1 font-medium">Pickup Address</label>
+            <label className="block mb-1 font-medium text-gray-700">Pickup Address</label>
             <input
               value={form.pickup_address || ""}
               onChange={(e) => setForm({ ...form, pickup_address: e.target.value })}
-              className="border p-2 rounded w-full"
+              className="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-deep-orange focus:border-transparent outline-none transition"
               required
             />
           </div>
 
-          
+
 
           {/* Total */}
           <div>
-            <label className="block mb-1 font-medium">Total</label>
-            <input type="number" value={form.total || 0} readOnly className="border p-2 rounded bg-gray-100 w-full" />
+            <label className="block mb-1 font-medium text-gray-700">Total</label>
+            <input type="number" value={form.total || 0} readOnly className="border border-gray-300 p-2 rounded-lg bg-gray-50 w-full text-gray-600" />
           </div>
 
           {/* Weight (decimals allowed) */}
           <div>
-            <label className="block mb-1 font-medium">Weight (kg)</label>
+            <label className="block mb-1 font-medium text-gray-700">Weight (kg)</label>
             <input
               type="number"
               min="0"
               step="0.01"
               value={form.weight === "" ? "" : form.weight}
               onChange={(e) => setForm({ ...form, weight: e.target.value === "" ? "" : Number(e.target.value) })}
-              className="border p-2 rounded w-full"
+              className="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-deep-orange focus:border-transparent outline-none transition"
               required
             />
           </div>
 
           {/* Status */}
           <div className="col-span-1 md:col-span-2">
-            <label className="block mb-1 font-medium">Status</label>
+            <label className="block mb-1 font-medium text-gray-700">Status</label>
             <select
               value={form.status || "Pending"}
               onChange={(e) => setForm({ ...form, status: e.target.value })}
-              className="border p-2 rounded w-full"
+              className="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-deep-orange focus:border-transparent outline-none transition"
               required
             >
               <option value="Pending">Pending</option>
@@ -255,14 +263,14 @@ const ManageOrders = () => {
           </div>
 
           {/* Buttons */}
-          <div className="col-span-1 md:col-span-2 flex gap-2 justify-end mt-2">
+          <div className="col-span-1 md:col-span-2 flex gap-3 justify-end mt-4">
             {isEditing && (
               <button
                 type="button"
                 onClick={() => {
                   setForm(defaultForm);
                 }}
-                className="px-4 py-2 border rounded"
+                className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition font-medium"
               >
                 Cancel
               </button>
@@ -271,7 +279,7 @@ const ManageOrders = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="bg-gray-900 text-white px-6 py-2 rounded hover:bg-gray-700"
+              className="bg-deep-orange text-white px-6 py-2.5 rounded-lg shadow-md hover:bg-orange-700 transition font-medium"
             >
               {form.order_id ? "Update Order" : "Save Order"}
             </button>
@@ -279,59 +287,71 @@ const ManageOrders = () => {
         </form>
 
         {/* messaging */}
-        {message && <div className="mb-4 text-green-600">{message}</div>}
-        {error && <div className="mb-4 text-red-600">Error: {error.message || "An error occurred"}</div>}
+        {message && <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg border border-green-200">{message}</div>}
+        {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">Error: {error.message || "An error occurred"}</div>}
 
-        <table className="min-w-full border-b">
-          <thead className="bg-gray-900 text-gray-200">
-            <tr>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Item</th>
-              <th>Qty</th>
-              <th>Price</th>
-              <th>Pickup</th>
-              <th>Total</th>
-              <th>Weight</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.length === 0 ? (
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden overflow-x-auto">
+          <table className="w-full border-separate border-spacing-y-2">
+            <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
               <tr>
-                <td colSpan="10" className="text-center py-4">
-                  No orders
-                </td>
+                <th className="py-4 px-6 text-left">Order ID</th>
+                <th className="py-4 px-6 text-left">Customer</th>
+                <th className="py-4 px-6 text-left">Item</th>
+                <th className="py-4 px-6 text-left">Qty</th>
+                <th className="py-4 px-6 text-left">Price</th>
+                <th className="py-4 px-6 text-left">Pickup</th>
+                <th className="py-4 px-6 text-left">Total</th>
+                <th className="py-4 px-6 text-left">Weight</th>
+                <th className="py-4 px-6 text-left">Status</th>
+                <th className="py-4 px-6 text-center">Actions</th>
               </tr>
-            ) : (
-              orders.map((o) => (
-                <tr key={o.order_id} className="text-black">
-                  <td>{o.order_id}</td>
-                  <td>{o.customer?.first_name} {o.customer?.last_name}</td>
-                  <td>{o.order_item}</td>
-                  <td>{o.quantity}</td>
-                  <td>{o.price}</td>
-                  <td>{o.pickup_address}</td>
-                  <td>{o.total}</td>
-                  <td>{o.weight}</td>
-                  <td><Badge status={o.status} label={o.status} /></td>
-                  <td className="flex gap-2 justify-center">
-                    <button onClick={() => handleEdit(o)} className="text-yellow-600">Edit</button>
-                    <button onClick={() => handleDelete(o.order_id)} className="text-red-600">Delete</button>
-                    {o.status === 'Pending' && (
-                      <button onClick={() => openAssignModal(o)} className="text-blue-600">Assign</button>
-                    )}
+            </thead>
+            <tbody className="space-y-4">
+              {orders.length === 0 ? (
+                <tr>
+                  <td colSpan="10" className="text-center py-8 text-gray-500 italic">
+                    No orders
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                orders.map((o) => (
+                  <tr key={o.order_id} className="bg-white hover:bg-orange-50 transition-colors duration-200 shadow-sm rounded-lg">
+                    <td className="py-4 px-6 font-medium text-gray-900 border-y first:border-l first:rounded-l-lg last:border-r last:rounded-r-lg border-gray-100">{o.order_id}</td>
+                    <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{o.customer?.first_name} {o.customer?.last_name}</td>
+                    <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{o.order_item}</td>
+                    <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{o.quantity}</td>
+                    <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{o.price}</td>
+                    <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{o.pickup_address}</td>
+                    <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{o.total}</td>
+                    <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{o.weight}</td>
+                    <td className="py-4 px-6 border-y border-gray-100"><Badge status={o.status} label={o.status} /></td>
+                    <td className="py-4 px-6 text-center border-y last:border-r last:rounded-r-lg border-gray-100">
+                      <div className="flex justify-center gap-2">
+                        <button onClick={() => handleEdit(o)} className="text-gray-500 hover:text-deep-orange transition font-medium">Edit</button>
+                        <button onClick={() => handleDelete(o.order_id)} className="text-gray-400 hover:text-red-500 transition font-medium">Delete</button>
+                        {o.status === 'Pending' && (
+                          <button onClick={() => openAssignModal(o)} className="text-blue-600 hover:text-blue-800 transition font-medium">Assign</button>
+                        )}
+                        {(o.status === 'Scheduled' || o.status === 'On Route') && o.deliveries && o.deliveries.length > 0 && (
+                          <button
+                            onClick={() => navigate(`/delivery/${o.deliveries[0].delivery_id}`)}
+                            className="text-deep-orange hover:text-orange-700 transition font-medium"
+                          >
+                            Track
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
         {/* Assign Delivery Modal */}
         {assignModalOpen && (
           <Modal isOpen={assignModalOpen} title={`Assign Delivery - Order #${selectedOrder?.order_id}`} onClose={() => setAssignModalOpen(false)} footer={null}>
-            <form onSubmit={handleAssignSubmit} className="space-y-4">
+            <form onSubmit={handleAssignSubmit} className="space-y-4 text-black">
               <FormSelect
                 label="Driver"
                 value={deliveryForm.driver_id}
@@ -351,13 +371,19 @@ const ManageOrders = () => {
               <FormInput label="Pickup Address" value={deliveryForm.pickup_address} onChange={(e) => setDeliveryForm({ ...deliveryForm, pickup_address: e.target.value })} required />
               <FormInput label="Dropoff Address" value={deliveryForm.dropoff_address} onChange={(e) => setDeliveryForm({ ...deliveryForm, dropoff_address: e.target.value })} required />
               <div className="grid grid-cols-2 gap-4">
+                <FormInput label="Recipient Name" value={deliveryForm.recipient_name} onChange={(e) => setDeliveryForm({ ...deliveryForm, recipient_name: e.target.value })} required />
+                <FormInput label="Recipient Contact" value={deliveryForm.recipient_contact} onChange={(e) => setDeliveryForm({ ...deliveryForm, recipient_contact: e.target.value })} required />
+              </div>
+              <FormInput label="Delivery Fee" type="number" step="0.01" value={deliveryForm.delivery_fee} onChange={(e) => setDeliveryForm({ ...deliveryForm, delivery_fee: e.target.value })} required />
+
+              <div className="grid grid-cols-2 gap-4">
                 <FormInput label="Delivery Date" type="datetime-local" value={deliveryForm.delivery_date} onChange={(e) => setDeliveryForm({ ...deliveryForm, delivery_date: e.target.value })} required />
                 <FormInput label="Expected Time" type="time" value={deliveryForm.expected_delivery_time} onChange={(e) => setDeliveryForm({ ...deliveryForm, expected_delivery_time: e.target.value })} required />
               </div>
 
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setAssignModalOpen(false)} className="px-4 py-2 border rounded">Cancel</button>
-                <button type="submit" disabled={assigning} className="bg-blue-600 text-white px-4 py-2 rounded">{assigning ? 'Assigning...' : 'Assign Delivery'}</button>
+              <div className="flex justify-end gap-2 mt-6">
+                <button type="button" onClick={() => setAssignModalOpen(false)} className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition font-medium">Cancel</button>
+                <button type="submit" disabled={assigning} className="bg-deep-orange text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-orange-700 transition font-medium">{assigning ? 'Assigning...' : 'Assign Delivery'}</button>
               </div>
             </form>
           </Modal>

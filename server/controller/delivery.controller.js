@@ -83,6 +83,15 @@ exports.createDelivery = async (req, res) => {
       if (order && order.status !== 'Scheduled') {
         order.status = 'Scheduled';
         await order.save({ transaction: t });
+
+        // 🔔 NOTIFY CUSTOMER: Order Scheduled
+        if (req.io) {
+          req.io.to(`customer_${order.customer_id}_room`).emit("order_status_updated", {
+            message: `Your order #${order.order_id} has been Scheduled for delivery!`,
+            order_id: order.order_id,
+            status: "Scheduled"
+          });
+        }
       }
     } catch (err) {
       console.error('Failed to update order status after creating delivery:', err);
@@ -90,6 +99,15 @@ exports.createDelivery = async (req, res) => {
     }
 
     await t.commit();
+
+    // 🔔 NOTIFY DRIVER: Delivery Assigned
+    if (req.io) {
+      req.io.to(`driver_${driver_id}_room`).emit("delivery_assigned", {
+        message: `New Delivery Assigned! Pickup: ${pickup_address}`,
+        delivery: newDelivery
+      });
+    }
+
     res.status(201).json({ message: "Delivery created successfully", delivery: newDelivery });
   } catch (error) {
     await t.rollback();

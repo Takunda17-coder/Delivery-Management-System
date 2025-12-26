@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+@theme {
+  --color-deep-orange: #ea580c;
+  /* orange-600 - RESTORED FOR NAV */
+  --color-orange-secondary: #FFBB66;
+  /* peach - FOR BUTTONS */
+  --color-complementary: #6699CC;
+  /* blue - FOR SECONDARY ACTIONS */
+}

@@ -13,6 +13,7 @@ import AdminDashboard from "./pages/Admin/Dashboard";
 import ManageCustomers from "./pages/Admin/ManageCustomers";
 import ManageDrivers from "./pages/Admin/ManageDrivers";
 import ManageVehicles from "./pages/Admin/ManageVehicles";
+import ManageDevices from "./pages/Admin/ManageDevices";
 import ManageOrders from "./pages/Admin/ManageOrders";
 import ManageInvoices from "./pages/Admin/ManageInvoices";
 import ManageDeliveries from "./pages/Admin/ManageDeliveries";
@@ -74,6 +75,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <ManageVehicles />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/managedevices"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <ManageDevices />
               </ProtectedRoute>
             }
           />

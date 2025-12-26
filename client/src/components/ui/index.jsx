@@ -187,8 +187,8 @@ export function Modal({ isOpen, title, children, onClose, footer }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
-        <div className="flex justify-between items-center border-b border-gray-200 p-6">
+      <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center border-b border-gray-200 p-6 shrink-0">
           <h2 className="text-xl font-bold text-gray-900">{title}</h2>
           <button
             onClick={onClose}
@@ -197,8 +197,8 @@ export function Modal({ isOpen, title, children, onClose, footer }) {
             ×
           </button>
         </div>
-        <div className="p-6">{children}</div>
-        {footer && <div className="border-t border-gray-200 p-6 flex gap-2 justify-end">{footer}</div>}
+        <div className="p-6 overflow-y-auto">{children}</div>
+        {footer && <div className="border-t border-gray-200 p-6 flex gap-2 justify-end shrink-0">{footer}</div>}
       </div>
     </div>
   );
