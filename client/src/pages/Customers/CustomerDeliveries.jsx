@@ -47,7 +47,7 @@ export default function CustomerDeliveries() {
   }, [user]);
 
   if (loading) return <p className="p-6 text-center text-gray-600">Loading deliveries...</p>;
-  
+
   if (error)
     return (
       <div className="p-6 text-center text-red-600">
@@ -75,19 +75,19 @@ export default function CustomerDeliveries() {
       </div>
 
       <div className="flex gap-4 p-6 mb-4">
-          <Link
-            to={`/customer/dashboard`}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-          >
-            View Dashboard
-          </Link>
-          <Link
-            to={`/customer/orders`}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-          >
-            View Orders
-          </Link>
-        </div>
+        <Link
+          to={`/customer/dashboard`}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+        >
+          View Dashboard
+        </Link>
+        <Link
+          to={`/customer/orders`}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+        >
+          View Orders
+        </Link>
+      </div>
 
       {/* Deliveries Table */}
       {deliveries.length === 0 ? (
@@ -116,23 +116,30 @@ export default function CustomerDeliveries() {
                   <td className="p-3">{d.dropoff_address}</td>
                   <td className="p-3">
                     <span
-                      className={`px-2 py-1 rounded text-xs font-semibold ${
-                        d.status === "Completed"
+                      className={`px-2 py-1 rounded text-xs font-semibold ${d.status === "Completed"
                           ? "bg-green-100 text-green-800"
                           : d.status === "On Route"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : d.status === "Scheduled"
-                          ? "bg-blue-100 text-blue-800"
-                          : d.status === "Cancelled"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
+                            ? "bg-yellow-100 text-yellow-800"
+                            : d.status === "Scheduled"
+                              ? "bg-blue-100 text-blue-800"
+                              : d.status === "Cancelled"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-gray-100 text-gray-800"
+                        }`}
                     >
                       {STATUS_LABELS[d.status] || d.status}
                     </span>
                   </td>
                   <td className="p-3">
                     {new Date(d.delivery_date).toLocaleString()}
+                  </td>
+                  <td className="p-3">
+                    <button
+                      onClick={() => navigate(`/delivery/${d.delivery_id}`)}
+                      className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                    >
+                      Track
+                    </button>
                   </td>
                 </tr>
               ))}

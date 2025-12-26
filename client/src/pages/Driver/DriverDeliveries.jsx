@@ -136,17 +136,16 @@ export default function DriverDeliveries() {
                   <td className="p-3">{d.dropoff_address}</td>
                   <td className="p-3">
                     <span
-                      className={`px-2 py-1 rounded text-xs font-semibold ${
-                        d.status === "Completed"
+                      className={`px-2 py-1 rounded text-xs font-semibold ${d.status === "Completed"
                           ? "bg-green-100 text-green-800"
                           : d.status === "On Route"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : d.status === "Scheduled"
-                          ? "bg-blue-100 text-blue-800"
-                          : d.status === "Cancelled"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
+                            ? "bg-yellow-100 text-yellow-800"
+                            : d.status === "Scheduled"
+                              ? "bg-blue-100 text-blue-800"
+                              : d.status === "Cancelled"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-gray-100 text-gray-800"
+                        }`}
                     >
                       {STATUS_LABELS[d.status] || d.status}
                     </span>
@@ -165,6 +164,13 @@ export default function DriverDeliveries() {
                         Start Delivery
                       </button>
                     )}
+
+                    <button
+                      onClick={() => navigate(`/delivery/${d.delivery_id}`)}
+                      className="px-2 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                    >
+                      Track
+                    </button>
 
                     {d.status === "On Route" && (
                       <>
