@@ -1,8 +1,10 @@
 import AdminLayout from "../../components/AdminLayout";
 import useCRUD from "../../hooks/useCRUD";
+import { useNavigate } from "react-router-dom";
 
 
 export default function ManageDeliveries() {
+  const navigate = useNavigate();
   const defaultDeliveryForm = {
     order_id: "",
     driver_id: "",
@@ -263,6 +265,12 @@ export default function ManageDeliveries() {
                   <td>{d.status}</td>
 
                   <td className="flex gap-2 justify-center py-2">
+                    <button
+                      onClick={() => navigate(`/delivery/${d.delivery_id}`)}
+                      className="text-blue-600"
+                    >
+                      Track
+                    </button>
                     <button
                       onClick={() => handleEdit(d)}
                       className="text-yellow-600"

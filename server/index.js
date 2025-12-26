@@ -2,9 +2,23 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const bcrypt = require("bcryptjs");
-const {Users, sequelize} = require("./models"); // ✅ correct import
+const { Users, sequelize } = require("./models"); // ✅ correct import
+
+const http = require("http");
+const { Server } = require("socket.io");
+const socketHandler = require("./socketHandler");
 
 const app = express();
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+
+socketHandler(io);
 
 app.use(express.json());
 app.use(
@@ -68,7 +82,7 @@ sequelize
     console.log("✅ Tables synced");
     await createDefaultAdmin(); // <-- Admin created here
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+    server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
   })
   .catch((err) => console.error("❌ Database error:", err.message));
 

@@ -16,6 +16,7 @@ import ManageVehicles from "./pages/Admin/ManageVehicles";
 import ManageOrders from "./pages/Admin/ManageOrders";
 import ManageInvoices from "./pages/Admin/ManageInvoices";
 import ManageDeliveries from "./pages/Admin/ManageDeliveries";
+import DeliveryDetails from "./pages/DeliveryDetails";
 
 
 // Driver
@@ -100,7 +101,16 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-                
+
+
+          <Route
+            path="/delivery/:id"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "driver", "customer"]}>
+                <DeliveryDetails />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Driver routes */}
           <Route
