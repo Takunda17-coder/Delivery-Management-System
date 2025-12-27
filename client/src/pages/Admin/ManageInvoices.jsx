@@ -1,9 +1,10 @@
 import AdminLayout from "../../components/AdminLayout";
 import useCRUD from "../../hooks/useCRUD";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
 import api from "../../api/axiosConfig";
 import toast from "react-hot-toast";
+import { Modal, FormInput, FormSelect } from "../../components/ui";
 
 export default function ManageInvoices() {
   const defaultForm = {
@@ -17,7 +18,7 @@ export default function ManageInvoices() {
     quantity: "",
     price: "",
     total: "",
-    status: "Unpaid",
+    status: "Paid", // Default to Paid as requested
   };
 
   const {
@@ -29,6 +30,9 @@ export default function ManageInvoices() {
     handleDelete,
     loading
   } = useCRUD("invoice", defaultForm, "invoice_id");
+
+  // Local state for Modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Auto-calc total when editing or typing
   useEffect(() => {
@@ -42,6 +46,21 @@ export default function ManageInvoices() {
       }));
     }
   }, [form.quantity, form.price, form.delivery_fee]);
+
+  const openCreateModal = () => {
+    setForm(defaultForm);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (invoice) => {
+    handleEdit(invoice); // Populates form and sets isEditing=true (inside hook)
+    setIsModalOpen(true);
+  };
+
+  const handleModalSubmit = async (e) => {
+    await handleSubmit(e); // Calls hook's submit
+    setIsModalOpen(false); // Close on success (optimistic)
+  };
 
   // Download Handler
   const handleDownload = async (invoiceId) => {
@@ -67,10 +86,15 @@ export default function ManageInvoices() {
   return (
     <AdminLayout>
       <div className="p-4 mr-10 ">
-        <h1 className="text-3xl font-bold mb-6 text-gray-900">Manage Invoices</h1>
-
-        {/* FORM (Hidden for brevity, assuming Admins barely create invoices manually, but keeping functionality) */}
-        {/* ... (Existing form code preserved) ... */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Manage Invoices</h1>
+          <button
+            onClick={openCreateModal}
+            className="bg-deep-orange text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition font-medium"
+          >
+            + Create Invoice
+          </button>
+        </div>
 
         {/* TABLE */}
         <div className="mt-8 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
@@ -122,7 +146,7 @@ export default function ManageInvoices() {
                           <Download size={18} />
                         </button>
                         <button
-                          onClick={() => handleEdit(inv)}
+                          onClick={() => openEditModal(inv)}
                           className="text-gray-500 hover:text-blue-600 text-sm font-medium px-2"
                         >
                           Edit
@@ -138,10 +162,97 @@ export default function ManageInvoices() {
                   </tr>
                 ))}
               </tbody>
-
             </table>
           </div>
         </div>
+
+        {/* EDIT/CREATE MODAL */}
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title={form.invoice_id ? "Edit Invoice" : "Create Invoice"}
+          footer={
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleModalSubmit}
+                className="px-4 py-2 bg-deep-orange text-white rounded-lg hover:bg-orange-700"
+              >
+                Save Invoice
+              </button>
+            </div>
+          }
+        >
+          <form className="space-y-4">
+            <FormInput
+              label="Order ID"
+              value={form.order_id}
+              onChange={(e) => setForm({ ...form, order_id: e.target.value })}
+              required
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormInput
+                label="Customer ID"
+                value={form.customer_id}
+                onChange={(e) => setForm({ ...form, customer_id: e.target.value })}
+              />
+              <FormInput
+                label="Driver ID"
+                value={form.driver_id}
+                onChange={(e) => setForm({ ...form, driver_id: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <FormInput
+                label="Vehicle ID"
+                value={form.vehicle_id}
+                onChange={(e) => setForm({ ...form, vehicle_id: e.target.value })}
+              />
+              <FormInput
+                label="Delivery Fee"
+                type="number"
+                value={form.delivery_fee}
+                onChange={(e) => setForm({ ...form, delivery_fee: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <FormInput
+                label="Quantity"
+                type="number"
+                value={form.quantity}
+                onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+              />
+              <FormInput
+                label="Price"
+                type="number"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+              />
+            </div>
+            <FormInput
+              label="Total (Calculated)"
+              value={form.total}
+              disabled
+              className="bg-gray-100"
+            />
+            <FormSelect
+              label="Status"
+              value={form.status}
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
+              options={[
+                { value: "Paid", label: "Paid" },
+                { value: "Unpaid", label: "Unpaid" },
+                { value: "Overdue", label: "Overdue" },
+              ]}
+              required
+            />
+          </form>
+        </Modal>
       </div>
     </AdminLayout>
   );

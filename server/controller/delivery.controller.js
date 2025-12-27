@@ -208,6 +208,14 @@ exports.updateDelivery = async (req, res) => {
       }
     }
 
+    // ✅ Broadcast status update to delivery room (for Tracking UI)
+    if (req.io) {
+      req.io.to(`delivery_${id}`).emit("delivery_status_updated", {
+        status: delivery.status,
+        delivery
+      });
+    }
+
     await t.commit();
 
     res.status(200).json({ message: "Delivery updated successfully", delivery });
@@ -289,6 +297,14 @@ exports.confirmDelivery = async (req, res) => {
       req.io.to("admin_room").emit("delivery_confirmed", {
         message: `Customer confirmed delivery #${delivery.delivery_id}. Invoice #${newInvoice.invoice_id} generated.`,
         invoice_id: newInvoice.invoice_id
+      });
+    }
+
+    // ✅ Broadcast status update to delivery room (stop tracking)
+    if (req.io) {
+      req.io.to(`delivery_${id}`).emit("delivery_status_updated", {
+        status: 'Completed',
+        delivery
       });
     }
 

@@ -60,8 +60,15 @@ export default function DeliveryDetails() {
             setDriverLocation([data.lat, data.lng]);
         });
 
+        // ✅ Listen for status updates (stops tracking if status changes)
+        socket.on("delivery_status_updated", (data) => {
+            console.log("Delivery status updated:", data);
+            setDelivery((prev) => ({ ...prev, status: data.status }));
+        });
+
         return () => {
             socket.off("location_updated");
+            socket.off("delivery_status_updated");
         };
     }, [id, user]);
 
