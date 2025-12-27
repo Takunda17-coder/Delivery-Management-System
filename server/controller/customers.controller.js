@@ -207,12 +207,13 @@ exports.updateCustomer = async (req, res) => {
     await user.save({ transaction: t });
 
     // Update customer fields only if provided
+    // Convert empty strings to null for optional fields
     if (first_name !== undefined) customer.first_name = first_name;
     if (last_name !== undefined) customer.last_name = last_name;
-    if (age !== undefined) customer.age = age;
-    if (sex !== undefined) customer.sex = sex;  // ✅ This fixes the issue
-    if (phone_number !== undefined) customer.phone_number = phone_number;
-    if (address !== undefined) customer.address = address;
+    if (age !== undefined) customer.age = age === "" ? null : age;
+    if (sex !== undefined) customer.sex = sex === "" ? null : sex;
+    if (phone_number !== undefined) customer.phone_number = phone_number === "" ? null : phone_number;
+    if (address !== undefined) customer.address = address === "" ? null : address;
 
 
 
