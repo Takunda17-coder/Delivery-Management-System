@@ -2,7 +2,6 @@ import { NavLink } from "react-router-dom";
 import {
     LayoutDashboard,
     Truck,
-    Truck,
     X,
     User // Import User icon
 } from "lucide-react";
