@@ -6,7 +6,8 @@ import {
   ClipboardList,
   FileText,
   Package,
-  X // Added X for close button
+  X, // Added X for close button
+  User // Import User icon
 } from "lucide-react";
 
 export default function AdminSidebar({ isOpen, onClose }) {
