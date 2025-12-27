@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { io } from "socket.io-client";
 import { Toaster, toast } from "react-hot-toast";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://delivery-management-system-backend-2385.onrender.com");
 
 export default function CustomerLayout({ children }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -49,7 +49,7 @@ export default function CustomerLayout({ children }) {
             try {
                 // We need customer_id. The user object usually has `role: "customer"`.
                 // Let's fetch the customer profile.
-                const response = await fetch(`http://localhost:5000/api/customers/user/${user.user_id}`);
+                const response = await fetch(`https://delivery-management-system-backend-2385.onrender.com/api/customers/user/${user.user_id}`);
                 const data = await response.json();
                 if (data.customer_id) {
                     socket.emit("join_customer_room", data.customer_id);

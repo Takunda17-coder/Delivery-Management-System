@@ -6,7 +6,7 @@ import MapComponent from "../components/MapComponent";
 import AdminLayout from "../components/AdminLayout";
 import { useAuth } from "../context/AuthContext";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://delivery-management-system-backend-2385.onrender.com");
 
 export default function DeliveryDetails() {
     const { id } = useParams();
@@ -23,7 +23,7 @@ export default function DeliveryDetails() {
                 const token = localStorage.getItem("token");
 
                 // 1. Fetch Delivery
-                const res = await axios.get(`http://localhost:5000/api/delivery/${id}`, {
+                const res = await axios.get(`https://delivery-management-system-backend-2385.onrender.com/api/delivery/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setDelivery(res.data);
@@ -33,7 +33,7 @@ export default function DeliveryDetails() {
 
                 // 2. Check if current user is the assigned driver
                 if (user && user.role === "driver") {
-                    const driverRes = await axios.get(`http://localhost:5000/api/drivers/user/${user.user_id}`, {
+                    const driverRes = await axios.get(`https://delivery-management-system-backend-2385.onrender.com/api/drivers/user/${user.user_id}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     const myDriverId = driverRes.data.driver_id;
