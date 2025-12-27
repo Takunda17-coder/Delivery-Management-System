@@ -145,59 +145,61 @@ export default function Orders() {
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-            <table className="w-full border-separate border-spacing-y-2">
-              <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
-                <tr>
-                  <th className="py-4 px-6 text-left">Order ID</th>
-                  <th className="py-4 px-6 text-left">Item</th>
-                  <th className="py-4 px-6 text-left">Qty</th>
-                  <th className="py-4 px-6 text-left">Price</th>
-                  <th className="py-4 px-6 text-left">Pickup / Dropoff</th>
-                  <th className="py-4 px-6 text-left">Status</th>
-                  <th className="py-4 px-6 text-left">Date</th>
-                  <th className="py-4 px-6 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="space-y-4">
-                {orders.map((order) => (
-                  <tr
-                    key={order.order_id}
-                    className="bg-white hover:bg-orange-50 transition-colors duration-200 shadow-sm rounded-lg"
-                  >
-                    <td className="py-4 px-6 font-medium text-gray-900 border-y first:border-l first:rounded-l-lg last:border-r last:rounded-r-lg border-gray-100">#{order.order_id}</td>
-                    <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{order.order_item}</td>
-                    <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{order.quantity}</td>
-                    <td className="py-4 px-6 font-medium text-gray-900 border-y border-gray-100">
-                      {Number(order.price) === 0 ? <span className="text-orange-500 text-xs font-bold">QUOTE PENDING</span> : `$${order.total}`}
-                    </td>
-                    <td className="py-4 px-6 text-xs text-gray-500 border-y border-gray-100">
-                      <div><span className="font-semibold">P:</span> {order.pickup_address}</div>
-                      <div><span className="font-semibold">D:</span> {order.dropoff_address || "N/A"}</div>
-                    </td>
-                    <td className="py-4 px-6 border-y border-gray-100">
-                      <Badge status={order.status} label={order.status} />
-                    </td>
-                    <td className="py-4 px-6 text-gray-600 border-y border-gray-100">
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="py-4 px-6 text-center border-y last:border-r last:rounded-r-lg border-gray-100">
-                      {order.status === 'Pending' ? (
-                        <div className="flex justify-center gap-2">
-                          <button onClick={() => openModal(order)} className="text-blue-500 hover:text-blue-700" title="Edit">
-                            <Edit size={18} />
-                          </button>
-                          <button onClick={() => handleCancelOrder(order.order_id)} className="text-red-500 hover:text-red-700" title="Delete">
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-400">Locked</span>
-                      )}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full border-separate border-spacing-y-2">
+                <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
+                  <tr>
+                    <th className="py-4 px-6 text-left">Order ID</th>
+                    <th className="py-4 px-6 text-left">Item</th>
+                    <th className="py-4 px-6 text-left">Qty</th>
+                    <th className="py-4 px-6 text-left">Price</th>
+                    <th className="py-4 px-6 text-left">Pickup / Dropoff</th>
+                    <th className="py-4 px-6 text-left">Status</th>
+                    <th className="py-4 px-6 text-left">Date</th>
+                    <th className="py-4 px-6 text-center">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="space-y-4">
+                  {orders.map((order) => (
+                    <tr
+                      key={order.order_id}
+                      className="bg-white hover:bg-orange-50 transition-colors duration-200 shadow-sm rounded-lg"
+                    >
+                      <td className="py-4 px-6 font-medium text-gray-900 border-y first:border-l first:rounded-l-lg last:border-r last:rounded-r-lg border-gray-100">#{order.order_id}</td>
+                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{order.order_item}</td>
+                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{order.quantity}</td>
+                      <td className="py-4 px-6 font-medium text-gray-900 border-y border-gray-100">
+                        {Number(order.price) === 0 ? <span className="text-orange-500 text-xs font-bold">QUOTE PENDING</span> : `$${order.total}`}
+                      </td>
+                      <td className="py-4 px-6 text-xs text-gray-500 border-y border-gray-100">
+                        <div><span className="font-semibold">P:</span> {order.pickup_address}</div>
+                        <div><span className="font-semibold">D:</span> {order.dropoff_address || "N/A"}</div>
+                      </td>
+                      <td className="py-4 px-6 border-y border-gray-100">
+                        <Badge status={order.status} label={order.status} />
+                      </td>
+                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="py-4 px-6 text-center border-y last:border-r last:rounded-r-lg border-gray-100">
+                        {order.status === 'Pending' ? (
+                          <div className="flex justify-center gap-2">
+                            <button onClick={() => openModal(order)} className="text-blue-500 hover:text-blue-700" title="Edit">
+                              <Edit size={18} />
+                            </button>
+                            <button onClick={() => handleCancelOrder(order.order_id)} className="text-red-500 hover:text-red-700" title="Delete">
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">Locked</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 

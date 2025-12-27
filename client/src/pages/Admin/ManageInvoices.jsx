@@ -74,71 +74,73 @@ export default function ManageInvoices() {
 
         {/* TABLE */}
         <div className="mt-8 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-          <table className="w-full border-separate border-spacing-y-2">
-            <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
-              <tr>
-                {[
-                  "Invoice ID",
-                  "Order ID",
-                  "Customer",
-                  "Total",
-                  "Status",
-                  "Date",
-                  "Actions"
-                ].map((col) => (
-                  <th key={col} className="px-6 py-4 text-left">
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody className="space-y-4">
-              {data.map((inv) => (
-                <tr key={inv.invoice_id} className="bg-white hover:bg-orange-50 transition-colors duration-200 shadow-sm rounded-lg">
-                  <td className="px-6 py-4 font-medium text-gray-900 border-y first:border-l first:rounded-l-lg last:border-r last:rounded-r-lg border-gray-100">{inv.invoice_id}</td>
-                  <td className="px-6 py-4 text-gray-600 border-y border-gray-100">#{inv.order_id}</td>
-                  <td className="px-6 py-4 text-gray-600 border-y border-gray-100">
-                    {inv.customer ? `${inv.customer.first_name} ${inv.customer.last_name || ''}` : inv.customer_id}
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 border-y border-gray-100">${inv.total}</td>
-                  <td className="px-6 py-4 border-y border-gray-100">
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${inv.status === 'Paid' ? 'bg-green-100 text-green-800' :
-                      inv.status === 'Overdue' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                      {inv.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 border-y border-gray-100">{new Date(inv.issue_date).toLocaleDateString()}</td>
-
-                  <td className="px-6 py-4 text-center border-y last:border-r last:rounded-r-lg border-gray-100">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => handleDownload(inv.invoice_id)}
-                        className="p-1.5 text-gray-500 hover:text-deep-orange hover:bg-orange-100 rounded-lg transition"
-                        title="Download PDF"
-                      >
-                        <Download size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleEdit(inv)}
-                        className="text-gray-500 hover:text-blue-600 text-sm font-medium px-2"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(inv.invoice_id)}
-                        className="text-gray-400 hover:text-red-500 text-sm font-medium px-2"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full border-separate border-spacing-y-2">
+              <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
+                <tr>
+                  {[
+                    "Invoice ID",
+                    "Order ID",
+                    "Customer",
+                    "Total",
+                    "Status",
+                    "Date",
+                    "Actions"
+                  ].map((col) => (
+                    <th key={col} className="px-6 py-4 text-left">
+                      {col}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
+              </thead>
 
-          </table>
+              <tbody className="space-y-4">
+                {data.map((inv) => (
+                  <tr key={inv.invoice_id} className="bg-white hover:bg-orange-50 transition-colors duration-200 shadow-sm rounded-lg">
+                    <td className="px-6 py-4 font-medium text-gray-900 border-y first:border-l first:rounded-l-lg last:border-r last:rounded-r-lg border-gray-100">{inv.invoice_id}</td>
+                    <td className="px-6 py-4 text-gray-600 border-y border-gray-100">#{inv.order_id}</td>
+                    <td className="px-6 py-4 text-gray-600 border-y border-gray-100">
+                      {inv.customer ? `${inv.customer.first_name} ${inv.customer.last_name || ''}` : inv.customer_id}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 border-y border-gray-100">${inv.total}</td>
+                    <td className="px-6 py-4 border-y border-gray-100">
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${inv.status === 'Paid' ? 'bg-green-100 text-green-800' :
+                        inv.status === 'Overdue' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                        {inv.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 border-y border-gray-100">{new Date(inv.issue_date).toLocaleDateString()}</td>
+
+                    <td className="px-6 py-4 text-center border-y last:border-r last:rounded-r-lg border-gray-100">
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => handleDownload(inv.invoice_id)}
+                          className="p-1.5 text-gray-500 hover:text-deep-orange hover:bg-orange-100 rounded-lg transition"
+                          title="Download PDF"
+                        >
+                          <Download size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleEdit(inv)}
+                          className="text-gray-500 hover:text-blue-600 text-sm font-medium px-2"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(inv.invoice_id)}
+                          className="text-gray-400 hover:text-red-500 text-sm font-medium px-2"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+
+            </table>
+          </div>
         </div>
       </div>
     </AdminLayout>

@@ -128,68 +128,70 @@ export default function ManageVehicles() {
 
           {/* Vehicles Table */}
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-            <table className="w-full border-separate border-spacing-y-2">
-              <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
-                <tr>
-                  <th className="px-4 py-4 text-left">Type</th>
-                  <th className="px-4 py-4 text-left">Make</th>
-                  <th className="px-4 py-4 text-left">Model</th>
-                  <th className="px-4 py-4 text-left">Year</th>
-                  <th className="px-4 py-4 text-left">Plate</th>
-                  <th className="px-4 py-4 text-left">Colour</th>
-                  <th className="px-4 py-4 text-left">Acquired</th>
-                  <th className="px-4 py-4 text-left">Status</th>
-                  <th className="px-4 py-4 text-left">Capacity</th>
-                  <th className="px-4 py-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="space-y-4">
-                {Array.isArray(data) && data.length > 0 ? (
-                  data.map((v) => (
-                    <tr
-                      key={v.vehicle_id}
-                      className="bg-white hover:bg-orange-50 transition-colors duration-200 shadow-sm rounded-lg"
-                    >
-                      <td className="px-4 py-4 font-medium text-gray-900 border-y first:border-l first:rounded-l-lg last:border-r last:rounded-r-lg border-gray-100">{v.vehicle_type}</td>
-                      <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{v.make}</td>
-                      <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{v.model}</td>
-                      <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{v.year}</td>
-                      <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{v.plate_number}</td>
-                      <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{v.colour}</td>
-                      <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{new Date(v.date_acquired).toLocaleDateString()}</td>
-                      <td className="px-4 py-4 border-y border-gray-100">
-                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${v.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                          {v.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{v.capacity}</td>
-                      <td className="px-4 py-4 text-center border-y last:border-r last:rounded-r-lg border-gray-100">
-                        <div className="flex justify-center gap-3">
-                          <button
-                            onClick={() => handleEdit(v)}
-                            className="text-gray-500 hover:text-deep-orange transition font-medium"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(v.vehicle_id)}
-                            className="text-gray-400 hover:text-red-500 transition font-medium"
-                          >
-                            Delete
-                          </button>
-                        </div>
+            <div className="overflow-x-auto">
+              <table className="w-full border-separate border-spacing-y-2">
+                <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
+                  <tr>
+                    <th className="px-4 py-4 text-left">Type</th>
+                    <th className="px-4 py-4 text-left">Make</th>
+                    <th className="px-4 py-4 text-left">Model</th>
+                    <th className="px-4 py-4 text-left">Year</th>
+                    <th className="px-4 py-4 text-left">Plate</th>
+                    <th className="px-4 py-4 text-left">Colour</th>
+                    <th className="px-4 py-4 text-left">Acquired</th>
+                    <th className="px-4 py-4 text-left">Status</th>
+                    <th className="px-4 py-4 text-left">Capacity</th>
+                    <th className="px-4 py-4 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="space-y-4">
+                  {Array.isArray(data) && data.length > 0 ? (
+                    data.map((v) => (
+                      <tr
+                        key={v.vehicle_id}
+                        className="bg-white hover:bg-orange-50 transition-colors duration-200 shadow-sm rounded-lg"
+                      >
+                        <td className="px-4 py-4 font-medium text-gray-900 border-y first:border-l first:rounded-l-lg last:border-r last:rounded-r-lg border-gray-100">{v.vehicle_type}</td>
+                        <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{v.make}</td>
+                        <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{v.model}</td>
+                        <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{v.year}</td>
+                        <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{v.plate_number}</td>
+                        <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{v.colour}</td>
+                        <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{new Date(v.date_acquired).toLocaleDateString()}</td>
+                        <td className="px-4 py-4 border-y border-gray-100">
+                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${v.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {v.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-gray-600 border-y border-gray-100">{v.capacity}</td>
+                        <td className="px-4 py-4 text-center border-y last:border-r last:rounded-r-lg border-gray-100">
+                          <div className="flex justify-center gap-3">
+                            <button
+                              onClick={() => handleEdit(v)}
+                              className="text-gray-500 hover:text-deep-orange transition font-medium"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(v.vehicle_id)}
+                              className="text-gray-400 hover:text-red-500 transition font-medium"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="10" className="text-center py-8 text-gray-500 italic">
+                        No vehicles found
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="10" className="text-center py-8 text-gray-500 italic">
-                      No vehicles found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </AdminLayout>

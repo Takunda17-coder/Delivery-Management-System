@@ -157,48 +157,50 @@ const ManageCustomers = () => {
           {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">Error: {error.message || "An error occurred"}</div>}
 
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-            <table className="w-full border-separate border-spacing-y-2">
-              <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
-                <tr>
-                  <th className="py-4 px-6 text-left">First Name</th>
-                  <th className="py-4 px-6 text-left">Last Name</th>
-                  <th className="py-4 px-6 text-left">Email</th>
-                  <th className="py-4 px-6 text-left">Sex</th>
-                  <th className="py-4 px-6 text-left">Address</th>
-                  <th className="py-4 px-6 text-left">Age</th>
-                  <th className="py-4 px-6 text-left">Phone</th>
-                  <th className="py-4 px-6 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="space-y-4">
-                {Array.isArray(data) && data.length > 0 ? (
-                  data.map((c) => (
-                    <tr
-                      key={c.customer_id}
-                      className="bg-white hover:bg-orange-50 transition-colors duration-200 shadow-sm rounded-lg"
-                    >
-                      <td className="py-4 px-6 font-medium text-gray-900 border-y first:border-l first:rounded-l-lg last:border-r last:rounded-r-lg border-gray-100">{c.first_name}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{c.last_name}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{c.email}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{c.sex}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{c.address}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{c.age}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{c.phone_number}</td>
-                      <td className="py-4 px-6 text-center border-y last:border-r last:rounded-r-lg border-gray-100">
-                        <div className="flex justify-center gap-3">
-                          <button onClick={() => handleEdit(c)} className="text-gray-500 hover:text-deep-orange transition font-medium">Edit</button>
-                          <button onClick={() => handleDelete(c.customer_id)} className="text-gray-400 hover:text-red-500 transition font-medium">Delete</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-separate border-spacing-y-2">
+                <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
                   <tr>
-                    <td colSpan="8" className="text-center py-8 text-gray-500 italic">No customers found</td>
+                    <th className="py-4 px-6 text-left">First Name</th>
+                    <th className="py-4 px-6 text-left">Last Name</th>
+                    <th className="py-4 px-6 text-left">Email</th>
+                    <th className="py-4 px-6 text-left">Sex</th>
+                    <th className="py-4 px-6 text-left">Address</th>
+                    <th className="py-4 px-6 text-left">Age</th>
+                    <th className="py-4 px-6 text-left">Phone</th>
+                    <th className="py-4 px-6 text-center">Actions</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="space-y-4">
+                  {Array.isArray(data) && data.length > 0 ? (
+                    data.map((c) => (
+                      <tr
+                        key={c.customer_id}
+                        className="bg-white hover:bg-orange-50 transition-colors duration-200 shadow-sm rounded-lg"
+                      >
+                        <td className="py-4 px-6 font-medium text-gray-900 border-y first:border-l first:rounded-l-lg last:border-r last:rounded-r-lg border-gray-100">{c.first_name}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{c.last_name}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{c.email}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{c.sex}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{c.address}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{c.age}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{c.phone_number}</td>
+                        <td className="py-4 px-6 text-center border-y last:border-r last:rounded-r-lg border-gray-100">
+                          <div className="flex justify-center gap-3">
+                            <button onClick={() => handleEdit(c)} className="text-gray-500 hover:text-deep-orange transition font-medium">Edit</button>
+                            <button onClick={() => handleDelete(c.customer_id)} className="text-gray-400 hover:text-red-500 transition font-medium">Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="8" className="text-center py-8 text-gray-500 italic">No customers found</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </AdminLayout>

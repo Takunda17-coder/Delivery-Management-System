@@ -118,49 +118,51 @@ export default function DriverDashboard() {
           {recentDeliveries.length === 0 ? (
             <p className="text-gray-500 p-8 text-center italic">No deliveries assigned yet.</p>
           ) : (
-            <table className="w-full border-separate border-spacing-y-0">
-              <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
-                <tr>
-                  <th className="py-4 px-6 text-left">Delivery ID</th>
-                  <th className="py-4 px-6 text-left">Pickup</th>
-                  <th className="py-4 px-6 text-left">Dropoff</th>
-                  <th className="py-4 px-6 text-left">Status</th>
-                  <th className="py-4 px-6 text-left">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {recentDeliveries.map((delivery) => (
-                  <tr
-                    key={delivery.delivery_id}
-                    className="hover:bg-orange-50 transition-colors duration-200 cursor-pointer"
-                    onClick={() =>
-                      navigate(`/delivery/${delivery.delivery_id}`) // Standardized route
-                    }
-                  >
-                    <td className="py-4 px-6 font-medium text-gray-900">#{delivery.delivery_id}</td>
-                    <td className="py-4 px-6 text-gray-600 truncate max-w-[200px]" title={delivery.pickup_address}>{delivery.pickup_address}</td>
-                    <td className="py-4 px-6 text-gray-600 truncate max-w-[200px]" title={delivery.dropoff_address}>{delivery.dropoff_address}</td>
-                    <td className="py-4 px-6">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${delivery.status === "Completed"
-                          ? "bg-green-100 text-green-800"
-                          : delivery.status === "On Route"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : delivery.status === "Scheduled"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                      >
-                        {delivery.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-gray-600">
-                      {new Date(delivery.delivery_date).toLocaleDateString()}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full border-separate border-spacing-y-0">
+                <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
+                  <tr>
+                    <th className="py-4 px-6 text-left">Delivery ID</th>
+                    <th className="py-4 px-6 text-left">Pickup</th>
+                    <th className="py-4 px-6 text-left">Dropoff</th>
+                    <th className="py-4 px-6 text-left">Status</th>
+                    <th className="py-4 px-6 text-left">Date</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {recentDeliveries.map((delivery) => (
+                    <tr
+                      key={delivery.delivery_id}
+                      className="hover:bg-orange-50 transition-colors duration-200 cursor-pointer"
+                      onClick={() =>
+                        navigate(`/delivery/${delivery.delivery_id}`) // Standardized route
+                      }
+                    >
+                      <td className="py-4 px-6 font-medium text-gray-900">#{delivery.delivery_id}</td>
+                      <td className="py-4 px-6 text-gray-600 truncate max-w-[200px]" title={delivery.pickup_address}>{delivery.pickup_address}</td>
+                      <td className="py-4 px-6 text-gray-600 truncate max-w-[200px]" title={delivery.dropoff_address}>{delivery.dropoff_address}</td>
+                      <td className="py-4 px-6">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${delivery.status === "Completed"
+                            ? "bg-green-100 text-green-800"
+                            : delivery.status === "On Route"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : delivery.status === "Scheduled"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                        >
+                          {delivery.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-gray-600">
+                        {new Date(delivery.delivery_date).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>
