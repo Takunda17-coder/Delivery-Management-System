@@ -84,13 +84,12 @@ export default function CustomerDeliveries() {
     }
   };
 
-  const downloadInvoice = async (invoices) => {
-    if (!invoices || invoices.length === 0) {
+  const downloadInvoice = async (invoice) => {
+    if (!invoice) {
       toast.error("No invoice found.");
       return;
     }
-    // Assuming one invoice per delivery for now, or take the latest
-    const invoiceId = invoices[0].invoice_id;
+    const invoiceId = invoice.invoice_id;
 
     try {
       const response = await api.get(`/invoice/${invoiceId}/download`, {
@@ -163,9 +162,9 @@ export default function CustomerDeliveries() {
                           </button>
                         )}
 
-                        {d.status === 'Completed' && d.invoices && d.invoices.length > 0 && (
+                        {(d.status === 'Completed' && (d.invoice || (d.invoices && d.invoices.length > 0))) && (
                           <button
-                            onClick={() => downloadInvoice(d.invoices)}
+                            onClick={() => downloadInvoice(d.invoice || d.invoices[0])}
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-200 transition text-sm font-medium"
                           >
                             <Download size={16} /> Invoice
