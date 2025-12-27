@@ -3,7 +3,8 @@ import {
     LayoutDashboard,
     ShoppingBag,
     Package,
-    X
+    X,
+    User // Import User icon
 } from "lucide-react";
 
 export default function CustomerSidebar({ isOpen, onClose }) {
@@ -11,6 +12,7 @@ export default function CustomerSidebar({ isOpen, onClose }) {
         { to: "/customer/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
         { to: "/customer/orders", label: "My Orders", icon: <ShoppingBag size={20} /> },
         { to: "/customer/deliveries", label: "My Deliveries", icon: <Package size={20} /> },
+        { to: "/customer/profile", label: "Profile", icon: <User size={20} /> }, // New Profile Link
     ];
 
     return (

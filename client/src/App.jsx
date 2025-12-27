@@ -28,6 +28,7 @@ import DriverDeliveries from "./pages/Driver/DriverDeliveries";
 import CustomerDashboard from "./pages/Customers/CustomerDashboard";
 import Orders from "./pages/Customers/CustomerOrders";
 import CustomerDeliveries from "./pages/Customers/CustomerDeliveries";
+import CustomerProfile from "./pages/Customers/CustomerProfile"; // Import Profile
 
 // Not Found
 import NotFound from "./pages/notfound";
@@ -161,6 +162,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={["customer"]}>
                 <CustomerDeliveries />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/customer/profile"
+            element={
+              <ProtectedRoute allowedRoles={["customer"]}>
+                <CustomerProfile />
               </ProtectedRoute>
             }
           />
