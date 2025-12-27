@@ -11,7 +11,6 @@ export default function DriverSidebar({ isOpen, onClose }) {
         { to: "/driver/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
         { to: "/driver/deliveries", label: "My Deliveries", icon: <Truck size={20} /> },
         { to: "/driver/profile", label: "Profile", icon: <User size={20} /> }, // New Profile Link
-        { to: "/driver/profile", label: "Profile", icon: <User size={20} /> }, // New Profile Link
     ];
 
     return (
