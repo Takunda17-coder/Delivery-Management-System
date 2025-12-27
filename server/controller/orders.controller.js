@@ -63,7 +63,7 @@ const getAllOrders = async (req, res) => {
 
     const orders = await Orders.findAll({
       where: filter,
-      include: [{ model: Customer, as: "customer" }, { model: require('../models').Delivery, as: "deliveries" }],
+      include: [{ model: Customer, as: "customer" }, { model: require('../models').Delivery, as: "delivery" }],
       order: [["createdAt", "DESC"]],
     });
 
@@ -79,7 +79,7 @@ const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
     const order = await Orders.findByPk(id, {
-      include: [{ model: Customer, as: "customer" }, { model: require('../models').Delivery, as: "deliveries" }],
+      include: [{ model: Customer, as: "customer" }, { model: require('../models').Delivery, as: "delivery" }],
     });
 
     if (!order) return res.status(404).json({ error: "Order not found" });
