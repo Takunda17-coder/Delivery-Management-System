@@ -4,7 +4,7 @@ import AdminSidebar from "./AdminSidebar";
 import { io } from "socket.io-client";
 import { Toaster, toast } from "react-hot-toast";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://delivery-management-system-backend-2385.onrender.com");
 
 export default function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

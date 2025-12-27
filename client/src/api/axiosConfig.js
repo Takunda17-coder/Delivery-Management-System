@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://delivery-management-system-backend-2385.onrender.com/api", // adjust backend URL
+  baseURL: "https://delivery-management-system-backend-2385.onrender.com/api", // Production URL
 });
 
 api.interceptors.request.use((config) => {

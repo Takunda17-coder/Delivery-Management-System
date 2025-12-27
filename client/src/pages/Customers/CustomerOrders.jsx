@@ -107,14 +107,14 @@ export default function Orders() {
     }
   };
 
-  const handleDeleteOrder = async (orderId) => {
-    if (!window.confirm("Are you sure you want to delete this order?")) return;
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to cancel this order? This action cannot be undone.")) return;
     try {
       await api.delete(`/orders/${orderId}`);
       fetchOrders();
     } catch (err) {
-      console.error("Failed to delete order:", err);
-      alert("Failed to delete order.");
+      console.error("Failed to cancel order:", err);
+      alert("Failed to cancel order.");
     }
   };
 
@@ -183,7 +183,7 @@ export default function Orders() {
                           <button onClick={() => openModal(order)} className="text-blue-500 hover:text-blue-700" title="Edit">
                             <Edit size={18} />
                           </button>
-                          <button onClick={() => handleDeleteOrder(order.order_id)} className="text-red-500 hover:text-red-700" title="Delete">
+                          <button onClick={() => handleCancelOrder(order.order_id)} className="text-red-500 hover:text-red-700" title="Delete">
                             <Trash2 size={18} />
                           </button>
                         </div>
