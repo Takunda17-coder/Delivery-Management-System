@@ -16,6 +16,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
     { to: "/admin/managedrivers", label: "Drivers", icon: <Users size={20} /> },
     { to: "/admin/managevehicles", label: "Vehicles", icon: <Truck size={20} /> },
     { to: "/admin/managedevices", label: "GPS Devices", icon: <Truck size={20} /> }, // Using Truck icon for now, or ensure MapPin is imported if used
+    { to: "/admin/profile", label: "Profile", icon: <User size={20} /> }, // New Profile Link
     { to: "/admin/manageorders", label: "Orders", icon: <ClipboardList size={20} /> },
     { to: "/admin/admindeliveries", label: "Deliveries", icon: <Package size={20} /> }, // Changed icon to Package
     { to: "/admin/manageinvoices", label: "Invoices", icon: <FileText size={20} /> },

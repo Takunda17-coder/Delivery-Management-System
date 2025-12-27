@@ -2,13 +2,17 @@ import { NavLink } from "react-router-dom";
 import {
     LayoutDashboard,
     Truck,
-    X
+    Truck,
+    X,
+    User // Import User icon
 } from "lucide-react";
 
 export default function DriverSidebar({ isOpen, onClose }) {
     const links = [
         { to: "/driver/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
         { to: "/driver/deliveries", label: "My Deliveries", icon: <Truck size={20} /> },
+        { to: "/driver/profile", label: "Profile", icon: <User size={20} /> }, // New Profile Link
+        { to: "/driver/profile", label: "Profile", icon: <User size={20} /> }, // New Profile Link
     ];
 
     return (

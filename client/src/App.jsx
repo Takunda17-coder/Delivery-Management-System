@@ -23,6 +23,7 @@ import DeliveryDetails from "./pages/DeliveryDetails";
 // Driver
 import DriverDashboard from "./pages/Driver/DriverDashboard";
 import DriverDeliveries from "./pages/Driver/DriverDeliveries";
+import DriverProfile from "./pages/Driver/DriverProfile"; // Import DriverProfile
 
 // Customer
 import CustomerDashboard from "./pages/Customers/CustomerDashboard";
@@ -32,6 +33,7 @@ import CustomerProfile from "./pages/Customers/CustomerProfile"; // Import Profi
 
 // Not Found
 import NotFound from "./pages/notfound";
+import AdminProfile from "./pages/Admin/AdminProfile"; // Import AdminProfile
 
 
 export default function App() {
@@ -112,12 +114,21 @@ export default function App() {
             }
           />
 
-
           <Route
             path="/delivery/:id"
             element={
               <ProtectedRoute allowedRoles={["admin", "driver", "customer"]}>
                 <DeliveryDetails />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* admin profile route */}
+          <Route
+            path="/admin/profile"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminProfile />
               </ProtectedRoute>
             }
           />
@@ -136,6 +147,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={["driver"]}>
                 <DriverDeliveries />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/driver/profile"
+            element={
+              <ProtectedRoute allowedRoles={["driver"]}>
+                <DriverProfile />
               </ProtectedRoute>
             }
           />

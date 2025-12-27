@@ -4,6 +4,7 @@ import api from "../../api/axiosConfig";
 import { User, Mail, Phone, MapPin, Save, Trash2, Calendar, Lock } from "lucide-react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import CustomerLayout from "../../components/CustomerLayout";
 
 export default function CustomerProfile() {
     const { user, logout } = useAuth(); // Get logged-in user context
