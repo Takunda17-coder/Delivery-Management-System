@@ -222,68 +222,70 @@ export default function ManageDrivers() {
 
           {/* Table */}
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-            <table className="w-full border-separate border-spacing-y-2">
-              <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
-                <tr>
-                  <th className="py-4 px-6 text-left">Name</th>
-                  <th className="py-4 px-6 text-left">Email</th>
-                  <th className="py-4 px-6 text-left">Sex</th>
-                  <th className="py-4 px-6 text-left">Phone</th>
-                  <th className="py-4 px-6 text-left">License</th>
-                  <th className="py-4 px-6 text-left">Qualification</th>
-                  <th className="py-4 px-6 text-left">Expiry</th>
-                  <th className="py-4 px-6 text-left">Veh Type</th>
-                  <th className="py-4 px-6 text-left">Status</th>
-                  <th className="py-4 px-6 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="space-y-4">
-                {Array.isArray(data) && data.length > 0 ? (
-                  data.map((d) => (
-                    <tr
-                      key={d.driver_id || d.id}
-                      className="bg-white hover:bg-orange-50 transition-colors duration-200 shadow-sm rounded-lg"
-                    >
-                      <td className="py-4 px-6 font-medium text-gray-900 border-y first:border-l first:rounded-l-lg last:border-r last:rounded-r-lg border-gray-100">{d.first_name} {d.last_name}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{d.email}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{d.sex}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{d.phone_number}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{d.license_number}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{d.license_qualification}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{d.license_expiry}</td>
-                      <td className="py-4 px-6 text-gray-600 border-y border-gray-100">{d.vehicle_type}</td>
-                      <td className="py-4 px-6 border-y border-gray-100">
-                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${d.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                          {d.status}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 text-center border-y last:border-r last:rounded-r-lg border-gray-100">
-                        <div className="flex justify-center gap-3">
-                          <button
-                            onClick={() => handleEdit(d)}
-                            className="text-gray-500 hover:text-deep-orange transition font-medium"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(d.driver_id || d.id)}
-                            className="text-gray-400 hover:text-red-500 transition font-medium"
-                          >
-                            Delete
-                          </button>
-                        </div>
+            <div className="overflow-x-auto">
+              <table className="w-full border-separate border-spacing-y-2">
+                <thead className="bg-gray-50 text-gray-700 uppercase text-xs font-bold tracking-wider">
+                  <tr>
+                    <th className="py-4 px-6 text-left whitespace-nowrap">Name</th>
+                    <th className="py-4 px-6 text-left whitespace-nowrap">Email</th>
+                    <th className="py-4 px-6 text-left whitespace-nowrap">Sex</th>
+                    <th className="py-4 px-6 text-left whitespace-nowrap">Phone</th>
+                    <th className="py-4 px-6 text-left whitespace-nowrap">License</th>
+                    <th className="py-4 px-6 text-left whitespace-nowrap">Qualification</th>
+                    <th className="py-4 px-6 text-left whitespace-nowrap">Expiry</th>
+                    <th className="py-4 px-6 text-left whitespace-nowrap">Veh Type</th>
+                    <th className="py-4 px-6 text-left whitespace-nowrap">Status</th>
+                    <th className="py-4 px-6 text-center whitespace-nowrap">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="space-y-4">
+                  {Array.isArray(data) && data.length > 0 ? (
+                    data.map((d) => (
+                      <tr
+                        key={d.driver_id || d.id}
+                        className="bg-white hover:bg-orange-50 transition-colors duration-200 shadow-sm rounded-lg"
+                      >
+                        <td className="py-4 px-6 font-medium text-gray-900 border-y first:border-l first:rounded-l-lg last:border-r last:rounded-r-lg border-gray-100 whitespace-nowrap">{d.first_name} {d.last_name}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100 whitespace-nowrap">{d.email}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100 whitespace-nowrap">{d.sex}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100 whitespace-nowrap">{d.phone_number}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100 whitespace-nowrap">{d.license_number}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100 whitespace-nowrap">{d.license_qualification}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100 whitespace-nowrap">{d.license_expiry}</td>
+                        <td className="py-4 px-6 text-gray-600 border-y border-gray-100 whitespace-nowrap">{d.vehicle_type}</td>
+                        <td className="py-4 px-6 border-y border-gray-100 whitespace-nowrap">
+                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${d.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {d.status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 text-center border-y last:border-r last:rounded-r-lg border-gray-100 whitespace-nowrap">
+                          <div className="flex justify-center gap-3">
+                            <button
+                              onClick={() => handleEdit(d)}
+                              className="text-gray-500 hover:text-deep-orange transition font-medium"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(d.driver_id || d.id)}
+                              className="text-gray-400 hover:text-red-500 transition font-medium"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="10" className="text-center py-8 text-gray-500 italic">
+                        No drivers found
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="10" className="text-center py-8 text-gray-500 italic">
-                      No drivers found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </AdminLayout>

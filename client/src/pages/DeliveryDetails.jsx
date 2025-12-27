@@ -4,6 +4,8 @@ import { io } from "socket.io-client";
 import axios from "axios";
 import MapComponent from "../components/MapComponent";
 import AdminLayout from "../components/AdminLayout";
+import DriverLayout from "../components/DriverLayout";
+import CustomerLayout from "../components/CustomerLayout";
 import { useAuth } from "../context/AuthContext";
 
 const socket = io("https://delivery-management-system-backend-2385.onrender.com");
@@ -104,42 +106,59 @@ export default function DeliveryDetails() {
     if (loading) return <div className="p-4">Loading...</div>;
     if (!delivery) return <div className="p-4">Delivery not found</div>;
 
-    return (
-        <AdminLayout>
-            <div className="p-4">
-                <h1 className="text-2xl font-bold mb-4">Delivery Tracking #{id}</h1>
+    // Dynamic Layout Selection
+    const getLayout = (children) => {
+        switch (user?.role) {
+            case "admin":
+                return <AdminLayout>{children}</AdminLayout>;
+            case "driver":
+                return (
+                    // Avoid circular dependency if DriverLayout uses same imports? No, should be fine.
+                    // But wait, make sure we import them.
+                    <DriverLayout>{children}</DriverLayout>
+                );
+            case "customer":
+                return <CustomerLayout>{children}</CustomerLayout>;
+            default:
+                // Fallback for unauthenticated or unknown roles (should be protected by route anyway)
+                return <div className="min-h-screen bg-gray-50">{children}</div>;
+        }
+    };
 
-                {isDriver && delivery.status === "On Route" && (
-                    <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
-                        <p className="font-bold">Active Tracking</p>
-                        <p>You are actively sharing your location for this delivery.</p>
-                    </div>
-                )}
+    return getLayout(
+        <div className="p-4">
+            <h1 className="text-2xl font-bold mb-4">Delivery Tracking #{id}</h1>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="bg-white p-4 rounded shadow">
-                        <h2 className="text-xl font-semibold mb-2">Details</h2>
-                        <div className="space-y-2">
-                            <p><span className="font-medium">Status:</span> {delivery.status}</p>
-                            <p><span className="font-medium">Pickup:</span> {delivery.pickup_address}</p>
-                            <p><span className="font-medium">Dropoff:</span> {delivery.dropoff_address}</p>
-                            <p><span className="font-medium">Driver ID:</span> {delivery.driver_id || "Unassigned"}</p>
-                            <p><span className="font-medium">Recipient:</span> {delivery.recipient_name}</p>
-                            <p><span className="font-medium">Contact:</span> {delivery.recipient_contact}</p>
-                        </div>
-                    </div>
+            {isDriver && delivery.status === "On Route" && (
+                <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+                    <p className="font-bold">Active Tracking</p>
+                    <p>You are actively sharing your location for this delivery.</p>
+                </div>
+            )}
 
-                    <div className="bg-white p-4 rounded shadow h-[500px]">
-                        <h2 className="text-xl font-semibold mb-2">Live Map</h2>
-                        <MapComponent
-                            pickup={delivery.pickup_lat ? [delivery.pickup_lat, delivery.pickup_lng] : null}
-                            dropoff={delivery.dropoff_lat ? [delivery.dropoff_lat, delivery.dropoff_lng] : null}
-                            current={driverLocation}
-                            route={delivery.route_polyline}
-                        />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white p-4 rounded shadow">
+                    <h2 className="text-xl font-semibold mb-2">Details</h2>
+                    <div className="space-y-2">
+                        <p><span className="font-medium">Status:</span> {delivery.status}</p>
+                        <p><span className="font-medium">Pickup:</span> {delivery.pickup_address}</p>
+                        <p><span className="font-medium">Dropoff:</span> {delivery.dropoff_address}</p>
+                        <p><span className="font-medium">Driver ID:</span> {delivery.driver_id || "Unassigned"}</p>
+                        <p><span className="font-medium">Recipient:</span> {delivery.recipient_name}</p>
+                        <p><span className="font-medium">Contact:</span> {delivery.recipient_contact}</p>
                     </div>
                 </div>
+
+                <div className="bg-white p-4 rounded shadow h-[500px]">
+                    <h2 className="text-xl font-semibold mb-2">Live Map</h2>
+                    <MapComponent
+                        pickup={delivery.pickup_lat ? [delivery.pickup_lat, delivery.pickup_lng] : null}
+                        dropoff={delivery.dropoff_lat ? [delivery.dropoff_lat, delivery.dropoff_lng] : null}
+                        current={driverLocation}
+                        route={delivery.route_polyline}
+                    />
+                </div>
             </div>
-        </AdminLayout>
+        </div>
     );
 }
