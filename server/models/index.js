@@ -82,15 +82,8 @@ Drivers.hasOne(Device, { foreignKey: "driver_id", as: "device" });
 // Sync all tables
 // ========================
 
-(async () => {
-  try {
-    // Use { force: true } only in development to drop and recreate tables
-    await sequelize.sync({ alter: true });
-    console.log("✅ All tables created or updated successfully!");
-  } catch (error) {
-    console.error("❌ Error creating tables:", error);
-  }
-})();
+// Associations are defined above.
+// Sync is handled in server/index.js
 
 // Export models and sequelize
 module.exports = {
