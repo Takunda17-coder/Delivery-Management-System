@@ -83,7 +83,7 @@ sequelize
   .authenticate()
   .then(() => {
     console.log("✅ Database connected");
-    return sequelize.sync(); // ensures tables exist
+    return sequelize.sync({ alter: true }); // ensures tables exist and updates schema
   })
   .then(async () => {
     console.log("✅ Tables synced");
