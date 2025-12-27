@@ -10,6 +10,7 @@ router.get("/driver", deliveryController.getDeliveriesByDriver);
 router.get("/customer", deliveryController.getDeliveriesByCustomer);
 router.get("/:id", deliveryController.getDeliveryById);
 router.put("/:id", deliveryController.updateDelivery);
+router.put("/:id/confirm", deliveryController.confirmDelivery); // NEW: Confirm Delivery
 router.delete("/:id", deliveryController.deleteDelivery);
 
 // 🔹 Additional endpoints for admin dashboard analytics

@@ -7,6 +7,7 @@ import DriverLayout from "../../components/DriverLayout";
 const STATUS_LABELS = {
   Scheduled: "Scheduled",
   "On Route": "On Route",
+  "Pending Confirmation": "Pending Confirmation",
   Completed: "Completed",
   Cancelled: "Cancelled",
 };
@@ -87,6 +88,8 @@ export default function DriverDeliveries() {
     switch (status) {
       case "Completed":
         return "bg-green-100 text-green-800";
+      case "Pending Confirmation":
+        return "bg-purple-100 text-purple-800";
       case "On Route":
         return "bg-yellow-100 text-yellow-800";
       case "Scheduled":
@@ -178,7 +181,9 @@ export default function DriverDeliveries() {
                             >
                               <option value="Scheduled">Scheduled</option>
                               <option value="On Route">On Route</option>
-                              <option value="Completed">Completed</option>
+                              <option value="Pending Confirmation">Arrived / Delivered (Request Confirmation)</option>
+                              {/* Drivers cannot manually select Completed anymore, Customer must confirm */}
+                              {d.status === 'Completed' && <option value="Completed">Completed</option>}
                               <option value="Cancelled">Cancelled</option>
                             </select>
                           )}

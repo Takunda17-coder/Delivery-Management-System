@@ -15,12 +15,18 @@ module.exports = (sequelize, DataTypes) => {
     route_polyline: { type: DataTypes.TEXT, allowNull: true },
     delivery_date: { type: DataTypes.DATE, allowNull: false },
     expected_delivery_time: { type: DataTypes.TIME, allowNull: false },
-    status: { type: DataTypes.ENUM("Scheduled","On Route","Completed","Cancelled"), defaultValue: "Scheduled" },
+    status: {
+      type: DataTypes.ENUM("Scheduled", "On Route", "Pending Confirmation", "Completed", "Cancelled"),
+      defaultValue: "Scheduled"
+    },
     delivery_fee: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
     total: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-    priority: { type: DataTypes.ENUM("High","Medium","Low"), defaultValue: "Low" },
+    priority: { type: DataTypes.ENUM("High", "Medium", "Low"), defaultValue: "Low" },
     recipient_name: { type: DataTypes.STRING, allowNull: false },
     recipient_contact: { type: DataTypes.STRING, allowNull: false },
+    feedback: { type: DataTypes.TEXT, allowNull: true },
+    rating: { type: DataTypes.INTEGER, allowNull: true, validate: { min: 1, max: 5 } },
+    customer_confirmed_at: { type: DataTypes.DATE, allowNull: true },
   }, {
     tableName: "delivery",
     timestamps: false,

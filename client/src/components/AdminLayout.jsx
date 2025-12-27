@@ -21,8 +21,27 @@ export default function AdminLayout({ children }) {
       });
     });
 
+    // Listen for Delivery Pending Confirmation (Driver Arrived)
+    socket.on("delivery_pending_confirmation", (data) => {
+      toast(data.message || "Driver Arrived! Pending Customer Confirmation.", {
+        icon: '🚚',
+        duration: 5000,
+        position: "top-right",
+      });
+    });
+
+    // Listen for Delivery Confirmed (Invoice Generated)
+    socket.on("delivery_confirmed", (data) => {
+      toast.success(data.message || "Delivery Confirmed & Invoice Generated!", {
+        duration: 5000,
+        position: "top-right",
+      });
+    });
+
     return () => {
       socket.off("new_order");
+      socket.off("delivery_pending_confirmation");
+      socket.off("delivery_confirmed");
     };
   }, []);
 

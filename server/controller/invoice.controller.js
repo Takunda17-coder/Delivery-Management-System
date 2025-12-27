@@ -157,3 +157,125 @@ exports.deleteInvoice = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+// ---------------------------- GENERATE PDF ----------------------------
+const PDFDocument = require('pdfkit');
+
+exports.downloadInvoice = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const invoice = await Invoice.findByPk(id, {
+      include: [
+        { model: Customer, as: "customer" },
+        { model: Orders, as: "order" },
+        { model: Delivery, as: "delivery" },
+        { model: Drivers, as: "driver" }
+      ]
+    });
+
+    if (!invoice) {
+      return res.status(404).json({ message: "Invoice not found" });
+    }
+
+    const doc = new PDFDocument({ margin: 50 });
+
+    // Set Headers
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice-${invoice.invoice_id}.pdf`);
+
+    // Pipe to response
+    doc.pipe(res);
+
+    // --- PDF CONTENT ---
+
+    // Header
+    doc.fillColor('#e65100') // Deep Orange
+      .fontSize(20)
+      .text('INVOICE', { align: 'right' })
+      .moveDown();
+
+    doc.fillColor('#444444')
+      .fontSize(10)
+      .text('Fleet Management Systems', 200, 50, { align: 'right' })
+      .text('123 Logistics Way', 200, 65, { align: 'right' })
+      .text('Transport City, TC 90210', 200, 80, { align: 'right' })
+      .moveDown();
+
+    // Invoice Details
+    doc.text(`Invoice ID: ${invoice.invoice_id}`, 50, 50)
+      .text(`Date: ${new Date(invoice.issue_date).toDateString()}`, 50, 65)
+      .text(`Status: ${invoice.status}`, 50, 80)
+      .moveDown();
+
+    doc.moveDown();
+    const customerName = invoice.customer ? invoice.customer.first_name + ' ' + invoice.customer.last_name : "Customer";
+    const customerEmail = invoice.customer ? invoice.customer.email : "";
+
+    // Bill To
+    doc.text('Bill To:', 50, 160)
+      .font('Helvetica-Bold')
+      .text(customerName, 50, 175)
+      .font('Helvetica')
+      .text(customerEmail, 50, 190)
+      .moveDown();
+
+    // Table Header
+    const tableTop = 250;
+    doc.font('Helvetica-Bold');
+    doc.text('Item', 50, tableTop);
+    doc.text('Qty', 300, tableTop);
+    doc.text('Price', 370, tableTop, { width: 90, align: 'right' });
+    doc.text('Line Total', 470, tableTop, { width: 90, align: 'right' });
+
+    doc.moveTo(50, tableTop + 15).lineTo(560, tableTop + 15).stroke();
+    doc.font('Helvetica');
+
+    // Parse Order Items
+    let orderItems = [];
+    try {
+      orderItems = JSON.parse(invoice.order_items);
+    } catch (e) {
+      orderItems = [{ name: "Order Item", quantity: invoice.quantity, price: invoice.price }];
+    }
+
+    let i = 0;
+    const rowHeight = 30;
+    let position = tableTop + 30;
+
+    orderItems.forEach(item => {
+      const lineTotal = item.quantity * item.price;
+
+      doc.text(item.name || "Item", 50, position);
+      doc.text(item.quantity, 300, position);
+      doc.text(`$${Number(item.price).toFixed(2)}`, 370, position, { width: 90, align: 'right' });
+      doc.text(`$${Number(lineTotal).toFixed(2)}`, 470, position, { width: 90, align: 'right' });
+      position += rowHeight;
+    });
+
+    // Delivery Fee
+    position += 10;
+    doc.moveTo(50, position).lineTo(560, position).stroke();
+    position += 20;
+
+    doc.text('Delivery Fee', 370, position, { width: 90, align: 'right' });
+    doc.text(`$${Number(invoice.delivery_fee).toFixed(2)}`, 470, position, { width: 90, align: 'right' });
+    position += rowHeight;
+
+    // Total
+    doc.font('Helvetica-Bold').fontSize(14);
+    doc.text('Total', 370, position, { width: 90, align: 'right' });
+    doc.text(`$${Number(invoice.total).toFixed(2)}`, 470, position, { width: 90, align: 'right' });
+
+    // Footer
+    doc.fontSize(10).font('Helvetica');
+    doc.text('Thank you for your business!', 50, 700, { align: 'center', width: 500 });
+
+    doc.end();
+
+  } catch (err) {
+    console.error("Error generating PDF:", err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Failed to generate PDF" });
+    }
+  }
+};

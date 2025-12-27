@@ -6,6 +6,7 @@ router.post("/", invoiceController.createInvoice);
 router.get("/", invoiceController.getAllInvoices);
 router.get("/customer/:customerId", invoiceController.getInvoicesByCustomer);
 router.get("/:id", invoiceController.getInvoiceById);
+router.get("/:id/download", invoiceController.downloadInvoice); // NEW: Download PDF
 router.put("/:id", invoiceController.updateInvoice);
 router.delete("/:id", invoiceController.deleteInvoice);
 
