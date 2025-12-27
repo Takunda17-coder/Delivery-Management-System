@@ -27,7 +27,8 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.NOW,
       },
       pickup_address: { type: DataTypes.STRING, allowNull: false },
-      dropoff_address: { type: DataTypes.STRING, allowNull: true }, // ✅ Changed to true to fix migration error
+      dropoff_address: { type: DataTypes.STRING, allowNull: true },
+      recipient_contact: { type: DataTypes.STRING, allowNull: true }, // Added for driver contact
       total: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
       status: {
         type: DataTypes.ENUM(

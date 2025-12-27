@@ -278,7 +278,7 @@ exports.confirmDelivery = async (req, res) => {
       price: delivery.order.price,
       delivery_fee: delivery.delivery_fee,
       total: total,
-      status: 'Unpaid', // Or paid if online payment
+      status: 'Paid', // Payment on Delivery
       issue_date: new Date()
     }, { transaction: t });
 

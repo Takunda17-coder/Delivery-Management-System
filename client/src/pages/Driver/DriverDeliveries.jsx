@@ -190,7 +190,7 @@ export default function DriverDeliveries() {
 
                           <button
                             onClick={() => navigate(`/delivery/${d.delivery_id}`)}
-                            className="px-3 py-1.5 rounded-lg bg-orange-secondary hover:bg-orange-300 text-black text-xs font-medium shadow-sm transition w-full"
+                            className="px-3 py-1.5 rounded-lg bg-deep-orange hover:bg-orange-700 text-white text-xs font-medium shadow-sm transition w-full"
                           >
                             Track
                           </button>

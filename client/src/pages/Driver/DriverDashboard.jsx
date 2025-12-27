@@ -103,7 +103,7 @@ export default function DriverDashboard() {
         <div className="flex justify-end mb-4">
           <button
             onClick={goToDeliveries}
-            className="bg-deep-orange text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-orange-300 transition font-medium"
+            className="bg-deep-orange text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-orange-700 transition font-medium"
           >
             View All Deliveries
           </button>

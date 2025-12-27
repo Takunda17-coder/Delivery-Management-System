@@ -177,60 +177,102 @@ exports.downloadInvoice = async (req, res) => {
       return res.status(404).json({ message: "Invoice not found" });
     }
 
-    const doc = new PDFDocument({ margin: 50 });
+    const doc = new PDFDocument({ margin: 50, size: 'A4' });
 
     // Set Headers
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=invoice-${invoice.invoice_id}.pdf`);
 
-    // Pipe to response
     doc.pipe(res);
 
-    // --- PDF CONTENT ---
+    // --- LOGO (Text-based simulation since no image provided) ---
+    // Draw a colored rounded rectangle for branding
+    doc.roundedRect(50, 45, 50, 50, 5)
+      .fill("#FF5722"); // Deep Orange
 
-    // Header
-    doc.fillColor('#e65100') // Deep Orange
+    doc.fillColor("#FFFFFF")
+      .font("Helvetica-Bold")
+      .fontSize(24)
+      .text("F", 64, 57);
+
+    doc.fillColor("#333333")
+      .font("Helvetica-Bold")
       .fontSize(20)
-      .text('INVOICE', { align: 'right' })
-      .moveDown();
+      .text("FLEET", 110, 50)
+      .text("MANAGEMENT", 110, 72);
 
-    doc.fillColor('#444444')
+    // --- INVOICE HEADER (Right Side) ---
+    doc.fillColor("#888888")
+      .font("Helvetica")
       .fontSize(10)
-      .text('Fleet Management Systems', 200, 50, { align: 'right' })
-      .text('123 Logistics Way', 200, 65, { align: 'right' })
-      .text('Transport City, TC 90210', 200, 80, { align: 'right' })
+      .text("INVOICE ID", 400, 50, { align: "right" })
+      .font("Helvetica-Bold")
+      .fontSize(12)
+      .fillColor("#000000")
+      .text(`#${invoice.invoice_id}`, 400, 62, { align: "right" });
+
+    doc.font("Helvetica")
+      .fontSize(10)
+      .fillColor("#888888")
+      .text("DATE", 400, 80, { align: "right" })
+      .font("Helvetica-Bold")
+      .fontSize(12)
+      .fillColor("#000000")
+      .text(new Date(invoice.issue_date).toLocaleDateString(), 400, 92, { align: "right" });
+
+    // Status Badge
+    doc.roundedRect(490, 115, 60, 20, 10)
+      .fill(invoice.status === "Paid" ? "#E8F5E9" : "#FFEBEE");
+
+    doc.fillColor(invoice.status === "Paid" ? "#2E7D32" : "#C62828")
+      .fontSize(10)
+      .text(invoice.status.toUpperCase(), 490, 120, { width: 60, align: "center" });
+
+    // --- COMPANY INFO ---
+    doc.moveDown(4);
+    doc.fillColor("#555555")
+      .fontSize(10)
+      .text("123 Logistics Way", 50)
+      .text("Transport City, TC 90210")
+      .text("support@fleetmanager.com")
       .moveDown();
 
-    // Invoice Details
-    doc.text(`Invoice ID: ${invoice.invoice_id}`, 50, 50)
-      .text(`Date: ${new Date(invoice.issue_date).toDateString()}`, 50, 65)
-      .text(`Status: ${invoice.status}`, 50, 80)
-      .moveDown();
+    // Divider
+    doc.moveTo(50, 190).lineTo(550, 190).strokeColor("#EEEEEE").stroke();
 
-    doc.moveDown();
-    const customerName = invoice.customer ? invoice.customer.first_name + ' ' + invoice.customer.last_name : "Customer";
+    // --- BILL TO ---
+    const customerName = invoice.customer ? `${invoice.customer.first_name} ${invoice.customer.last_name || ""}` : "Customer";
     const customerEmail = invoice.customer ? invoice.customer.email : "";
 
-    // Bill To
-    doc.text('Bill To:', 50, 160)
-      .font('Helvetica-Bold')
-      .text(customerName, 50, 175)
-      .font('Helvetica')
-      .text(customerEmail, 50, 190)
+    doc.text("BILL TO:", 50, 210)
+      .font("Helvetica-Bold")
+      .fontSize(12)
+      .fillColor("#000000")
+      .text(customerName, 50, 225)
+      .font("Helvetica")
+      .fontSize(10)
+      .fillColor("#555555")
+      .text(customerEmail, 50, 240)
       .moveDown();
 
-    // Table Header
-    const tableTop = 250;
-    doc.font('Helvetica-Bold');
-    doc.text('Item', 50, tableTop);
-    doc.text('Qty', 300, tableTop);
-    doc.text('Price', 370, tableTop, { width: 90, align: 'right' });
-    doc.text('Line Total', 470, tableTop, { width: 90, align: 'right' });
+    // --- TABLE HEADERS ---
+    const tableTop = 290;
+    const itemX = 50;
+    const qtyX = 350;
+    const priceX = 420;
+    const totalX = 500;
 
-    doc.moveTo(50, tableTop + 15).lineTo(560, tableTop + 15).stroke();
-    doc.font('Helvetica');
+    doc.rect(50, tableTop - 10, 500, 30).fill("#F9FAFB");
+    doc.fillColor("#333333")
+      .font("Helvetica-Bold")
+      .fontSize(10);
 
-    // Parse Order Items
+    doc.text("ITEM DESCRIPTION", itemX + 10, tableTop);
+    doc.text("QTY", qtyX, tableTop, { align: "center" });
+    doc.text("PRICE", priceX, tableTop, { align: "right" });
+    doc.text("AMOUNT", totalX, tableTop, { align: "right" });
+
+    // --- TABLE ROWS ---
     let orderItems = [];
     try {
       orderItems = JSON.parse(invoice.order_items);
@@ -238,37 +280,47 @@ exports.downloadInvoice = async (req, res) => {
       orderItems = [{ name: "Order Item", quantity: invoice.quantity, price: invoice.price }];
     }
 
-    let i = 0;
-    const rowHeight = 30;
-    let position = tableTop + 30;
+    let y = tableTop + 35;
+    doc.font("Helvetica").fontSize(10).fillColor("#000000");
 
     orderItems.forEach(item => {
       const lineTotal = item.quantity * item.price;
 
-      doc.text(item.name || "Item", 50, position);
-      doc.text(item.quantity, 300, position);
-      doc.text(`$${Number(item.price).toFixed(2)}`, 370, position, { width: 90, align: 'right' });
-      doc.text(`$${Number(lineTotal).toFixed(2)}`, 470, position, { width: 90, align: 'right' });
-      position += rowHeight;
+      doc.text(item.name || "N/A", itemX + 10, y);
+      doc.text(item.quantity, qtyX, y, { align: "center" });
+      doc.text(`$${Number(item.price).toFixed(2)}`, priceX, y, { align: "right" });
+      doc.text(`$${Number(lineTotal).toFixed(2)}`, totalX, y, { align: "right" });
+
+      y += 30; // Row height
+
+      // Light divider
+      doc.moveTo(50, y - 10).lineTo(550, y - 10).strokeColor("#F5F5F5").stroke();
     });
 
+    // --- SUMMARY ---
+    y += 10;
+    doc.fontSize(10);
+
     // Delivery Fee
-    position += 10;
-    doc.moveTo(50, position).lineTo(560, position).stroke();
-    position += 20;
+    doc.text("Delivery Fee:", priceX - 50, y, { width: 100, align: "right" });
+    doc.text(`$${Number(invoice.delivery_fee).toFixed(2)}`, totalX, y, { align: "right" });
 
-    doc.text('Delivery Fee', 370, position, { width: 90, align: 'right' });
-    doc.text(`$${Number(invoice.delivery_fee).toFixed(2)}`, 470, position, { width: 90, align: 'right' });
-    position += rowHeight;
+    y += 20;
 
-    // Total
-    doc.font('Helvetica-Bold').fontSize(14);
-    doc.text('Total', 370, position, { width: 90, align: 'right' });
-    doc.text(`$${Number(invoice.total).toFixed(2)}`, 470, position, { width: 90, align: 'right' });
+    // Grand Total
+    doc.rect(priceX - 60, y - 5, 200, 30).fill("#FFF3E0"); // Light Orange bg
+    doc.fillColor("#D84315") // Darker orange text
+      .font("Helvetica-Bold")
+      .fontSize(12)
+      .text("Total:", priceX - 50, y + 5, { width: 100, align: "right" });
 
-    // Footer
-    doc.fontSize(10).font('Helvetica');
-    doc.text('Thank you for your business!', 50, 700, { align: 'center', width: 500 });
+    doc.text(`$${Number(invoice.total).toFixed(2)}`, totalX, y + 5, { align: "right" });
+
+    // --- FOOTER ---
+    doc.fillColor("#999999")
+      .fontSize(9)
+      .font("Helvetica")
+      .text("Thank you for your business. For any questions, please contact support.", 50, 750, { align: "center", width: 500 });
 
     doc.end();
 

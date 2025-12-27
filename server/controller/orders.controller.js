@@ -13,6 +13,7 @@ const createOrder = async (req, res) => {
       total,
       weight,
       status,
+      recipient_contact, // Added parameter
     } = req.body;
 
     // Debug request body
@@ -32,9 +33,11 @@ const createOrder = async (req, res) => {
       price: price || 0, // ✅ Default to 0 if not provided (Quote Pending)
       pickup_address,
       dropoff_address,
+      recipient_contact, // Added
       total: total || 0,
       weight,
       status: status || "Pending", // default to "Pending" if not provided
+      recipient_contact: recipient_contact || "", // Save contact
     });
 
     // ✅ Emit New Order Event to Admins
@@ -176,6 +179,7 @@ const updateOrder = async (req, res) => {
     if (total) order.total = total;
     if (weight) order.weight = weight;
     if (status) order.status = status;
+    if (req.body.recipient_contact) order.recipient_contact = req.body.recipient_contact;
 
     await order.save();
 

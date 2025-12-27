@@ -93,7 +93,7 @@ export default function CustomerDeliveries() {
     const invoiceId = invoices[0].invoice_id;
 
     try {
-      const response = await api.get(`/invoices/${invoiceId}/download`, {
+      const response = await api.get(`/invoice/${invoiceId}/download`, {
         responseType: 'blob', // IMPORTANT
       });
 
@@ -144,10 +144,10 @@ export default function CustomerDeliveries() {
                       <td className="py-4 px-6">
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-semibold ${d.status === "Completed" ? "bg-green-100 text-green-800" :
-                              d.status === "Pending Confirmation" ? "bg-purple-100 text-purple-800 animate-pulse" :
-                                d.status === "On Route" ? "bg-blue-100 text-blue-800" :
-                                  d.status === "Cancelled" ? "bg-red-100 text-red-800" :
-                                    "bg-gray-100 text-gray-800"
+                            d.status === "Pending Confirmation" ? "bg-purple-100 text-purple-800 animate-pulse" :
+                              d.status === "On Route" ? "bg-blue-100 text-blue-800" :
+                                d.status === "Cancelled" ? "bg-red-100 text-red-800" :
+                                  "bg-gray-100 text-gray-800"
                             }`}
                         >
                           {STATUS_LABELS[d.status] || d.status}

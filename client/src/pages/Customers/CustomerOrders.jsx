@@ -23,6 +23,7 @@ export default function Orders() {
     weight: "",
     pickup_address: "",
     dropoff_address: "", // ✅ Added Dropoff
+    recipient_contact: "", // Added Recipient Contact
   });
 
   const handleLogout = () => logout(navigate);
@@ -57,6 +58,7 @@ export default function Orders() {
         weight: order.weight,
         pickup_address: order.pickup_address,
         dropoff_address: order.dropoff_address || "",
+        recipient_contact: order.recipient_contact || "",
       });
     } else {
       setEditingOrder(null);
@@ -67,6 +69,7 @@ export default function Orders() {
         weight: "",
         pickup_address: "",
         dropoff_address: "",
+        recipient_contact: "",
       });
     }
     setModalOpen(true);
@@ -261,6 +264,13 @@ export default function Orders() {
               value={form.dropoff_address}
               onChange={(e) => setForm({ ...form, dropoff_address: e.target.value })}
               placeholder="Full destination address"
+              required
+            />
+            <FormInput
+              label="Recipient Phone Number"
+              value={form.recipient_contact}
+              onChange={(e) => setForm({ ...form, recipient_contact: e.target.value })}
+              placeholder="Contact number for recipient"
               required
             />
             <div className="p-3 bg-blue-50 text-blue-700 text-sm rounded-lg">
